@@ -7,7 +7,7 @@ name = "llm-internals-lab"
 version = "0.1.0"
 description = "How decoder-only LLMs work: an offline visual explorer of six attention mechanisms in real models, and PyTorch reference implementations tested against Hugging Face transformers"
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.12"
 license = "MIT"
 authors = [{name = "Valentin Velev"}]
 dependencies = []          # the explorer needs nothing beyond Python
@@ -35,7 +35,7 @@ addopts = "-ra"
 
 [tool.ruff]
 line-length = 100
-target-version = "py310"
+target-version = "py312"
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "B", "UP"]

@@ -7,6 +7,7 @@ __pycache__/
 build/
 dist/
 node_modules/
-explorer.html
-next_token.json
+# files written by `llm-lab --out` / `llm-lab-next-token` in the repo root (not the page in src/)
+/explorer.html
+/next_token.json
 .DS_Store

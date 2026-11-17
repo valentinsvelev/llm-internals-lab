@@ -1,0 +1,12 @@
+{
+  "name": "llm-internals-lab-web",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Builds the single-file explorer page (src/llm_lab/assets/explorer.html)",
+  "scripts": {
+    "build": "node build.mjs ../src/llm_lab/assets/explorer.html"
+  },
+  "devDependencies": {
+    "temml": "0.14.0"
+  }
+}

@@ -1,0 +1,48 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "llm-internals-lab"
+version = "0.1.0"
+description = "How decoder-only LLMs work: an offline visual explorer of six attention mechanisms in real models, and PyTorch reference implementations tested against Hugging Face transformers"
+readme = "README.md"
+requires-python = ">=3.10"
+license = "MIT"
+authors = [{name = "Valentin Velev"}]
+dependencies = []          # the explorer needs nothing beyond Python
+keywords = ["llm", "transformers", "attention", "kv-cache", "pytorch", "visualization", "education"]
+
+[project.optional-dependencies]
+pytorch = ["torch>=2.5,<3"]                                                    # llm_lab.reference
+pretrained = ["torch>=2.5,<3", "transformers>=5.23", "safetensors>=0.4"]    # checkpoints, llm_lab.next_token
+dev = ["llm-internals-lab[pretrained]", "pytest>=8", "ruff>=0.8", "playwright>=1.49"]
+
+[project.scripts]
+llm-lab = "llm_lab.explorer:main"
+llm-lab-next-token = "llm_lab.next_token:main"
+llm-lab-reference = "llm_lab.reference.__main__:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+llm_lab = ["assets/*.html"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra"
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP"]
+ignore = [
+  "E501",  # the page and the TeX strings have long lines
+  "B905",  # zip() over sequences of equal length by construction
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/test_reference_models.py" = ["E402"]   # imports after skipping when PyTorch is missing

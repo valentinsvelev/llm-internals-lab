@@ -1,0 +1,65 @@
+{
+  "about": "Example inputs of the whole-model diagram. Hand-written; scripts/make_tokens.py adds each model's real tokenization and writes src/tokens.json. Logits and beam probabilities are ILLUSTRATIVE (no model runs in the page); every candidate must be a single token in all six tokenizers, and a sentence at most 10 tokens long including BOS.",
+  "examples": [
+    {
+      "key": "subwords",
+      "label": "Subwords",
+      "note": "A rare word is split into several pieces; frequent words are one piece each.",
+      "sentence": "Tokenizers split unpronounceable words into",
+      "candidates": [
+        [" smaller", 9.4], [" pieces", 9.1], [" multiple", 8.3], [" sub", 7.9], [" several", 7.4], [" tokens", 7.0], [" parts", 6.8],
+        [" two", 6.5], [" chunks", 6.1], [" fragments", 5.6], [" short", 5.2], [" units", 4.8], [" many", 4.5], [" shorter", 4.1]
+      ],
+      "beam": {
+        " smaller": [[" pieces", 0.46], [" units", 0.14], [" parts", 0.10]],
+        " pieces": [[".", 0.70], [",", 0.12], [" that", 0.06]],
+        " multiple": [[" tokens", 0.41], [" pieces", 0.19], [" parts", 0.12]]
+      }
+    },
+    {
+      "key": "fact",
+      "label": "A fact",
+      "note": "One continuation is far more likely than all others, so every decoding method picks it.",
+      "sentence": "Paris is the capital and largest city of",
+      "candidates": [
+        [" France", 15.2], [" the", 10.4], [" Europe", 9.6], [" French", 9.1], [" a", 8.4], [" its", 7.9], [" both", 7.5],
+        [" this", 7.2], [" northern", 6.9], [" western", 6.6], [" modern", 6.2], [" metropolitan", 5.9], [" one", 5.5], [" all", 5.1]
+      ],
+      "beam": {
+        " France": [[".", 0.62], [",", 0.31], [" and", 0.03]],
+        " the": [[" world", 0.30], [" French", 0.25], [" country", 0.10]],
+        " Europe": [[".", 0.55], [",", 0.25], [" and", 0.08]]
+      }
+    },
+    {
+      "key": "story",
+      "label": "A story",
+      "note": "Many continuations are plausible, so sampling gives a different story each time.",
+      "sentence": "Once upon a time, there was a",
+      "candidates": [
+        [" little", 8.6], [" young", 8.2], [" small", 7.7], [" girl", 7.4], [" beautiful", 7.2], [" boy", 7.1], [" king", 7.0],
+        [" man", 6.8], [" very", 6.6], [" princess", 6.5], [" poor", 6.3], [" woman", 6.1], [" great", 5.9], [" dragon", 5.6]
+      ],
+      "beam": {
+        " little": [[" girl", 0.38], [" boy", 0.24], [" old", 0.07]],
+        " young": [[" girl", 0.30], [" man", 0.22], [" prince", 0.12]],
+        " small": [[" village", 0.33], [" boy", 0.14], [" girl", 0.10]]
+      }
+    },
+    {
+      "key": "attention",
+      "label": "Attention",
+      "note": "Capitalized words split differently: GPT-2 has no single token for “Attention”.",
+      "sentence": "Attention lets every token look back at",
+      "candidates": [
+        [" all", 9.0], [" the", 8.8], [" every", 8.1], [" earlier", 7.9], [" previous", 7.6], [" other", 7.2], [" its", 7.0],
+        [" each", 6.7], [" any", 6.4], [" what", 6.2], [" itself", 5.9], [" them", 5.6], [" tokens", 5.3], [" words", 5.0]
+      ],
+      "beam": {
+        " all": [[" previous", 0.41], [" earlier", 0.22], [" the", 0.15]],
+        " the": [[" previous", 0.30], [" tokens", 0.18], [" words", 0.12]],
+        " every": [[" other", 0.44], [" previous", 0.25], [" token", 0.12]]
+      }
+    }
+  ]
+}

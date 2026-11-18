@@ -2,7 +2,8 @@
 //   node build.mjs <out.html>
 // 1. Renders every TeX string from src/content.js with Temml, to check it and to collect the glyphs it uses.
 // 2. Subsets Latin Modern Math to those glyphs plus what the pop-ups can need (scripts/subset_font.py).
-// 3. Inlines content.js, Temml (which typesets all math at runtime), app.js and the font into src/template.html.
+// 3. Inlines content.js, mm-content.js, Temml (which typesets all math at runtime), mm-app.js, app.js and the font
+//    into src/template.html.
 import { readFileSync, writeFileSync, mkdtempSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { execFileSync } from 'node:child_process';
@@ -14,6 +15,7 @@ const here = dirname(fileURLToPath(import.meta.url));
 const require = createRequire(import.meta.url);
 const temml = require('temml');
 const LAB = require(join(here, 'src/content.js'));
+const MM = require(join(here, 'src/mm-content.js'));
 const out = process.argv[2] || join(here, 'dist/attention.html');
 // Any OpenType font with a MATH table works; Latin Modern Math ships with TeX Live
 // (or download latinmodern-math.otf from GUST) — point MATH_FONT at it.
@@ -21,7 +23,7 @@ const fontPath = process.env.MATH_FONT || '/usr/share/texmf/fonts/opentype/publi
 
 const table = {};
 const chars = new Set();
-for (const tex of LAB.allTex()) {
+for (const tex of [...LAB.allTex(), ...MM.allTex()]) {
   const html = temml.renderToString(tex, { displayMode: false, wrap: 'tex', throwOnError: true });
   if (/merror/.test(html)) throw new Error('TeX error in: ' + tex);
   table[tex] = html;
@@ -60,6 +62,8 @@ let html = readFileSync(join(here, 'src/template.html'), 'utf8');
 html = html
   .replace('/*__MATH_FONT__*/', () => fontCss)
   .replace('/*__CONTENT_JS__*/', () => guard(readFileSync(join(here, 'src/content.js'), 'utf8')))
+  .replace('/*__MM_CONTENT_JS__*/', () => guard(readFileSync(join(here, 'src/mm-content.js'), 'utf8')))
+  .replace('/*__MM_APP_JS__*/', () => guard(readFileSync(join(here, 'src/mm-app.js'), 'utf8')))
   .replace('/*__APP_JS__*/', () => guard(readFileSync(join(here, 'src/app.js'), 'utf8')))
   // Temml renders the pop-up equations at runtime; its MIT license header is kept in the minified file.
   .replace('/*__TEMML_JS__*/', () => guard(readFileSync(require.resolve('temml/dist/temml.min.js'), 'utf8')))
@@ -74,7 +78,7 @@ html = html
       dq: m.dq ?? null, index: m.index ?? null, lin: m.lin ?? null, interval: m.interval ?? null,
       ropeDim: m.ropeDim ?? null, thetaN: m.thetaN ?? null, cache_layers: LAB.cacheLayers(m) }];
   }))).replace(/</g, '\\u003c'));
-for (const marker of ['__MATH_FONT__', '__CONTENT_JS__', '__APP_JS__', '__SPECS_JSON__', '__TOKENS__', '__TEMML_JS__'])
+for (const marker of ['__MATH_FONT__', '__CONTENT_JS__', '__MM_CONTENT_JS__', '__MM_APP_JS__', '__APP_JS__', '__SPECS_JSON__', '__TOKENS__', '__TEMML_JS__'])
   if (html.includes(marker)) throw new Error('unfilled marker ' + marker);
 writeFileSync(out, html, 'utf8');
 console.log(`wrote ${out}: ${(html.length / 1024).toFixed(0)} KiB, ${Object.keys(table).length} equations, font ${(fontB64.length * 3 / 4 / 1024).toFixed(0)} KiB`);

@@ -211,3 +211,94 @@ def test_explorer_in_a_real_browser():
                 page.close()
         finally:
             browser.close()
+
+
+def _png(width: int, height: int) -> bytes:
+    """A plain red PNG, for the "Your image…" button."""
+    import struct
+    import zlib
+    raw = b''.join(b'\x00' + b'\xc8\x3c\x3c' * width for _ in range(height))
+    chunk = lambda kind, data: struct.pack('>I', len(data)) + kind + data + struct.pack('>I', zlib.crc32(kind + data))  # noqa: E731
+    return b'\x89PNG\r\n\x1a\n' + chunk(b'IHDR', struct.pack('>IIBBBBB', width, height, 8, 2, 0, 0, 0)) + chunk(b'IDAT', zlib.compress(raw)) + chunk(b'IEND', b'')
+
+
+def test_multimodal_page_in_a_real_browser():
+    playwright = pytest.importorskip('playwright.sync_api', reason='browser test: pip install -e ".[dev]"')
+    from conftest import launch_chromium
+
+    from llm_lab.reference import vision as V
+    mib = lambda k, h, w: V.image_cache_values(k, h, w) * 2 / 2 ** 20  # noqa: E731
+    with playwright.sync_playwright() as p:
+        browser = launch_chromium(p)
+        if browser is None:
+            pytest.skip('no Chromium for Playwright: run `python -m playwright install chromium`')
+        try:
+            for width in (1280, 420):
+                page = browser.new_page(viewport={'width': width, 'height': 900})
+                errors = []
+                page.on('pageerror', lambda err, errors=errors: errors.append(str(err)))
+                page.set_content(render_html(), wait_until='load')
+                page.locator('.pages a[data-page="multimodal"]').click()
+                assert page.locator('#mm').is_visible() and page.locator('#arch').is_hidden()
+                stat = lambda name, page=page: page.locator('#mm-stats div', has_text=name).locator('dd').text_content()  # noqa: E731
+                for key in V.VLMS:
+                    page.locator(f'#mm-tabs .tab[data-k="{key}"]').click()
+                    assert page.locator('#mm-tabs .tab.active').get_attribute('data-k') == key
+                    total = sum(V.PARAMETERS[key])
+                    assert stat('Parameters') == f'{total / 1e9:.2f}B'
+                    for j, (h, w) in enumerate([(336, 336), (480, 640), (768, 1024), (1080, 1920), (1200, 800)]):
+                        page.locator(f'#mm-size button[data-i="{j}"]').click()
+                        plan = V.image_plan(key, h, w)
+                        assert stat('Image tokens here') == ('1 (+ 6,404 beside)' if key == 'llama' else f'{plan.tokens:,}'), (key, h, w)
+                        assert page.locator('#mm .st-s').first.text_content() == f'{w} × {h} pixels'
+                        rows = page.locator('#mm-cost-rows .crow .c-v').all_text_contents()
+                        assert [float(r.split()[0].replace(',', '')) for r in rows] == pytest.approx([mib(k, h, w) for k in V.VLMS], rel=0.01)
+                    # every step has its equation and highlights part of the diagram
+                    chips = page.locator('#mm-chips .chipbtn')
+                    assert chips.count() == 9
+                    for s in range(1, 9):
+                        chips.nth(s).click()
+                        assert page.locator('#mm-card math').count() >= 1
+                        assert page.locator('#mm.focusing [data-h].on').count() >= 1
+                    page.locator('#mm-chips .chipbtn').first.click()
+                    assert page.locator('#mm.focusing').count() == 0
+                    # pop-ups on the encoder and on one decoder layer
+                    page.locator('#mm [data-pop="enc"]').hover(position={'x': 12, 'y': 12})      # the box, not one of its layers
+                    assert page.locator('#mm-pop').is_visible() and V.VLMS[key].encoder.name in page.locator('#mm-pop').text_content()
+                    page.locator('#mm [data-pop="dlayer:3"]').hover()
+                    assert 'Layer 4' in page.locator('#mm-pop b').text_content()
+                    assert page.locator('#mmc rect').count() > 20                      # the up-close figure
+                    page.mouse.move(0, 0)
+                # model-specific details
+                page.locator('#mm-tabs .tab[data-k="llama"]').click()
+                page.locator('#mm-size button[data-i="2"]').click()
+                assert page.locator('#mm .dlayer.cross').count() == 8
+                assert page.locator('#mm .tile.on').count() == V.image_plan('llama', 768, 1024).tiles
+                page.locator('#mm-tabs .tab[data-k="qwen"]').click()
+                assert page.locator('#mm path.ds').count() == 6                           # three DeepStack mergers, in and out
+                assert page.locator('#mmc .mnum').all_text_contents()[:15] == list('000111222333334')   # (t, row, col) per token
+                page.locator('#mm-tabs .tab[data-k="gemma"]').click()
+                assert page.locator('#mmc .mcell.bi:not(.key)').count() == 6                     # 4 image tokens: 3 + 2 + 1 later ones
+                # keys: ← → steps, 1–4 models
+                page.locator('#mm-title').click()
+                page.keyboard.press('ArrowRight')
+                assert page.locator('#mm-chips .chipbtn.active').get_attribute('data-i') == '0'
+                page.keyboard.press('1')
+                assert page.locator('#mm-tabs .tab.active').get_attribute('data-k') == 'llava'
+                # your own image: only its size is used (and its colours, for the mosaics)
+                page.locator('#mm-tabs .tab[data-k="qwen"]').click()
+                page.set_input_files('#mm-file', files=[{'name': 'tall.png', 'mimeType': 'image/png', 'buffer': _png(300, 900)}])
+                page.wait_for_function("document.querySelector('#mm-mine').textContent.startsWith('Yours')")
+                assert page.locator('#mm-mine').text_content() == 'Yours · 300 × 900'
+                assert stat('Image tokens here') == f'{V.image_plan("qwen", 900, 300).tokens:,}'
+                assert page.locator('#mm image').count() == 2
+                # the retrieval placeholder
+                page.locator('.pages a[data-page="retrieval"]').click()
+                assert page.locator('.page[data-page="retrieval"]').is_visible() and page.locator('#mm').is_hidden()
+                assert page.locator('.page[data-page="retrieval"] .plan-list li').count() == 6
+                page.locator('.pages a[data-page="multimodal"]').click()
+                assert page.locator('#mm-tabs .tab.active').get_attribute('data-k') == 'qwen'
+                assert errors == []
+                page.close()
+        finally:
+            browser.close()

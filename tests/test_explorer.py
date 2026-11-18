@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import json
+import random
 import re
 import shutil
 import subprocess
@@ -20,8 +21,9 @@ ROOT = Path(__file__).resolve().parents[1]
 def test_page_is_complete_and_offline():
     html = render_html()
     assert html.startswith('<!DOCTYPE html>')
-    for marker in ('__MATH_FONT__', '__CONTENT_JS__', '__MATHML__', '__APP_JS__', '__SPECS_JSON__'):
+    for marker in ('__MATH_FONT__', '__CONTENT_JS__', '__MM_CONTENT_JS__', '__MM_APP_JS__', '__MATHML__', '__APP_JS__', '__SPECS_JSON__'):
         assert marker not in html
+    assert 'href="https://github.com/valentinsvelev/llm-internals-lab"' in html     # source link in the header
     # Nothing is fetched at runtime: no external scripts, stylesheets or fonts.
     assert not re.search(r'<script[^>]+src=', html)
     assert '<link' not in html
@@ -32,6 +34,11 @@ def test_page_is_complete_and_offline():
     assert 'font-family: "LabMath"' in html  # with an inlined subset of Latin Modern Math
     assert len(html) < 700_000
     assert 'id="arch"' in html and 'id="diagram"' in html
+    for page in ('architectures', 'multimodal', 'retrieval', 'reasoning', 'agents'):
+        assert f'data-page="{page}"' in html
+    for vlm in ('llava', 'qwen', 'llama', 'gemma'):
+        assert f'data-k="{vlm}"' in html
+    assert 'id="mm"' in html and 'id="mmc"' in html
 
 
 def test_dimensions_match_the_reference_configs():
@@ -101,6 +108,55 @@ console.log(JSON.stringify(out));
     assert all(abs(x - 1) < 1e-9 for x in r['sums'])
     assert r['beam'] == ['.', 'pieces', 'pieces', True]             # beam prefers " pieces." over greedy " smaller pieces"
     assert max(abs(x) for x in r['spec']) < 1e-12 and abs(r['specR'] - 1) < 1e-12   # speculative sampling reproduces p
+
+
+def test_multimodal_page_matches_the_vision_reference():
+    """The multimodal page's numbers and arithmetic (web/src/mm-content.js), run in node, against
+    llm_lab.reference.vision, which tests/test_vision_models.py checks against transformers."""
+    from llm_lab.reference import vision as V
+    node = shutil.which('node')
+    if node is None:
+        pytest.skip('node not installed')
+    rng = random.Random(0)
+    sizes = [(336, 336), (480, 640), (768, 1024), (1080, 1920), (1200, 800), (900, 300), (100, 100), (3024, 4032), (64, 2000)]
+    sizes += [(rng.randint(28, 5000), rng.randint(28, 5000)) for _ in range(400)]
+    segments = [['text', 3], ['image', [1, 6, 10]], ['text', 4], ['image', [1, 4, 2]], ['text', 2]]
+    is_image = [False, False, True, True, True, False, False, True, True, False]
+    script = f"""
+const M = require({json.dumps(str(ROOT / 'web/src/mm-content.js'))});
+const sizes = {json.dumps(sizes)};
+const out = {{ models: {{}}, plans: {{}}, cache: {{}} }};
+for (const k of M.ORDER) {{
+  const m = M.VLMS[k];
+  out.models[k] = {{ name: m.name, hf: m.hf, enc: m.enc, dec: m.dec, params: [m.enc.params, m.conn.params, m.dec.params], total: m.total }};
+  out.plans[k] = sizes.map(([h, w]) => {{ const p = M.imagePlan(k, h, w); return [p.resized, p.canvas, p.patches, p.tiles, p.encoderPositions, p.tokens, p.cross]; }});
+  out.cache[k] = sizes.map(([h, w]) => M.cacheValues(k, h, w));
+}}
+out.mrope = M.mropePositions({json.dumps(segments)});
+out.axes = M.mropePairAxes();
+out.mask = M.gemmaMask({json.dumps(is_image)});
+out.tex = M.allTex().length;
+console.log(JSON.stringify(out));
+"""
+    r = json.loads(subprocess.run([node, '-e', script], check=True, capture_output=True, text=True).stdout)
+    assert list(r['models']) == list(V.VLMS)
+    for key, m in V.VLMS.items():
+        js, e, d = r['models'][key], m.encoder, m.decoder
+        assert (js['name'], js['hf'], js['enc']['name'], js['dec']['name']) == (m.name, m.source, e.name, d.name), key
+        assert (js['enc']['layers'], js['enc'].get('global', 0), js['enc']['d'], js['enc']['heads'], js['enc']['ff'], js['enc']['patch'], js['enc']['size']) == (
+            e.layers, e.global_layers, e.hidden, e.heads, e.intermediate, e.patch, e.image_size), key
+        assert (js['dec']['layers'], js['dec']['d'], js['dec']['heads'], js['dec']['kv'], js['dec']['dh'], js['dec']['ff'], js['dec']['V'], js['dec']['ctx'], tuple(js['dec']['cross'])) == (
+            d.layers, d.hidden, d.heads, d.kv_heads, d.head_dim, d.intermediate, d.vocab, d.max_positions, d.cross_layers), key
+        assert (js['dec'].get('window'), js['dec'].get('globalEvery', 0)) == (d.sliding_window, d.sliding_pattern), key
+        assert tuple(js['params']) == V.PARAMETERS[key] and js['total'] == sum(V.PARAMETERS[key]), key
+        for (h, w), plan, cost in zip(sizes, r['plans'][key], r['cache'][key]):
+            p = V.image_plan(key, h, w)
+            assert plan == [list(p.resized), list(p.canvas), list(p.patches), p.tiles, p.encoder_positions, p.tokens, p.cross_positions], (key, h, w)
+            assert cost == V.image_cache_values(key, h, w), (key, h, w)
+    assert r['mrope'] == V.mrope_positions([(k, tuple(v) if isinstance(v, list) else v) for k, v in segments])
+    assert r['axes'] == V.mrope_pair_axes()
+    assert r['mask'] == V.gemma_attention_mask(is_image)
+    assert r['tex'] > 50          # the equations the page can show (build.mjs renders each one)
 
 
 def test_example_tokenization_is_consistent():

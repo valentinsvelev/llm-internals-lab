@@ -1,12 +1,15 @@
 # LLM Internals Lab
 
-An interactive, offline explorer of how decoder-only language models work: six attention mechanisms,
-each shown in a real model with its published dimensions, from text to the next token. Plus readable
-PyTorch implementations of every mechanism, tested to give the same logits as Hugging Face `transformers`.
+An interactive, offline explorer of how language models work, each idea shown in a real model with its
+published dimensions: six attention mechanisms, from text to the next token, and four ways of feeding
+images to a language model. Plus readable PyTorch implementations, tested against Hugging Face
+`transformers`.
 
 **Live app:** <https://valentinsvelev.github.io/llm-internals-lab/>
 
 ![The explorer](docs/screenshot.png)
+
+**Architectures**
 
 | Tab | Mechanism | Model |
 |---|---|---|
@@ -16,6 +19,17 @@ PyTorch implementations of every mechanism, tested to give the same logits as Hu
 | MLA | multi-head latent attention | DeepSeek-V2-Lite |
 | GDN | Gated DeltaNet + gated attention | Qwen3-Next-80B-A3B |
 | Sparse | DeepSeek Sparse Attention (and Qwen's QSA) | DeepSeek-V3.2 |
+
+**Multimodal** (try your own image; it never leaves the browser)
+
+| Tab | How the image reaches the language model | Model |
+|---|---|---|
+| Projector | 336 × 336 crop → 576 tokens through an MLP | LLaVA-1.5-7B |
+| Native size | one token per 32 × 32 pixels, 3D positions (M-RoPE), DeepStack | Qwen3-VL-8B |
+| Cross-attention | up to 4 tiles, read by 8 gated cross-attention layers | Llama 3.2 11B Vision |
+| Pooling | 896 × 896 → 4,096 patches → averaged to 256 tokens | Gemma 3 4B |
+
+Retrieval, Reasoning and Agents pages are planned.
 
 ## Run the explorer
 
@@ -31,7 +45,9 @@ llm-lab --serve                  # http://127.0.0.1:8767
 
 `llm_lab.reference` builds all six models from their configs (attention, MLA, YaRN, the lightning
 indexer, Gated DeltaNet, mixture of experts, KV caches) and implements the eight decoding methods the
-page shows. How they are verified: [docs/reference-implementations.md](docs/reference-implementations.md).
+page shows; `llm_lab.reference.vision` has the four image pipelines (resizing, connectors, M-RoPE
+positions, Gemma's image mask, gated cross-attention). How they are verified:
+[docs/reference-implementations.md](docs/reference-implementations.md).
 
 ```bash
 pip install -e ".[pytorch]"

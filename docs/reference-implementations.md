@@ -74,6 +74,34 @@ The tests use random weights, so they need no downloads. `python -m llm_lab.refe
 loads a real checkpoint through the same `load_hf_weights` and prints the logit difference to
 transformers.
 
+## Vision-language models
+
+`vision.py` covers the Multimodal page: how LLaVA-1.5-7B, Qwen3-VL-8B, Llama 3.2 11B Vision and
+Gemma 3 4B turn an image into what their language model reads. It holds the four configs, the
+processors' resize rules (`smart_resize`, `tiled_canvas`, `fit_to_canvas`, `image_plan`), the cache an
+image costs (`image_cache_values`), Qwen's 3D positions (`mrope_positions`, `mrope_pair_axes`),
+Gemma's bidirectional image mask (`gemma_attention_mask`) and the connectors as modules with
+transformers' weight names (`llava_projector`, `qwen_merger`, `gemma_projector`,
+`gated_cross_attention_block`). The vision encoders and decoders themselves are standard ViTs and
+decoders, so they are not repeated here.
+
+`tests/test_vision_models.py` checks, against transformers:
+
+- the **resize rules** on 2,000 random sizes (`smart_resize`, `get_optimal_tiled_canvas`,
+  `get_image_size_fit_to_canvas`), and the **token counts** against the image processors themselves
+  (CLIP, Qwen2-VL, Mllama, Gemma 3) on eight sizes from 100 × 100 to 4032 × 3024;
+- the **connectors**, with random weights, against `LlavaMultiModalProjector`,
+  `Qwen3VLVisionPatchMerger` (both norm placements), `Gemma3MultiModalProjector` and
+  `MllamaCrossAttentionDecoderLayer` with its cross-attention mask, including rows that see no image;
+- **M-RoPE** positions against `Qwen3VLModel.get_rope_index` and the interleaved frequency layout
+  against the rotary embedding; **Gemma's mask** against its image-block ids;
+- **parameter counts at full size**, per part: LLaVA-1.5-7B 7,063,427,072 · Qwen3-VL-8B
+  8,767,123,696 · Llama 3.2 11B Vision 10,670,220,835 · Gemma 3 4B 4,300,079,472;
+- that **Llama 3.2 caches four tiles** of 1,601 positions per cross-attention layer, used or not.
+
+`tests/test_explorer.py` then runs the page's own arithmetic (`web/src/mm-content.js`) in node on 400
+image sizes and checks it gives the same plans, costs, positions and masks as `vision.py`.
+
 ## Choices
 
 - **Readable over fast**: float32, eager attention with an explicit mask, no fused kernels or FP8.

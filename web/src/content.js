@@ -262,7 +262,7 @@ function compareRows() {
     { key: 'dsa', label: 'DSA', formula: 'd_c + d_R + d_I', value: dc + dr + di },
     { key: 'mla', label: 'MLA', formula: 'd_c + d_R', value: dc + dr },
     { key: 'mqa', label: 'MQA', formula: '2 d_h', value: 2 * dh },
-    { key: 'gdn', label: 'GDN', formula: '0 · fixed state', value: 0, note: `+ ${fmt(H * dh * dh)} fixed` },
+    { key: 'gdn', label: 'GDN', formula: '0', value: 0, star: true },   // a fixed state instead: see the note under the chart
   ];
 }
 

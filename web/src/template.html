@@ -66,6 +66,8 @@ sup, sub { font-size: 0.72em; line-height: 0; }
 .pages a:hover { color: var(--ink); background: var(--surface); }
 .pages a[aria-current="page"] { color: var(--ink); background: var(--surface); font-weight: 600; }
 .pages .soon { font-size: 10.5px; color: var(--faint); font-weight: 400; margin-left: 2px; }
+.pages .gh { display: inline-flex; align-items: center; gap: 6px; margin-left: 10px; position: relative; }
+.pages .gh::before { content: ''; position: absolute; left: -6px; top: 6px; bottom: 6px; border-left: 1px solid var(--line); }
 .subnav { border-bottom: 1px solid var(--line); }
 .subnav .wrap { display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; flex-wrap: wrap; padding-top: 6px; }
 .subnav-t { font-size: 13px; font-weight: 600; color: var(--muted); padding-bottom: 14px; }
@@ -136,7 +138,7 @@ h1 { font-size: 32px; line-height: 1.15; letter-spacing: -0.02em; font-weight: 6
 #diagram .hatch-line.q { stroke: var(--q); stroke-width: 1.6; }
 #diagram .hatch-line.k { stroke: var(--k); stroke-width: 1.6; }
 #diagram .head { cursor: pointer; outline: none; }
-#diagram .hitpad, #arch .hitpad { fill: transparent; }
+#diagram .hitpad, :is(#arch, #mm) .hitpad { fill: transparent; }
 #diagram .head:hover .bar { stroke-width: 2.2; }
 #diagram .head:focus-visible .bar { stroke-width: 2.6; stroke: var(--ink); }
 #diagram .link { fill: none; stroke: var(--line-strong); stroke-width: 1.1; }
@@ -207,127 +209,127 @@ kbd { font: 11px var(--font-mono); border: 1px solid var(--line); border-bottom-
 .zoom { margin-top: 44px; padding-top: 28px; border-top: 1px solid var(--line); scroll-margin-top: 12px; }
 .zoom .main { padding-top: 6px; }
 .figure.wide { overflow-x: auto; position: relative; }
-#arch { display: block; width: 100%; min-width: 1040px; height: auto; font-family: var(--font-ui); }
+:is(#arch, #mm) { display: block; width: 100%; min-width: 1040px; height: auto; font-family: var(--font-ui); }
 .seg { display: inline-flex; border: 1px solid var(--line); border-radius: 8px; padding: 2px; gap: 2px; }
 .seg[hidden] { display: none; }
 .seg button { appearance: none; border: 0; background: none; border-radius: 6px; padding: 5px 10px; font-size: 13px; color: var(--muted); cursor: pointer; }
 .seg button.active { background: var(--surface); color: var(--ink); font-weight: 600; }
 
 /* whole-model svg */
-#arch text { fill: var(--ink); }
-#arch [data-h] { transition: opacity .2s ease; }
-#arch.focusing [data-h]:not(.on) { opacity: 0.13; }
-#arch .hit { cursor: pointer; outline: none; }
-#arch .hit:hover .subbox, #arch .hit:hover .pillbox, #arch .hit:hover .chip, #arch .hit:hover .wbox { stroke: var(--ink); }
-#arch .hit:focus-visible .subbox, #arch .hit:focus-visible .pillbox, #arch .hit:focus-visible .chip, #arch .hit:focus-visible .wbox, #arch .hit:focus-visible .plus { stroke: var(--q); stroke-width: 2; }
-#arch .st { font-size: 12.5px; font-weight: 600; }
-#arch .st-m { font-weight: 400; fill: var(--muted); }
-#arch .st-s { font-size: 11px; fill: var(--muted); }
-#arch .note, #arch .arr-t { font-size: 11px; fill: var(--muted); }
-#arch .dim { font: 11px var(--font-mono); fill: var(--muted); }
-#arch .times { font-size: 22px; font-weight: 650; fill: var(--ink); letter-spacing: -0.02em; }
-#arch .ghost { fill: none; stroke: var(--line); }
-#arch .blockbox { fill: var(--bg); stroke: var(--line-strong); stroke-dasharray: 5 5; }
-#arch .chip { fill: var(--surface); stroke: var(--line-strong); }
-#arch .chip-t { font-size: 12.5px; }
-#arch .ecell { fill: var(--att); }
-#arch .pcell { fill: url(#hatch-p); stroke: var(--muted); stroke-width: .6; }
-#arch .scale { font-size: 12px; fill: var(--muted); }
-#arch .thin { stroke: var(--line-strong); stroke-width: 1; }
-#arch .gather { fill: none; stroke: var(--line-strong); stroke-width: 1.2; }
-#arch .stream { stroke: var(--stream); stroke-width: 14; stroke-linecap: round; }
-#arch .fork { fill: var(--bg); stroke: var(--ink); stroke-width: 1.4; }
-#arch .branch { fill: none; stroke: var(--ink); stroke-width: 1.3; }
-#arch .pillbox { fill: var(--bg); stroke: var(--line-strong); }
-#arch .pill-l { font-size: 11.5px; font-weight: 600; }
-#arch .subbox { fill: var(--surface); stroke: var(--line); }
-#arch .wbox { fill: var(--bg); stroke: var(--line-strong); }
-#arch .plus { fill: var(--bg); stroke: var(--ink); stroke-width: 1.4; }
-#arch .plus-x { stroke: var(--ink); stroke-width: 1.6; }
-#arch .ml { font-family: var(--font-math); font-size: 15px; }
-#arch .ml .ss { font-size: 10.5px; }
-#arch .arr { stroke: var(--line-strong); stroke-width: 1.2; }
-#arch .arrowhead { fill: none; stroke: var(--line-strong); stroke-width: 1.2; }
-#arch .arrowhead.ink { stroke: var(--ink); }
-#arch .hatch-bg.p { fill: var(--surface); }
-#arch .hatch-line.p { stroke: var(--muted); stroke-width: 1.2; }
-#arch .branch[marker-end] { marker-end: url(#arrow-ink); }
-#arch .acell { fill: color-mix(in srgb, var(--att) 55%, var(--bg)); }
-#arch .acell.off { fill: color-mix(in srgb, var(--att) 8%, var(--bg)); }
-#arch .cache { fill: var(--cache); }
-#arch .link { fill: none; stroke: var(--line-strong); stroke-width: .9; }
-#arch .bar { stroke-width: 1; }
-#arch .bar.q { fill: color-mix(in srgb, var(--q) 20%, var(--bg)); stroke: var(--q); }
-#arch .bar.k { fill: color-mix(in srgb, var(--k) 20%, var(--bg)); stroke: var(--k); }
-#arch .bar.v { fill: color-mix(in srgb, var(--v) 20%, var(--bg)); stroke: var(--v); }
-#arch .bar.k.rope { fill: url(#hatch-k); }
-#arch .bar.faint { stroke-dasharray: 2 2; fill: var(--bg); }
-#arch .bar.lat { fill: color-mix(in srgb, var(--lat) 35%, var(--bg)); stroke: var(--lat); }
-#arch .ffn-shape { fill: color-mix(in srgb, var(--ffn) 14%, var(--bg)); stroke: var(--ffn); stroke-width: 1; }
-#arch .ffn-hidden { fill: color-mix(in srgb, var(--ffn) 45%, var(--bg)); stroke: var(--ffn); }
-#arch .ffn-hidden.alt { fill: color-mix(in srgb, var(--ffn) 22%, var(--bg)); }
-#arch .router { fill: var(--bg); stroke: var(--ffn); stroke-width: 1.4; }
-#arch .expert { fill: color-mix(in srgb, var(--ffn) 12%, var(--bg)); stroke: color-mix(in srgb, var(--ffn) 45%, var(--bg)); }
-#arch .expert.on { fill: var(--ffn); stroke: var(--ffn); }
-#arch .expert.shared { fill: color-mix(in srgb, var(--ffn) 60%, var(--bg)); stroke: var(--ffn); }
-#arch .pbar { fill: color-mix(in srgb, var(--att) 30%, var(--bg)); }
-#arch .pbar.top { fill: var(--att); }
-#arch .loop { fill: none; stroke: var(--line-strong); stroke-width: 1.2; stroke-dasharray: 4 4; }
-#arch .loop-t { font-size: 11px; fill: var(--muted); }
-#arch .op { font-size: 18px; fill: var(--muted); }
+:is(#arch, #mm) text { fill: var(--ink); }
+:is(#arch, #mm) [data-h] { transition: opacity .2s ease; }
+:is(#arch, #mm).focusing [data-h]:not(.on) { opacity: 0.13; }
+:is(#arch, #mm) .hit { cursor: pointer; outline: none; }
+:is(#arch, #mm) .hit:hover .subbox, :is(#arch, #mm) .hit:hover .pillbox, :is(#arch, #mm) .hit:hover .chip, :is(#arch, #mm) .hit:hover .wbox { stroke: var(--ink); }
+:is(#arch, #mm) .hit:focus-visible .subbox, :is(#arch, #mm) .hit:focus-visible .pillbox, :is(#arch, #mm) .hit:focus-visible .chip, :is(#arch, #mm) .hit:focus-visible .wbox, :is(#arch, #mm) .hit:focus-visible .plus { stroke: var(--q); stroke-width: 2; }
+:is(#arch, #mm) .st { font-size: 12.5px; font-weight: 600; }
+:is(#arch, #mm) .st-m { font-weight: 400; fill: var(--muted); }
+:is(#arch, #mm) .st-s { font-size: 11px; fill: var(--muted); }
+:is(#arch, #mm) .note, :is(#arch, #mm) .arr-t { font-size: 11px; fill: var(--muted); }
+:is(#arch, #mm) .dim { font: 11px var(--font-mono); fill: var(--muted); }
+:is(#arch, #mm) .times { font-size: 22px; font-weight: 650; fill: var(--ink); letter-spacing: -0.02em; }
+:is(#arch, #mm) .ghost { fill: none; stroke: var(--line); }
+:is(#arch, #mm) .blockbox { fill: var(--bg); stroke: var(--line-strong); stroke-dasharray: 5 5; }
+:is(#arch, #mm) .chip { fill: var(--surface); stroke: var(--line-strong); }
+:is(#arch, #mm) .chip-t { font-size: 12.5px; }
+:is(#arch, #mm) .ecell { fill: var(--att); }
+:is(#arch, #mm) .pcell { fill: url(#hatch-p); stroke: var(--muted); stroke-width: .6; }
+:is(#arch, #mm) .scale { font-size: 12px; fill: var(--muted); }
+:is(#arch, #mm) .thin { stroke: var(--line-strong); stroke-width: 1; }
+:is(#arch, #mm) .gather { fill: none; stroke: var(--line-strong); stroke-width: 1.2; }
+:is(#arch, #mm) .stream { stroke: var(--stream); stroke-width: 14; stroke-linecap: round; }
+:is(#arch, #mm) .fork { fill: var(--bg); stroke: var(--ink); stroke-width: 1.4; }
+:is(#arch, #mm) .branch { fill: none; stroke: var(--ink); stroke-width: 1.3; }
+:is(#arch, #mm) .pillbox { fill: var(--bg); stroke: var(--line-strong); }
+:is(#arch, #mm) .pill-l { font-size: 11.5px; font-weight: 600; }
+:is(#arch, #mm) .subbox { fill: var(--surface); stroke: var(--line); }
+:is(#arch, #mm) .wbox { fill: var(--bg); stroke: var(--line-strong); }
+:is(#arch, #mm) .plus { fill: var(--bg); stroke: var(--ink); stroke-width: 1.4; }
+:is(#arch, #mm) .plus-x { stroke: var(--ink); stroke-width: 1.6; }
+:is(#arch, #mm) .ml { font-family: var(--font-math); font-size: 15px; }
+:is(#arch, #mm) .ml .ss { font-size: 10.5px; }
+:is(#arch, #mm) .arr { stroke: var(--line-strong); stroke-width: 1.2; }
+:is(#arch, #mm) .arrowhead { fill: none; stroke: var(--line-strong); stroke-width: 1.2; }
+:is(#arch, #mm) .arrowhead.ink { stroke: var(--ink); }
+:is(#arch, #mm) .hatch-bg.p { fill: var(--surface); }
+:is(#arch, #mm) .hatch-line.p { stroke: var(--muted); stroke-width: 1.2; }
+:is(#arch, #mm) .branch[marker-end] { marker-end: url(#arrow-ink); }
+:is(#arch, #mm) .acell { fill: color-mix(in srgb, var(--att) 55%, var(--bg)); }
+:is(#arch, #mm) .acell.off { fill: color-mix(in srgb, var(--att) 8%, var(--bg)); }
+:is(#arch, #mm) .cache { fill: var(--cache); }
+:is(#arch, #mm) .link { fill: none; stroke: var(--line-strong); stroke-width: .9; }
+:is(#arch, #mm) .bar { stroke-width: 1; }
+:is(#arch, #mm) .bar.q { fill: color-mix(in srgb, var(--q) 20%, var(--bg)); stroke: var(--q); }
+:is(#arch, #mm) .bar.k { fill: color-mix(in srgb, var(--k) 20%, var(--bg)); stroke: var(--k); }
+:is(#arch, #mm) .bar.v { fill: color-mix(in srgb, var(--v) 20%, var(--bg)); stroke: var(--v); }
+:is(#arch, #mm) .bar.k.rope { fill: url(#hatch-k); }
+:is(#arch, #mm) .bar.faint { stroke-dasharray: 2 2; fill: var(--bg); }
+:is(#arch, #mm) .bar.lat { fill: color-mix(in srgb, var(--lat) 35%, var(--bg)); stroke: var(--lat); }
+:is(#arch, #mm) .ffn-shape { fill: color-mix(in srgb, var(--ffn) 14%, var(--bg)); stroke: var(--ffn); stroke-width: 1; }
+:is(#arch, #mm) .ffn-hidden { fill: color-mix(in srgb, var(--ffn) 45%, var(--bg)); stroke: var(--ffn); }
+:is(#arch, #mm) .ffn-hidden.alt { fill: color-mix(in srgb, var(--ffn) 22%, var(--bg)); }
+:is(#arch, #mm) .router { fill: var(--bg); stroke: var(--ffn); stroke-width: 1.4; }
+:is(#arch, #mm) .expert { fill: color-mix(in srgb, var(--ffn) 12%, var(--bg)); stroke: color-mix(in srgb, var(--ffn) 45%, var(--bg)); }
+:is(#arch, #mm) .expert.on { fill: var(--ffn); stroke: var(--ffn); }
+:is(#arch, #mm) .expert.shared { fill: color-mix(in srgb, var(--ffn) 60%, var(--bg)); stroke: var(--ffn); }
+:is(#arch, #mm) .pbar { fill: color-mix(in srgb, var(--att) 30%, var(--bg)); }
+:is(#arch, #mm) .pbar.top { fill: var(--att); }
+:is(#arch, #mm) .loop { fill: none; stroke: var(--line-strong); stroke-width: 1.2; stroke-dasharray: 4 4; }
+:is(#arch, #mm) .loop-t { font-size: 11px; fill: var(--muted); }
+:is(#arch, #mm) .op { font-size: 18px; fill: var(--muted); }
 
 
 /* row-aligned whole-model diagram */
-#arch .band { fill: var(--surface); opacity: 0; transition: opacity .12s; pointer-events: none; }
-#arch .band.rowhl { opacity: 1; }
-#arch .cellhit { cursor: pointer; }
-#arch .sentbox { fill: var(--bg); stroke: var(--line-strong); }
-#arch .word { font-size: 14px; cursor: default; }
-#arch .word.rowhl { fill: var(--q); }
-#arch .wordbr { fill: none; stroke: var(--muted); stroke-width: 1.2; }
-#arch .wordbr.rowhl { stroke: var(--q); stroke-width: 2; }
-#arch .chip.special { stroke-dasharray: 3 2; fill: var(--bg); }
-#arch .chip.rowhl, #arch [data-row].rowhl .chip { stroke: var(--q); stroke-width: 1.6; }
-#arch .chip-t { font-size: 12px; }
-#arch .chip-t .mk, #arch .ptok .mk { fill: var(--faint); }
-#arch .ghostchip { fill: none; stroke: var(--line-strong); stroke-dasharray: 3 3; }
-#arch .ghost-t { fill: var(--muted); }
-#arch .hd { font-size: 15px; }
-#arch .ecell, #arch .xcell, #arch .ycell { fill: color-mix(in srgb, var(--att) 45%, var(--bg)); }
-#arch .xcell { fill: color-mix(in srgb, var(--att) 30%, var(--bg)); }
-#arch .pcell { fill: url(#hatch-p); stroke: var(--muted); stroke-width: .5; }
-#arch .qcell { fill: color-mix(in srgb, var(--q) 30%, var(--bg)); }
-#arch .kcell { fill: color-mix(in srgb, var(--k) 32%, var(--bg)); }
-#arch .vcell { fill: color-mix(in srgb, var(--v) 32%, var(--bg)); }
-#arch .qcell.sel { fill: var(--q); }
-#arch .kcell.sel { fill: var(--k); }
-#arch .vcell.sel { fill: var(--v); }
-#arch .lcell { fill: color-mix(in srgb, var(--lat) 40%, var(--bg)); }
-#arch .krcell { fill: url(#hatch-k); stroke: var(--k); stroke-width: .6; }
-#arch .rowhl.ecell, #arch .rowhl.xcell, #arch .rowhl.ycell, #arch .rowhl.acell:not(.off) { fill: var(--att); }
-#arch .rowhl.qcell { fill: var(--q); }
-#arch .rowhl.kcell { fill: var(--k); }
-#arch .rowhl.vcell { fill: var(--v); }
-#arch .rowhl.lcell { fill: var(--lat); }
-#arch .fin, #arch .fout { fill: color-mix(in srgb, var(--att) 35%, var(--bg)); }
-#arch .fhid { fill: color-mix(in srgb, var(--ffn) 40%, var(--bg)); }
-#arch .fhid.alt { fill: color-mix(in srgb, var(--ffn) 22%, var(--bg)); }
-#arch .rowhl.fin, #arch .rowhl.fout { fill: var(--att); }
-#arch .rowhl.fhid { fill: var(--ffn); }
-#arch .tick { fill: color-mix(in srgb, var(--ffn) 22%, var(--bg)); }
-#arch .tick.pick { fill: var(--ffn); }
-#arch .tick.shared { fill: color-mix(in srgb, var(--ffn) 70%, var(--bg)); }
-#arch .qkvarc { fill: none; stroke: var(--ink); stroke-width: 1.2; }
-#arch .ptok { font-size: 12px; }
-#arch .pbar0 { fill: var(--surface); stroke: var(--line); stroke-width: .8; }
-#arch .pbar { fill: var(--att); }
-#arch .ppct { font-size: 11.5px; fill: var(--muted); font-variant-numeric: tabular-nums; }
-#arch .prow.cut .ptok { fill: var(--faint); }
-#arch .prow.picked .ptok { font-weight: 700; }
-#arch .prow.picked .pbar { fill: var(--q); }
-#arch .chosen { fill: var(--bg); stroke: var(--q); stroke-width: 1.4; }
-#arch .chosen-t { font-size: 12.5px; font-weight: 600; }
-#arch .srcnote { font-size: 11px; fill: var(--muted); text-decoration: underline dotted; cursor: help; }
+:is(#arch, #mm) .band { fill: var(--surface); opacity: 0; transition: opacity .12s; pointer-events: none; }
+:is(#arch, #mm) .band.rowhl { opacity: 1; }
+:is(#arch, #mm) .cellhit { cursor: pointer; }
+:is(#arch, #mm) .sentbox { fill: var(--bg); stroke: var(--line-strong); }
+:is(#arch, #mm) .word { font-size: 14px; cursor: default; }
+:is(#arch, #mm) .word.rowhl { fill: var(--q); }
+:is(#arch, #mm) .wordbr { fill: none; stroke: var(--muted); stroke-width: 1.2; }
+:is(#arch, #mm) .wordbr.rowhl { stroke: var(--q); stroke-width: 2; }
+:is(#arch, #mm) .chip.special { stroke-dasharray: 3 2; fill: var(--bg); }
+:is(#arch, #mm) .chip.rowhl, :is(#arch, #mm) [data-row].rowhl .chip { stroke: var(--q); stroke-width: 1.6; }
+:is(#arch, #mm) .chip-t { font-size: 12px; }
+:is(#arch, #mm) .chip-t .mk, :is(#arch, #mm) .ptok .mk { fill: var(--faint); }
+:is(#arch, #mm) .ghostchip { fill: none; stroke: var(--line-strong); stroke-dasharray: 3 3; }
+:is(#arch, #mm) .ghost-t { fill: var(--muted); }
+:is(#arch, #mm) .hd { font-size: 15px; }
+:is(#arch, #mm) .ecell, :is(#arch, #mm) .xcell, :is(#arch, #mm) .ycell { fill: color-mix(in srgb, var(--att) 45%, var(--bg)); }
+:is(#arch, #mm) .xcell { fill: color-mix(in srgb, var(--att) 30%, var(--bg)); }
+:is(#arch, #mm) .pcell { fill: url(#hatch-p); stroke: var(--muted); stroke-width: .5; }
+:is(#arch, #mm) .qcell { fill: color-mix(in srgb, var(--q) 30%, var(--bg)); }
+:is(#arch, #mm) .kcell { fill: color-mix(in srgb, var(--k) 32%, var(--bg)); }
+:is(#arch, #mm) .vcell { fill: color-mix(in srgb, var(--v) 32%, var(--bg)); }
+:is(#arch, #mm) .qcell.sel { fill: var(--q); }
+:is(#arch, #mm) .kcell.sel { fill: var(--k); }
+:is(#arch, #mm) .vcell.sel { fill: var(--v); }
+:is(#arch, #mm) .lcell { fill: color-mix(in srgb, var(--lat) 40%, var(--bg)); }
+:is(#arch, #mm) .krcell { fill: url(#hatch-k); stroke: var(--k); stroke-width: .6; }
+:is(#arch, #mm) .rowhl.ecell, :is(#arch, #mm) .rowhl.xcell, :is(#arch, #mm) .rowhl.ycell, :is(#arch, #mm) .rowhl.acell:not(.off) { fill: var(--att); }
+:is(#arch, #mm) .rowhl.qcell { fill: var(--q); }
+:is(#arch, #mm) .rowhl.kcell { fill: var(--k); }
+:is(#arch, #mm) .rowhl.vcell { fill: var(--v); }
+:is(#arch, #mm) .rowhl.lcell { fill: var(--lat); }
+:is(#arch, #mm) .fin, :is(#arch, #mm) .fout { fill: color-mix(in srgb, var(--att) 35%, var(--bg)); }
+:is(#arch, #mm) .fhid { fill: color-mix(in srgb, var(--ffn) 40%, var(--bg)); }
+:is(#arch, #mm) .fhid.alt { fill: color-mix(in srgb, var(--ffn) 22%, var(--bg)); }
+:is(#arch, #mm) .rowhl.fin, :is(#arch, #mm) .rowhl.fout { fill: var(--att); }
+:is(#arch, #mm) .rowhl.fhid { fill: var(--ffn); }
+:is(#arch, #mm) .tick { fill: color-mix(in srgb, var(--ffn) 22%, var(--bg)); }
+:is(#arch, #mm) .tick.pick { fill: var(--ffn); }
+:is(#arch, #mm) .tick.shared { fill: color-mix(in srgb, var(--ffn) 70%, var(--bg)); }
+:is(#arch, #mm) .qkvarc { fill: none; stroke: var(--ink); stroke-width: 1.2; }
+:is(#arch, #mm) .ptok { font-size: 12px; }
+:is(#arch, #mm) .pbar0 { fill: var(--surface); stroke: var(--line); stroke-width: .8; }
+:is(#arch, #mm) .pbar { fill: var(--att); }
+:is(#arch, #mm) .ppct { font-size: 11.5px; fill: var(--muted); font-variant-numeric: tabular-nums; }
+:is(#arch, #mm) .prow.cut .ptok { fill: var(--faint); }
+:is(#arch, #mm) .prow.picked .ptok { font-weight: 700; }
+:is(#arch, #mm) .prow.picked .pbar { fill: var(--q); }
+:is(#arch, #mm) .chosen { fill: var(--bg); stroke: var(--q); stroke-width: 1.4; }
+:is(#arch, #mm) .chosen-t { font-size: 12.5px; font-weight: 600; }
+:is(#arch, #mm) .srcnote { font-size: 11px; fill: var(--muted); text-decoration: underline dotted; cursor: help; }
 .pop { position: absolute; z-index: 5; max-width: 280px; background: var(--bg); color: var(--ink); border: 1px solid var(--line-strong); border-radius: 8px; box-shadow: 0 8px 28px rgba(15, 20, 30, .14); padding: 9px 11px; font-size: 13px; line-height: 1.45; pointer-events: none; display: flex; flex-direction: column; gap: 2px; }
 .pop[hidden] { display: none; }
 .pop b { font-weight: 650; }
@@ -345,85 +347,85 @@ kbd { font: 11px var(--font-mono); border: 1px solid var(--line); border-bottom-
 
 
 /* round 3: lookup tables, RoPE dials, decoding box, hover-only loop text */
-#arch .tid { font: 10.5px var(--font-mono); fill: var(--muted); }
-#arch [data-row].rowhl .tid { fill: var(--ink); font-weight: 600; }
-#arch .etable { fill: var(--surface); stroke: var(--line-strong); }
-#arch .ehair { stroke: var(--line); stroke-width: .6; }
-#arch .estripe { fill: color-mix(in srgb, var(--att) 45%, var(--bg)); pointer-events: none; }
-#arch .estripe.focus, #arch .estripe.rowhl { fill: var(--q); }
-#arch .lookup { fill: none; stroke: var(--q); stroke-width: 1.1; }
-#arch .st-m.small { font-size: 11px; font-weight: 400; }
-#arch .dial { fill: var(--bg); stroke: var(--muted); stroke-width: 1; }
-#arch .needle { stroke: var(--ink); stroke-width: 1.4; stroke-linecap: round; }
-#arch [data-row].rowhl .dial { stroke: var(--q); fill: color-mix(in srgb, var(--q) 12%, var(--bg)); }
-#arch .rope-l { font-size: 11px; font-weight: 600; fill: var(--ink); cursor: pointer; }
-#arch .rope-br { fill: none; stroke: var(--muted); stroke-width: 1; }
-#arch .mbtn { cursor: pointer; outline: none; }
-#arch .mbtn-r { fill: var(--bg); stroke: var(--line-strong); }
-#arch .mbtn-t { font-size: 11.5px; fill: var(--ink); pointer-events: none; }
-#arch .mbtn:hover .mbtn-r { stroke: var(--ink); }
-#arch .mbtn:focus-visible .mbtn-r { stroke: var(--q); stroke-width: 2; }
-#arch .mbtn.on-m .mbtn-r { fill: var(--ink); stroke: var(--ink); }
-#arch .mbtn.on-m .mbtn-t { fill: var(--bg); font-weight: 600; }
-#arch .mbtn.dis { opacity: .4; cursor: default; }
+:is(#arch, #mm) .tid { font: 10.5px var(--font-mono); fill: var(--muted); }
+:is(#arch, #mm) [data-row].rowhl .tid { fill: var(--ink); font-weight: 600; }
+:is(#arch, #mm) .etable { fill: var(--surface); stroke: var(--line-strong); }
+:is(#arch, #mm) .ehair { stroke: var(--line); stroke-width: .6; }
+:is(#arch, #mm) .estripe { fill: color-mix(in srgb, var(--att) 45%, var(--bg)); pointer-events: none; }
+:is(#arch, #mm) .estripe.focus, :is(#arch, #mm) .estripe.rowhl { fill: var(--q); }
+:is(#arch, #mm) .lookup { fill: none; stroke: var(--q); stroke-width: 1.1; }
+:is(#arch, #mm) .st-m.small { font-size: 11px; font-weight: 400; }
+:is(#arch, #mm) .dial { fill: var(--bg); stroke: var(--muted); stroke-width: 1; }
+:is(#arch, #mm) .needle { stroke: var(--ink); stroke-width: 1.4; stroke-linecap: round; }
+:is(#arch, #mm) [data-row].rowhl .dial { stroke: var(--q); fill: color-mix(in srgb, var(--q) 12%, var(--bg)); }
+:is(#arch, #mm) .rope-l { font-size: 11px; font-weight: 600; fill: var(--ink); cursor: pointer; }
+:is(#arch, #mm) .rope-br { fill: none; stroke: var(--muted); stroke-width: 1; }
+:is(#arch, #mm) .mbtn { cursor: pointer; outline: none; }
+:is(#arch, #mm) .mbtn-r { fill: var(--bg); stroke: var(--line-strong); }
+:is(#arch, #mm) .mbtn-t { font-size: 11.5px; fill: var(--ink); pointer-events: none; }
+:is(#arch, #mm) .mbtn:hover .mbtn-r { stroke: var(--ink); }
+:is(#arch, #mm) .mbtn:focus-visible .mbtn-r { stroke: var(--q); stroke-width: 2; }
+:is(#arch, #mm) .mbtn.on-m .mbtn-r { fill: var(--ink); stroke: var(--ink); }
+:is(#arch, #mm) .mbtn.on-m .mbtn-t { fill: var(--bg); font-weight: 600; }
+:is(#arch, #mm) .mbtn.dis { opacity: .4; cursor: default; }
 /* example inputs */
-#arch .expill { cursor: pointer; outline: none; }
-#arch .expill-r { fill: var(--bg); stroke: var(--line-strong); }
-#arch .expill-t { font-size: 11px; fill: var(--muted); pointer-events: none; }
-#arch .expill:hover .expill-r { stroke: var(--ink); }
-#arch .expill:hover .expill-t { fill: var(--ink); }
-#arch .expill:focus-visible .expill-r { stroke: var(--q); stroke-width: 2; }
-#arch .expill.on-x .expill-r { fill: var(--ink); stroke: var(--ink); }
-#arch .expill.on-x .expill-t { fill: var(--bg); font-weight: 600; }
+:is(#arch, #mm) .expill { cursor: pointer; outline: none; }
+:is(#arch, #mm) .expill-r { fill: var(--bg); stroke: var(--line-strong); }
+:is(#arch, #mm) .expill-t { font-size: 11px; fill: var(--muted); pointer-events: none; }
+:is(#arch, #mm) .expill:hover .expill-r { stroke: var(--ink); }
+:is(#arch, #mm) .expill:hover .expill-t { fill: var(--ink); }
+:is(#arch, #mm) .expill:focus-visible .expill-r { stroke: var(--q); stroke-width: 2; }
+:is(#arch, #mm) .expill.on-x .expill-r { fill: var(--ink); stroke: var(--ink); }
+:is(#arch, #mm) .expill.on-x .expill-t { fill: var(--bg); font-weight: 600; }
 /* the arrows from x̂ to q, k, v: only for the hovered row, or when a step highlights them */
-#arch #arcs.idle [data-h]:not(.on) { display: none; }
+:is(#arch, #mm) #arcs.idle [data-h]:not(.on) { display: none; }
 /* logits: one row per position, the last one goes on */
-#arch .zrow { cursor: pointer; }
-#arch .zline { fill: var(--line-strong); }
-#arch .zlog { fill: var(--q); }
-#arch .zrow.rowhl .zline { fill: var(--q); }
-#arch .loopg { outline: none; cursor: help; }
-#arch .loophit { fill: none; stroke: transparent; stroke-width: 16; }
-#arch .loopg .loop-t { opacity: 0; transition: opacity .15s; }
-#arch .loopg:hover .loop-t, #arch .loopg:focus-visible .loop-t { opacity: 1; }
-#arch .loopg:hover .loop, #arch .loopg:focus-visible .loop { stroke: var(--ink); }
+:is(#arch, #mm) .zrow { cursor: pointer; }
+:is(#arch, #mm) .zline { fill: var(--line-strong); }
+:is(#arch, #mm) .zlog { fill: var(--q); }
+:is(#arch, #mm) .zrow.rowhl .zline { fill: var(--q); }
+:is(#arch, #mm) .loopg { outline: none; cursor: help; }
+:is(#arch, #mm) .loophit { fill: none; stroke: transparent; stroke-width: 16; }
+:is(#arch, #mm) .loopg .loop-t { opacity: 0; transition: opacity .15s; }
+:is(#arch, #mm) .loopg:hover .loop-t, :is(#arch, #mm) .loopg:focus-visible .loop-t { opacity: 1; }
+:is(#arch, #mm) .loopg:hover .loop, :is(#arch, #mm) .loopg:focus-visible .loop { stroke: var(--ink); }
 .pop { max-width: 340px; }
 .pop .pop-c { display: flex; flex-direction: column; gap: 1px; margin-top: 5px; padding-top: 5px; border-top: 1px solid var(--line); font: 11.5px/1.45 var(--font-mono); color: var(--ink); }
 
 
 /* round 4: embedding matrices, new mechanisms, logits → probabilities, decoding methods, TeX pop-ups */
-#arch .ecol { stroke: var(--line); stroke-width: .6; }
-#arch .etable { fill: var(--surface); stroke: var(--line-strong); }
-#arch .arrowhead.q, #diagram .arrowhead.q { stroke: var(--q); }
-#arch .gtcell { fill: color-mix(in srgb, var(--ink) 22%, var(--bg)); }
-#arch .rowhl.gtcell { fill: color-mix(in srgb, var(--ink) 60%, var(--bg)); }
-#arch .gcell.a, #diagram .gcell.a { fill: color-mix(in srgb, var(--lat) 40%, var(--bg)); }
-#arch .gcell.b, #diagram .gcell.b { fill: color-mix(in srgb, var(--v) 40%, var(--bg)); }
-#arch .rowhl.gcell.a, #diagram .gcell.a.sel { fill: var(--lat); }
-#arch .rowhl.gcell.b, #diagram .gcell.b.sel { fill: var(--v); }
-#arch .scell, #diagram .scell { fill: color-mix(in srgb, var(--lat) 28%, var(--bg)); stroke: var(--lat); stroke-width: 1; }
-#arch .rowhl.scell, #diagram .scell.sel { fill: var(--lat); }
-#arch .chainl { stroke: var(--lat); stroke-width: 1.2; }
-#arch .arrowhead.lat { stroke: var(--lat); fill: none; }
-#arch .hatch-bg.k, #diagram .hatch-bg.k { fill: color-mix(in srgb, var(--k) 10%, var(--bg)); }
-#arch .hatch-line.k { stroke: var(--k); stroke-width: 1.6; }
-#arch .hatch-bg.q { fill: color-mix(in srgb, var(--q) 10%, var(--bg)); }
-#arch .hatch-line.q { stroke: var(--q); stroke-width: 1.6; }
-#arch .st-s .sub { font-size: 8.5px; }
-#arch .chosen-t .small { font-size: 10.5px; font-weight: 400; }
-#arch .ocell { fill: color-mix(in srgb, var(--lat) 45%, var(--bg)); }
-#arch .rowhl.ocell { fill: var(--lat); }
-#arch .zcell { fill: color-mix(in srgb, var(--ffn) 35%, var(--bg)); }
-#arch .rowhl.zcell { fill: var(--ffn); }
-#arch .convwin { fill: none; stroke: var(--muted); stroke-width: 1; stroke-dasharray: 3 2; }
-#arch .kicell, #diagram .kicell { fill: color-mix(in srgb, var(--k) 12%, var(--bg)); stroke: var(--k); stroke-width: .8; }
+:is(#arch, #mm) .ecol { stroke: var(--line); stroke-width: .6; }
+:is(#arch, #mm) .etable { fill: var(--surface); stroke: var(--line-strong); }
+:is(#arch, #mm) .arrowhead.q, #diagram .arrowhead.q { stroke: var(--q); }
+:is(#arch, #mm) .gtcell { fill: color-mix(in srgb, var(--ink) 22%, var(--bg)); }
+:is(#arch, #mm) .rowhl.gtcell { fill: color-mix(in srgb, var(--ink) 60%, var(--bg)); }
+:is(#arch, #mm) .gcell.a, #diagram .gcell.a { fill: color-mix(in srgb, var(--lat) 40%, var(--bg)); }
+:is(#arch, #mm) .gcell.b, #diagram .gcell.b { fill: color-mix(in srgb, var(--v) 40%, var(--bg)); }
+:is(#arch, #mm) .rowhl.gcell.a, #diagram .gcell.a.sel { fill: var(--lat); }
+:is(#arch, #mm) .rowhl.gcell.b, #diagram .gcell.b.sel { fill: var(--v); }
+:is(#arch, #mm) .scell, #diagram .scell { fill: color-mix(in srgb, var(--lat) 28%, var(--bg)); stroke: var(--lat); stroke-width: 1; }
+:is(#arch, #mm) .rowhl.scell, #diagram .scell.sel { fill: var(--lat); }
+:is(#arch, #mm) .chainl { stroke: var(--lat); stroke-width: 1.2; }
+:is(#arch, #mm) .arrowhead.lat { stroke: var(--lat); fill: none; }
+:is(#arch, #mm) .hatch-bg.k, #diagram .hatch-bg.k { fill: color-mix(in srgb, var(--k) 10%, var(--bg)); }
+:is(#arch, #mm) .hatch-line.k { stroke: var(--k); stroke-width: 1.6; }
+:is(#arch, #mm) .hatch-bg.q { fill: color-mix(in srgb, var(--q) 10%, var(--bg)); }
+:is(#arch, #mm) .hatch-line.q { stroke: var(--q); stroke-width: 1.6; }
+:is(#arch, #mm) .st-s .sub { font-size: 8.5px; }
+:is(#arch, #mm) .chosen-t .small { font-size: 10.5px; font-weight: 400; }
+:is(#arch, #mm) .ocell { fill: color-mix(in srgb, var(--lat) 45%, var(--bg)); }
+:is(#arch, #mm) .rowhl.ocell { fill: var(--lat); }
+:is(#arch, #mm) .zcell { fill: color-mix(in srgb, var(--ffn) 35%, var(--bg)); }
+:is(#arch, #mm) .rowhl.zcell { fill: var(--ffn); }
+:is(#arch, #mm) .convwin { fill: none; stroke: var(--muted); stroke-width: 1; stroke-dasharray: 3 2; }
+:is(#arch, #mm) .kicell, #diagram .kicell { fill: color-mix(in srgb, var(--k) 12%, var(--bg)); stroke: var(--k); stroke-width: .8; }
 #diagram .kicell.raw { stroke-dasharray: 2 2; }
-#arch .rowhl.kicell { fill: var(--k); }
-#arch .ibar, #diagram .ibar { fill: color-mix(in srgb, var(--att) 20%, var(--bg)); }
-#arch .ibar.on-s, #diagram .ibar.on-s { fill: var(--att); }
-#arch .acell.drop { fill: var(--bg); stroke: color-mix(in srgb, var(--att) 45%, var(--bg)); stroke-width: .8; }
-#arch .rowhl.acell.drop { fill: var(--bg); stroke: var(--att); }
-#arch .op.small { font-size: 13px; }
+:is(#arch, #mm) .rowhl.kicell { fill: var(--k); }
+:is(#arch, #mm) .ibar, #diagram .ibar { fill: color-mix(in srgb, var(--att) 20%, var(--bg)); }
+:is(#arch, #mm) .ibar.on-s, #diagram .ibar.on-s { fill: var(--att); }
+:is(#arch, #mm) .acell.drop { fill: var(--bg); stroke: color-mix(in srgb, var(--att) 45%, var(--bg)); stroke-width: .8; }
+:is(#arch, #mm) .rowhl.acell.drop { fill: var(--bg); stroke: var(--att); }
+:is(#arch, #mm) .op.small { font-size: 13px; }
 #diagram .latc { fill: color-mix(in srgb, var(--lat) 14%, var(--bg)); }
 #diagram .latc.on-s { fill: var(--lat); }
 #diagram .kvk { fill: color-mix(in srgb, var(--k) 14%, var(--bg)); }
@@ -444,36 +446,36 @@ kbd { font: 11px var(--font-mono); border: 1px solid var(--line); border-bottom-
 #diagram .ml-s { font-family: var(--font-math); font-size: 13px; fill: var(--ink); }
 #diagram .ml-s .ss { font-size: 9px; }
 #diagram .kc { fill: var(--k); } #diagram .vc { fill: var(--v); } #diagram .qc { fill: var(--q); }
-#arch .lbar { fill: color-mix(in srgb, var(--att) 26%, var(--bg)); }
-#arch .lval { font: 10px var(--font-mono); fill: var(--muted); }
-#arch .lval.ink { fill: var(--ink); }
-#arch .parr { font-size: 13px; fill: var(--faint); }
-#arch .qbar { fill: none; stroke: var(--k); stroke-width: 1.2; stroke-dasharray: 2.5 1.5; }
-#arch .mlt { font-family: var(--font-math); font-size: 12.5px; }
-#arch .prow.beam .ptok { font-weight: 650; }
-#arch .prow.tail .ptok, #arch .prow.tail .ppct { fill: var(--faint); font-size: 11px; }
-#arch .tiny { font-size: 9.5px; fill: var(--muted); }
-#arch .st-s.tiny { font-size: 9.5px; }
-#arch .ink { fill: var(--ink); font-weight: 600; }
-#arch .seg.a { fill: color-mix(in srgb, var(--att) 20%, var(--bg)); }
-#arch .seg.b { fill: color-mix(in srgb, var(--att) 34%, var(--bg)); }
-#arch .seg.picked { fill: var(--q); }
-#arch .seg.acc { fill: color-mix(in srgb, var(--v) 40%, var(--bg)); }
-#arch .seg.rej { fill: color-mix(in srgb, var(--k) 16%, var(--bg)); }
-#arch .seg-t { font-size: 9.5px; fill: var(--ink); pointer-events: none; }
-#arch .seg-t.on { fill: var(--bg); font-weight: 600; }
-#arch .seg.acc + .seg-t.on, #arch .seg-t.on.acc { fill: var(--ink); }
-#arch .umark { fill: var(--ink); stroke: var(--ink); stroke-width: 1.2; }
-#arch .btok { font-size: 11.5px; }
-#arch .btok.best { fill: var(--q); font-weight: 700; }
-#arch .btok.pruned { fill: var(--faint); }
-#arch .btok .mk { fill: var(--faint); }
-#arch .blink { fill: none; stroke: var(--line-strong); stroke-width: 1; }
-#arch .blink.kept { stroke: var(--ink); }
-#arch .blink.best { stroke: var(--q); stroke-width: 1.6; }
-#arch .mbtn-t { font-size: 10.5px; }
-.crow .c-bar em { display: block; font-style: normal; font-size: 12px; color: var(--muted); line-height: 12px; }
-.crow .c-v small { display: block; font-size: 11px; color: var(--faint); }
+:is(#arch, #mm) .lbar { fill: color-mix(in srgb, var(--att) 26%, var(--bg)); }
+:is(#arch, #mm) .lval { font: 10px var(--font-mono); fill: var(--muted); }
+:is(#arch, #mm) .lval.ink { fill: var(--ink); }
+:is(#arch, #mm) .parr { font-size: 13px; fill: var(--faint); }
+:is(#arch, #mm) .qbar { fill: none; stroke: var(--k); stroke-width: 1.2; stroke-dasharray: 2.5 1.5; }
+:is(#arch, #mm) .mlt { font-family: var(--font-math); font-size: 12.5px; }
+:is(#arch, #mm) .prow.beam .ptok { font-weight: 650; }
+:is(#arch, #mm) .prow.tail .ptok, :is(#arch, #mm) .prow.tail .ppct { fill: var(--faint); font-size: 11px; }
+:is(#arch, #mm) .tiny { font-size: 9.5px; fill: var(--muted); }
+:is(#arch, #mm) .st-s.tiny { font-size: 9.5px; }
+:is(#arch, #mm) .ink { fill: var(--ink); font-weight: 600; }
+:is(#arch, #mm) .seg.a { fill: color-mix(in srgb, var(--att) 20%, var(--bg)); }
+:is(#arch, #mm) .seg.b { fill: color-mix(in srgb, var(--att) 34%, var(--bg)); }
+:is(#arch, #mm) .seg.picked { fill: var(--q); }
+:is(#arch, #mm) .seg.acc { fill: color-mix(in srgb, var(--v) 40%, var(--bg)); }
+:is(#arch, #mm) .seg.rej { fill: color-mix(in srgb, var(--k) 16%, var(--bg)); }
+:is(#arch, #mm) .seg-t { font-size: 9.5px; fill: var(--ink); pointer-events: none; }
+:is(#arch, #mm) .seg-t.on { fill: var(--bg); font-weight: 600; }
+:is(#arch, #mm) .seg.acc + .seg-t.on, :is(#arch, #mm) .seg-t.on.acc { fill: var(--ink); }
+:is(#arch, #mm) .umark { fill: var(--ink); stroke: var(--ink); stroke-width: 1.2; }
+:is(#arch, #mm) .btok { font-size: 11.5px; }
+:is(#arch, #mm) .btok.best { fill: var(--q); font-weight: 700; }
+:is(#arch, #mm) .btok.pruned { fill: var(--faint); }
+:is(#arch, #mm) .btok .mk { fill: var(--faint); }
+:is(#arch, #mm) .blink { fill: none; stroke: var(--line-strong); stroke-width: 1; }
+:is(#arch, #mm) .blink.kept { stroke: var(--ink); }
+:is(#arch, #mm) .blink.best { stroke: var(--q); stroke-width: 1.6; }
+:is(#arch, #mm) .mbtn-t { font-size: 10.5px; }
+.crow .c-v .star { position: absolute; margin-left: 1px; color: var(--muted); }   /* hangs right, so the 0 stays aligned */
+.compare .why .fn { font-size: 13px; color: var(--faint); margin-top: 12px; }
 .pop .pop-c { font-family: var(--font-ui); gap: 3px; }
 .pop .pop-c .pm math { font-size: 1.06em; display: inline-flex; }
 .pop .pop-c .pt { font: 11.5px/1.45 var(--font-mono); }
@@ -504,7 +506,7 @@ kbd { font: 11px var(--font-mono); border: 1px solid var(--line); border-bottom-
 .tour-ans .td { font-size: 13px; line-height: 1.45; }
 .tour-ans .bar { height: 6px; background: var(--line); border-radius: 3px; overflow: hidden; margin-top: 2px; }
 .tour-ans .bar i { display: block; height: 100%; background: var(--ink); }
-#arch.touring [data-h]:not(.on) { opacity: .09; pointer-events: none; }
+:is(#arch, #mm).touring [data-h]:not(.on) { opacity: .09; pointer-events: none; }
 .whole.touring #arch-chips, .whole.touring #arch-card, .whole.touring #block-toggle { display: none; }
 @media (max-width: 800px) { .tour-ans { grid-template-columns: 1fr 1fr; } }
 
@@ -533,7 +535,7 @@ kbd { font: 11px var(--font-mono); border: 1px solid var(--line); border-bottom-
 .crow .c-f { font-size: 14px; color: var(--muted); font-family: var(--font-math); }
 .crow .c-bar { height: 12px; background: var(--surface); border-radius: 3px; overflow: hidden; }
 .crow .c-bar i { display: block; height: 100%; background: var(--line-strong); border-radius: 3px; }
-.crow .c-v { text-align: right; font-variant-numeric: tabular-nums; font-size: 14px; }
+.crow .c-v { text-align: right; font-variant-numeric: tabular-nums; font-size: 14px; padding-right: 8px; }
 .crow.active { color: var(--ink); }
 .crow.active .c-bar i { background: var(--ink); }
 .compare .why { font-size: 14px; color: var(--muted); margin-top: 16px; }
@@ -557,6 +559,9 @@ footer .sources { border-top: 1px solid var(--line); margin-top: 18px; padding-t
   .wrap { padding: 0 16px; }
   .pages a { padding: 5px 9px; }
   .pages .soon, .subnav-t { display: none; }
+  .top .bar { position: relative; }
+  .pages .gh { position: absolute; right: 12px; top: 8px; margin: 0; font-size: 0; gap: 0; }   /* icon only, beside the name */
+  .pages .gh::before { display: none; }
   h1 { font-size: 26px; }
   .lead { font-size: 16px; }
   .tab { padding: 8px 10px 10px; }
@@ -566,6 +571,83 @@ footer .sources { border-top: 1px solid var(--line); margin-top: 18px; padding-t
   .crow .c-f { display: none; }
 }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+
+/* multimodal page */
+#mmc { display: block; width: 100%; min-width: 1040px; height: auto; font-family: var(--font-ui); }
+#mmc text { fill: var(--ink); }
+:is(#mm, #mmc) .frame { fill: none; stroke: var(--line-strong); }
+#mm .hit:hover .frame { stroke: var(--ink); }
+#mm .hit:focus-visible .frame { stroke: var(--q); stroke-width: 2; }
+#mm .nohit { pointer-events: none; }
+#mm .shade { fill: var(--bg); opacity: .62; }
+#mm .crop { fill: none; stroke: var(--ink); stroke-width: 1.6; stroke-dasharray: 5 3; }
+#mm .pad { fill: url(#mm-hatch); }
+#mm .pgrid { stroke: rgba(255, 255, 255, .55); stroke-width: .6; fill: none; }
+#mm .pgrid2 { stroke: rgba(20, 24, 30, .5); stroke-width: 1.1; fill: none; }
+#mm .tileb { stroke: #15181d; stroke-width: 1.8; fill: none; }
+#mm .tile { fill: var(--bg); stroke: var(--line-strong); stroke-dasharray: 3 2; }
+#mm .tile.on { fill: color-mix(in srgb, var(--att) 26%, var(--bg)); stroke: var(--muted); stroke-dasharray: none; }
+#mm .lay { cursor: pointer; outline: none; }
+#mm .lhit { fill: transparent; }
+#mm .elayer { fill: color-mix(in srgb, var(--att) 34%, var(--bg)); }
+#mm .elayer.g { fill: color-mix(in srgb, var(--att) 70%, var(--bg)); }
+#mm .elayer.off { fill: var(--bg); stroke: var(--line-strong); stroke-dasharray: 2 2; }
+#mm .lay:hover .elayer, #mm .lay:hover .dlayer, #mm .lay:focus-visible .dlayer { fill: var(--ink); }
+#mm .tap { fill: var(--lat); }
+#mm .tap.ds { fill: var(--bg); stroke: var(--lat); stroke-width: 1.5; }
+#mm .dlayer { fill: color-mix(in srgb, var(--att) 24%, var(--bg)); }
+#mm .dlayer.glob { fill: color-mix(in srgb, var(--att) 66%, var(--bg)); }
+#mm .dlayer.cross { fill: var(--lat); }
+#mm .dlayer.dsl { fill: color-mix(in srgb, var(--lat) 45%, var(--bg)); }
+#mm .tband { fill: var(--bg); opacity: .7; }
+#mm .imgband { fill: color-mix(in srgb, var(--lat) 16%, var(--bg)); opacity: .8; }
+#mm .imgblock, #mmc .imgblock { fill: color-mix(in srgb, var(--lat) 20%, var(--bg)); stroke: var(--lat); }
+#mm .tok, #mmc .tok { font: 11px var(--font-mono); fill: var(--ink); }
+#mm .ds { fill: none; stroke: var(--lat); stroke-width: 1.2; stroke-dasharray: 4 3; }
+#mm .feed { fill: none; stroke: var(--lat); stroke-width: 1.3; }
+#mm .mem { fill: color-mix(in srgb, var(--lat) 16%, var(--bg)); stroke: var(--lat); }
+#mm .hit:hover .mem, #mm .hit:hover .imgblock { stroke-width: 2; }
+#mm .cost-v { font-size: 22px; font-weight: 650; letter-spacing: -0.02em; }
+:is(#mm, #mmc) .vec { fill: color-mix(in srgb, var(--att) 30%, var(--bg)); stroke: var(--muted); stroke-width: .8; }
+:is(#mm, #mmc) .vec.lat { fill: color-mix(in srgb, var(--lat) 40%, var(--bg)); stroke: var(--lat); }
+#mmc .vec.off { fill: var(--bg); stroke-dasharray: 3 2; }
+:is(#mm, #mmc) .arrowhead.lat { stroke: var(--lat); fill: none; }
+#mmc .arr { stroke: var(--line-strong); stroke-width: 1.2; }
+#mmc .arrowhead { fill: none; stroke: var(--line-strong); stroke-width: 1.2; }
+#mmc .st { font-size: 12.5px; font-weight: 600; }
+#mmc .st-s { font-size: 11.5px; fill: var(--muted); }
+#mmc .note { font-size: 11.5px; fill: var(--muted); }
+#mmc .tiny { font-size: 10px; fill: var(--muted); }
+#mmc .dim { font: 11px var(--font-mono); fill: var(--muted); }
+#mmc .subbox { fill: var(--surface); stroke: var(--line); }
+#mmc .chip { fill: var(--surface); stroke: var(--line-strong); }
+#mmc .rope-br { fill: none; stroke: var(--muted); stroke-width: 1; }
+#mmc .mnum { font: 12px var(--font-mono); fill: var(--muted); }
+#mmc .mnum.ax-h-t { fill: var(--q); font-weight: 650; }
+#mmc .mnum.ax-w-t { fill: var(--k); font-weight: 650; }
+#mmc .ax-t { fill: color-mix(in srgb, var(--att) 35%, var(--bg)); }
+#mmc .ax-h { fill: var(--q); }
+#mmc .ax-w { fill: var(--k); }
+#mmc .mcell { fill: var(--bg); stroke: var(--line); }
+#mmc .mcell.on { fill: color-mix(in srgb, var(--att) 45%, var(--bg)); stroke: none; }
+#mmc .mcell.bi { fill: var(--lat); stroke: none; }
+#mmc .mlt { font-family: var(--font-math); font-size: 14px; }
+#mmc .mosaic rect { shape-rendering: crispEdges; }
+.mm-close { margin-top: 44px; padding-top: 28px; border-top: 1px solid var(--line); }
+.mm-close .figure { margin-top: 6px; }
+.mm-close .close-text { margin: 10px 0 0; color: var(--muted); font-size: 14px; max-width: 86ch; text-wrap: pretty; }
+.seg .sizes-l { font-size: 12px; color: var(--faint); padding: 5px 4px 5px 8px; }
+.crow.mm { grid-template-columns: 170px 230px minmax(0, 1fr) 96px; }
+.crow.mm .c-f { font-family: var(--font-ui); font-size: 13.5px; }
+#mm-size { flex-wrap: wrap; }
+#mm-size button { white-space: nowrap; }
+#mm-tabs .tab b { white-space: nowrap; }
+@media (max-width: 640px) {
+  .crow.mm { grid-template-columns: 110px minmax(0, 1fr) 70px; }
+  #mm-tabs { overflow-x: auto; max-width: 100%; }
+  #mm-tabs .tab { padding: 8px 8px 10px; }
+  #mm-tabs .tab b { font-size: 13px; }
+}
 </style>
 </head>
 <body>
@@ -574,9 +656,11 @@ footer .sources { border-top: 1px solid var(--line); margin-top: 18px; padding-t
     <a class="brand" href="#architectures" data-page="architectures"><b>LLM Internals Lab</b></a>
     <nav class="pages" aria-label="Pages">
       <a href="#architectures" data-page="architectures">Architectures</a>
-      <a href="#multimodal" data-page="multimodal">Multimodal <span class="soon">soon</span></a>
+      <a href="#multimodal" data-page="multimodal">Multimodal</a>
+      <a href="#retrieval" data-page="retrieval">Retrieval <span class="soon">soon</span></a>
       <a href="#reasoning" data-page="reasoning">Reasoning <span class="soon">soon</span></a>
       <a href="#agents" data-page="agents">Agents <span class="soon">soon</span></a>
+      <a class="gh" href="https://github.com/valentinsvelev/llm-internals-lab" target="_blank" rel="noopener noreferrer" aria-label="Source code on GitHub"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M8 6 2 12l6 6M16 6l6 6-6 6M13.5 4l-3 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>GitHub</a>
     </nav>
   </div>
 </header>
@@ -639,12 +723,13 @@ footer .sources { border-top: 1px solid var(--line); margin-top: 18px; padding-t
       </figure>
       <section class="compare" aria-labelledby="compare-title">
         <h2 id="compare-title">KV cache per token, per layer</h2>
-        <p class="sub">Values stored per token for 16 query heads of dimension 128, the head layout of DeepSeek-V2-Lite. GQA uses 4 groups; MLA a 512-dim latent plus a 64-dim rotary key; DSA adds a 128-dim index key. Gated DeltaNet stores nothing per token: each of its 16 heads keeps one 128 × 128 state instead.</p>
+        <p class="sub">Values stored per token for 16 query heads of dimension 128, the head layout of DeepSeek-V2-Lite. GQA uses 4 groups; MLA a 512-dim latent plus a 64-dim rotary key; DSA adds a 128-dim index key.</p>
         <div id="compare-rows"></div>
         <div class="why">
           <p>During generation the KV cache, more than the arithmetic, limits how long a context or how large a batch fits in GPU memory, and reading it back slows every new token. That is why these variants exist.</p>
           <p>MQA shrinks the cache the most but can cost quality. GQA recovers most of that quality at close to MQA's speed (Ainslie et al., 2023). DeepSeek reports MLA outperforming MHA in its ablations while caching about as much as GQA with 2.25 groups.</p>
           <p>The two newer designs attack the growth with length itself. Gated DeltaNet replaces the cache with a fixed-size memory, so Qwen3-Next keeps a per-token cache in only 12 of its 48 layers. Sparse attention still stores every token, but each new token reads only the 2,048 that its indexer selects, so the work per token stops growing with the context.</p>
+          <p class="fn">* Gated DeltaNet stores nothing per token. Each layer keeps one fixed-size state instead: 16 heads × 128 × 128 = 262,144 values at the sizes compared here, however long the context.</p>
         </div>
       </section>
     </div>
@@ -666,21 +751,88 @@ footer .sources { border-top: 1px solid var(--line); margin-top: 18px; padding-t
   </footer>
 </div>
 </div>
-<div class="page soon-page" data-page="multimodal" hidden>
+<div class="page" data-page="multimodal" hidden>
+<div class="subnav">
+  <div class="wrap">
+    <div class="subnav-t">Vision-language models</div>
+    <nav class="tabs" id="mm-tabs" role="tablist" aria-label="How the image reaches the language model">
+      <button class="tab" role="tab" data-k="llava" type="button"><b>Projector</b><span>LLaVA-1.5</span></button>
+      <button class="tab" role="tab" data-k="qwen" type="button"><b>Native size</b><span>Qwen3-VL</span></button>
+      <button class="tab" role="tab" data-k="llama" type="button"><b>Cross-attention</b><span>Llama 3.2 Vision</span></button>
+      <button class="tab" role="tab" data-k="gemma" type="button"><b>Pooling</b><span>Gemma 3</span></button>
+    </nav>
+  </div>
+</div>
 <div class="wrap">
-  <section class="intro" aria-labelledby="multimodal-title">
+  <section class="intro" aria-labelledby="mm-title">
+    <h1 id="mm-title">A projector into the token stream</h1>
+    <p class="lead" id="mm-lead"></p>
+    <dl class="stats" id="mm-stats"></dl>
+  </section>
+
+  <section class="whole" aria-labelledby="mm-whole-title">
+    <div class="sec-h">
+      <div>
+        <h2 id="mm-whole-title">From pixels to tokens</h2>
+        <p class="sec-sub">One image on its way into the language model. Click any part, or step through it.</p>
+      </div>
+      <div id="mm-size" class="seg" role="group" aria-label="Image size (width × height)"></div>
+    </div>
+    <div class="figure wide" id="mm-fig">
+      <div id="mm-pop" class="pop" role="tooltip" hidden></div>
+      <svg id="mm" role="img" aria-label="Image, resize, vision encoder, connector, language model" viewBox="0 0 1400 500"></svg>
+    </div>
+    <ol class="chips" id="mm-chips" aria-label="Steps from image to tokens"></ol>
+    <div class="card" id="mm-card" aria-live="polite"></div>
+  </section>
+
+  <section class="mm-close" aria-labelledby="mm-close-title">
+    <div class="sec-h">
+      <div>
+        <h2 id="mm-close-title">Up close</h2>
+        <p class="sec-sub" id="mm-close-sub"></p>
+      </div>
+    </div>
+    <div class="figure wide"><svg id="mmc" role="img" aria-label="Detail of the selected model" viewBox="0 0 1400 300"></svg></div>
+    <p class="close-text" id="mm-close-text"></p>
+  </section>
+
+  <section class="compare" aria-labelledby="mm-cost-title">
+    <h2 id="mm-cost-title">What one image costs</h2>
+    <p class="sub" id="mm-cost-sub"></p>
+    <div id="mm-cost-rows"></div>
+    <div class="why">
+      <p>Image tokens are paid for twice: they take up context, and every one of them stores keys and values in every layer, like a word. A 576-token image is about 14% of LLaVA-1.5’s 4,096-token context.</p>
+      <p>The four designs trade detail for cost differently. LLaVA and Gemma spend the same on every image, so a small image is overpaid and a large one loses detail (LLaVA crops it, Gemma squashes it). Qwen3-VL pays in proportion to the pixels, so detail is kept but a large image is expensive. Llama 3.2 keeps the text short — one token per image — but caches 6,404 image positions in each cross-attention layer, empty tiles included.</p>
+    </div>
+  </section>
+
+  <footer>
+    <p>Dimensions come from the official config and preprocessor files of <span id="mm-configs"></span>. Image sizes, tiles, patch grids and token counts follow the transformers image processors, and parameter counts are those of the transformers models. No weights are loaded and nothing is computed from your image except its size and, for the mosaics, its colours; it never leaves this tab. Cache sizes assume 16-bit values.</p>
+    <p>The resize rules, the connectors, Qwen’s 3D positions, Gemma’s image mask and Llama’s gated cross-attention are also runnable PyTorch in <code>llm_lab/reference/vision.py</code>, tested against Hugging Face transformers.</p>
+    <div class="sources">
+      <p>Sources</p>
+      <ul id="mm-sources"></ul>
+    </div>
+  </footer>
+</div>
+</div>
+<div class="page soon-page" data-page="retrieval" hidden>
+<div class="wrap">
+  <section class="intro" aria-labelledby="retrieval-title">
     <p class="kicker">Coming soon</p>
-    <h1 id="multimodal-title">Multimodal models</h1>
-    <p class="lead">How images, audio and video become tokens that a language model can attend to.</p>
+    <h1 id="retrieval-title">Retrieval</h1>
+    <p class="lead">How a model finds the passages it needs, and how they reach its context.</p>
   </section>
   <section class="plan" aria-label="Planned sections">
     <h2>Planned</h2>
     <ol class="plan-list">
-      <li><b>Images become tokens</b><span>A vision encoder cuts an image into patches and turns each patch into a vector.</span></li>
-      <li><b>Joining encoder and language model</b><span>A projector maps image vectors into the model’s embedding space; some models use cross-attention instead.</span></li>
-      <li><b>Positions in two dimensions</b><span>Rotary embeddings extended to rows, columns and time, so patches know where they sit.</span></li>
-      <li><b>One sequence, many modalities</b><span>Text and image tokens share the residual stream, the attention and the KV cache.</span></li>
-      <li><b>Audio and video</b><span>Spectrogram slices and video frames as tokens, and what they cost in context length.</span></li>
+      <li><b>Keyword search</b><span>Inverted indexes and BM25: exact words, counted and weighted.</span></li>
+      <li><b>Embeddings</b><span>A text becomes one vector: the residual stream of an encoder, pooled.</span></li>
+      <li><b>Training for similarity</b><span>Contrastive learning: pull a query and its passage together, push the rest apart.</span></li>
+      <li><b>Searching millions of vectors</b><span>Approximate nearest neighbours: graphs (HNSW) and compressed vectors.</span></li>
+      <li><b>Reranking</b><span>Cross-encoders and late interaction score the best candidates again, token by token.</span></li>
+      <li><b>Retrieval-augmented generation</b><span>Retrieved passages in the prompt, versus simply using a longer context.</span></li>
     </ol>
     <p class="plan-note">This page is a placeholder; its explorer is not built yet. <a href="#architectures" data-page="architectures">Back to the architectures</a></p>
   </section>
@@ -733,6 +885,8 @@ footer .sources { border-top: 1px solid var(--line); margin-top: 18px; padding-t
 <script>window.LAB_TOKENS = /*__TOKENS__*/null;</script>
 <script>/*__CONTENT_JS__*/</script>
 <script>/*__TEMML_JS__*/</script>
+<script>/*__MM_CONTENT_JS__*/</script>
+<script>/*__MM_APP_JS__*/</script>
 <script>/*__APP_JS__*/</script>
 </body>
 </html>

@@ -407,8 +407,7 @@ function drawGDNPipeline(svg, m) {
   S('tspan', { text: `Inside value head ${j}` }, cap);
   S('tspan', { text: `  ·  uses query/key head ${i} · one state, updated once per token`, class: 'cap-m' }, cap);
   S('text', { x: HX1, y: y0 - 38, 'text-anchor': 'end', class: 'hint', text: 'click a value head to follow it' }, svg);
-  const SW = 48;
-  let x = 22;
+  let x = 22, lastO = null;
   const lab = (cx, base, sub, sup, hk, y = y0 - 10) => mlab(svg, cx, y, base, sub, sup, { h: hk });
   const state0 = mat(svg, x, y0, 5, 5, 'st0', 'ps');
   lab(x + state0.w / 2, 'S', '0', null, 'ps');
@@ -434,11 +433,12 @@ function drawGDNPipeline(svg, m) {
     mat(svg, x + r.w / 2 - 24, y0 + r.h + 28, 1, 5, 'out', 'po');
     const to = S('text', { x: x + r.w / 2 + 34, y: y0 + r.h + 37, class: 'arr-t ml-s', 'data-h': 'po' }, svg);
     S('tspan', { text: mi('o') }, to); S('tspan', { text: String(t), class: 'ss', dy: 3 }, to);
+    lastO = to;
     x += r.w;
   }
-  // the update rule, written out once
-  x += 22;
-  const rx = x;
+  // the update rule, written out once, to the right of the last read-out and its label
+  const oBox = lastO.getBBox();
+  const rx = Math.max(x + 22, Math.ceil(oBox.x + oBox.width) + 20);
   S('rect', { x: rx - 8, y: y0 - 6, width: HX1 - rx + 8, height: 104, rx: 8, class: 'rulebox', 'data-h': 'ps pk pv pg' }, svg);
   const I = mi;
   const lines = [
@@ -1518,11 +1518,11 @@ function candPop(m, i) {
     data.source === 'illustrative' ? 'Real token and ID; the logit is an illustrative value, since this page runs no model. Softmax depends only on differences between logits.' : `Logit computed with ${data.model}.`, calc];
 }
 const ordinal = n => n + (n % 10 === 1 && n % 100 !== 11 ? 'st' : n % 10 === 2 && n % 100 !== 12 ? 'nd' : n % 10 === 3 && n % 100 !== 13 ? 'rd' : 'th');
-function initPopups() {
-  const box = $('#pop'), fig = $('#arch-fig');
+/* Hover and focus pop-ups for any figure: contentFn(key) → [title, subtitle, text, calculation lines]. */
+function attachPopups(fig, box, contentFn) {
   let timer = null;
   const show = el => {
-    const c = popContent(el.dataset.pop); if (!c) return;
+    const c = contentFn(el.dataset.pop); if (!c) return;
     clearTimeout(timer);
     box.innerHTML = `<b>${fmtText(c[0])}</b><span class="pop-s">${fmtText(c[1])}</span><span class="pop-t">${fmtText(c[2])}</span>` +
       (c[3] && c[3].length ? `<span class="pop-c">${c[3].map(l => typeof l === 'string' ? `<span class="pm">${tex(l)}</span>` : `<span class="pt">${esc(l.t)}</span>`).join('')}</span>` : '');
@@ -1541,6 +1541,9 @@ function initPopups() {
   fig.addEventListener('focusout', hide);
   fig.addEventListener('click', e => { const el = e.target.closest('[data-pop]'); if (el) requestAnimationFrame(() => { const again = fig.querySelector(`[data-pop="${el.dataset.pop}"]`); if (again) show(again); }); });
 }
+function initPopups() { attachPopups($('#arch-fig'), $('#pop'), popContent); }
+/* Shared with the other pages (mm-app.js). */
+window.LABUI = { S, mi, mlab, esc, tex, fmtText, fmtPlain, math, attachPopups };
 
 function applyArchFocus() {
   const svg = $('#arch'), m = LAB.MODELS[state.mech];
@@ -1714,10 +1717,10 @@ function renderHeader(m) {
 function renderCompare() {
   const rows = LAB.compareRows(), max = Math.max(...rows.map(r => r.value));
   $('#compare-rows').innerHTML = rows.map(r => `
-    <button type="button" class="crow${r.key === state.mech ? ' active' : ''}" data-mech="${r.key}" aria-label="${r.label}: ${LAB.fmt(r.value)} values per token${r.note ? ', plus a fixed state' : ''}. Show ${r.label}.">
+    <button type="button" class="crow${r.key === state.mech ? ' active' : ''}" data-mech="${r.key}" aria-label="${r.label}: ${LAB.fmt(r.value)} values per token${r.star ? ', plus a fixed state (see note)' : ''}. Show ${r.label}.">
       <span class="c-l">${r.label}</span><span class="c-f">${r.formula.split(' ').map(t => /^[A-Za-z]$/.test(t) ? `<var>${mi(t)}</var>` : fmtPlain(t)).join(' ')}</span>
-      <span class="c-bar">${r.value ? `<i style="width:${(100 * r.value / max).toFixed(2)}%"></i>` : '<em>fixed state</em>'}</span>
-      <span class="c-v">${LAB.fmt(r.value)}${r.note ? `<small>${esc(r.note)}</small>` : ''}</span>
+      <span class="c-bar">${r.value ? `<i style="width:${(100 * r.value / max).toFixed(2)}%"></i>` : ''}</span>
+      <span class="c-v">${LAB.fmt(r.value)}${r.star ? '<span class="star" aria-hidden="true">*</span>' : ''}</span>
     </button>`).join('');
   document.querySelectorAll('.crow').forEach(b => b.addEventListener('click', () => setMech(b.dataset.mech)));
 }
@@ -1865,10 +1868,10 @@ document.querySelectorAll('#sparse-toggle button').forEach(b => b.addEventListen
   state.head = Math.min(state.head, state.sparse === 'qsa' ? LAB.QSA.H : m.H);
   drawDiagram(m); renderPanel(m);
 }));
-/* ---------- pages: #architectures (or a mechanism, #mla …), #multimodal, #reasoning, #agents ---------- */
-const PAGES = ['architectures', 'multimodal', 'reasoning', 'agents'];
+/* ---------- pages: #architectures (or a mechanism, #mla …), #multimodal (#multimodal/qwen …), #retrieval, #reasoning, #agents ---------- */
+const PAGES = ['architectures', 'multimodal', 'retrieval', 'reasoning', 'agents'];
 let archRendered = false;
-function showPage(p) {
+function showPage(p, sub) {
   if (!PAGES.includes(p)) p = 'architectures';
   const changed = p !== state.page;
   state.page = p;
@@ -1877,17 +1880,20 @@ function showPage(p) {
   const name = document.querySelector(`.pages a[data-page="${p}"]`)?.firstChild.textContent.trim();
   document.title = `${name} · LLM Internals Lab`;
   if (p === 'architectures' && !archRendered) { archRendered = true; render(); }   // text is measured, so draw while visible
+  if (p === 'multimodal' && window.MMAPP) window.MMAPP.show(sub);
   if (changed) window.scrollTo(0, 0);
 }
 function route() {
-  const h = location.hash.slice(1);
+  const [h, sub] = location.hash.slice(1).split('/');
   if (LAB.MODELS[h]) { showPage('architectures'); setMech(h, true); }
-  else showPage(h);
+  else showPage(h, sub);
 }
 document.querySelectorAll('a[data-page]').forEach(a => a.addEventListener('click', e => {
   e.preventDefault();
-  try { history.pushState(null, '', '#' + (a.dataset.page === 'architectures' ? state.mech : a.dataset.page)); } catch (err) { /* sandboxed */ }
-  showPage(a.dataset.page);
+  const p = a.dataset.page;
+  const hash = p === 'architectures' ? state.mech : p === 'multimodal' && window.MMAPP ? `multimodal/${window.MMAPP.key()}` : p;
+  try { history.pushState(null, '', '#' + hash); } catch (err) { /* sandboxed */ }
+  showPage(p);
 }));
 window.addEventListener('hashchange', route);
 window.addEventListener('popstate', route);
@@ -1896,6 +1902,6 @@ $('#configs').innerHTML = LAB.ORDER.map(k => { const m = LAB.MODELS[k]; return `
 
 initPopups();
 const initial = location.hash.slice(1);
-state.mech = LAB.MODELS[initial] ? initial : 'mha';
-showPage(LAB.MODELS[initial] ? 'architectures' : initial);
+if (LAB.MODELS[initial]) state.mech = initial;
+route();
 })();

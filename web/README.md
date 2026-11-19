@@ -3,7 +3,7 @@
 The app is one offline HTML file, `src/llm_lab/assets/explorer.html`, generated from this folder.
 It has five pages, switched by the URL hash: **Architectures** (`#architectures`, or a tab such as
 `#mla`), **Multimodal** (`#multimodal`, or `#multimodal/qwen` …) and placeholders for **Retrieval**,
-**Reasoning** and **Agents**. A new page is a `<div class="page" data-page="…">` in `template.html`,
+**Reasoning** and **Agents**. Retrieval now has a local BM25 explorer with a fictional corpus, scoring breakdown, top-k selection and a citation-ready RAG prompt. A new page is a `<div class="page" data-page="…">` in `template.html`,
 a link in `.pages` and its name in `PAGES` in `app.js`.
 
 | File | What it holds |
@@ -56,3 +56,10 @@ sentence longer than the diagram's 10 rows.
 
 Licences: Temml (MIT) is inlined in the page; the font is a renamed subset of Latin Modern Math
 (GUST Font License).
+
+## Retrieval explorer v4
+
+The central graphic shows text inputs → a **numeric sparse TF-IDF matrix** → lexical scores → an **in-pipeline PCA plot** → top-k. Each nonzero/zero matrix coordinate is a button; choosing one reveals its exact TF, DF, smoothed IDF, raw weight, vector L2 norm and normalized coordinate. The visible columns are a slice of the corpus vocabulary.
+
+BM25 and TF-IDF cosine are **separate, exact rankers**. The PCA plot projects TF-IDF vectors into 2D only for visualization; plotted distances are never ranking scores. No network calls or model weights. Source: `web/src/retrieval-{content,app}.js`.
+

@@ -88,6 +88,8 @@ sup, sub { font-size: 0.72em; line-height: 0; }
 .tab span { font-size: 12px; }
 .tab:hover { color: var(--ink); }
 .tab.active { color: var(--ink); border-bottom-color: var(--ink); }
+.tab-year { display: block; margin-top: 1px; font-size: 11px; line-height: 1.3; font-weight: 500; color: var(--faint); font-variant-numeric: tabular-nums; }
+.tab.active .tab-year { color: var(--muted); }
 
 /* heading */
 .intro { padding: 36px 0 0; }
@@ -483,6 +485,37 @@ kbd { font: 11px var(--font-mono); border: 1px solid var(--line); border-bottom-
 .chipbtn var, .chipbtn sup { font-size: inherit; }
 
 
+/* Embedded whole-model legend: Input text box styling, no separate pills. */
+/* v5: space-efficient model-specific legend */
+#arch .diagram-legend {
+  box-sizing: border-box; width: 100%; height: 100%; padding: 4px 9px;
+  border: 1px solid var(--line-strong); border-radius: 8px; background: var(--bg);
+  color: var(--ink); font: 11.5px/14px var(--font-ui);
+}
+#arch .symbol-key-list { display: flex; flex-wrap: wrap; align-content: center; column-gap: 10px; row-gap: 2px; padding: 0; margin: 0; height: 100%; }
+#arch .symbol-key-list > div { display: inline-flex; align-items: baseline; gap: 4px; white-space: nowrap; border-radius: 3px; }
+#arch .symbol-key-list > div[hidden] { display: none; }
+#arch .symbol-key-list > div.active { background: var(--surface); box-shadow: 0 0 0 3px var(--surface); }
+#arch .symbol-key-list dt { font-weight: 650; }
+#arch .symbol-key-list dd { margin: 0; color: var(--muted); }
+#arch .symbol-key-list dt math { font-size: 1.1em; vertical-align: middle; }
+#arch .symbol-key-list .q { color: var(--q); }
+#arch .symbol-key-list .k { color: var(--k); }
+#arch .symbol-key-list .v { color: var(--v); }
+#arch .symbol-key-list .symbol-dial { vertical-align: -2px; margin-right: 2px; }
+
+/* v6: interactive legend explanations */
+#arch .symbol-key-list > div[data-pop] { cursor: help; outline: none; }
+#arch .symbol-key-list > div[data-pop]:hover,
+#arch .symbol-key-list > div[data-pop]:focus-visible {
+  background: var(--surface);
+  box-shadow: 0 0 0 2px var(--surface);
+}
+#arch .symbol-key-list > div[data-pop]:focus-visible {
+  outline: 2px solid var(--q);
+  outline-offset: 2px;
+}
+
 /* guided tour */
 .tour { margin: 0 0 14px; scroll-margin-top: 12px; }
 .tour-invite { display: flex; gap: 10px 14px; align-items: center; flex-wrap: wrap; padding: 10px 14px; border: 1px dashed var(--line-strong); border-radius: 10px; font-size: 14px; }
@@ -497,6 +530,8 @@ kbd { font: 11px var(--font-mono); border: 1px solid var(--line); border-bottom-
 .tour-x:hover { color: var(--ink); }
 .tour-card h3 { margin: 6px 0 0; font-size: 19px; letter-spacing: -0.01em; }
 .tour-card p { margin: 6px 0 0; font-size: 15px; line-height: 1.6; max-width: 86ch; text-wrap: pretty; }
+.tour-card .tour-term { margin-top: 12px; padding-top: 9px; border-top: 1px solid var(--line-strong); font-size: 13px; color: var(--muted); }
+.tour-term b { color: var(--ink); font-weight: 650; }
 .tour-card .nav button:disabled { opacity: .4; cursor: default; }
 .tour-ans { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-top: 12px; }
 .tour-ans button { appearance: none; text-align: left; border: 1px solid var(--line); background: var(--bg); color: var(--ink); border-radius: 10px; padding: 10px 12px; cursor: pointer; display: flex; flex-direction: column; gap: 4px; }
@@ -648,6 +683,150 @@ footer .sources { border-top: 1px solid var(--line); margin-top: 18px; padding-t
   #mm-tabs .tab { padding: 8px 8px 10px; }
   #mm-tabs .tab b { font-size: 13px; }
 }
+/* Retrieval page v4: explicit sparse matrix, full-space scores, inline PCA stage. */
+#retrieval-lab { --retr-hit: var(--v); }
+#retrieval-lab .retr-head { padding-top: 28px; }
+#retrieval-lab .retr-head h1 { font-size: 30px; }
+#retrieval-lab .retr-head .lead { font-size: 15px; max-width: 84ch; }
+#retrieval-lab h2 { font-size: 16px; font-weight: 650; margin: 0; letter-spacing: -.015em; }
+#retrieval-lab h3 { margin: 0; }
+#retrieval-lab .retr-explore { margin-top: 18px; }
+.retr-toolbar { display: grid; grid-template-columns: 166px minmax(190px,1fr) 150px 110px; gap: 14px; align-items: end; padding: 10px 0 19px; }
+.retr-field { font-size: 12px; font-weight: 600; color: var(--muted); min-width: 0; }
+.retr-field input:not([type="range"]), .retr-field select { display: block; margin-top: 5px; height: 38px; width: 100%; padding: 6px 9px; border: 1px solid var(--line-strong); border-radius: 7px; background: var(--bg); color: var(--ink); font: 13px var(--font-ui); }
+.retr-field-k input { display: block; width: 100%; height: 38px; accent-color: var(--q); }
+.retr-main-figure { margin: 0; border: 1px solid var(--line-strong); border-radius: 12px; overflow: hidden; }
+.retr-figure-head, .retr-panel-head { display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 8px 14px; }
+.retr-figure-head { padding: 17px 17px 14px; }
+.retr-figure-head p { margin: 3px 0 0; color: var(--muted); font-size: 12px; }
+.retr-meta { font-size: 11px; color: var(--muted); font-weight: 400; }
+.retr-flow { display: grid; grid-template-columns: minmax(150px,1.05fr) minmax(270px,1.7fr) minmax(140px,.90fr) minmax(195px,1.20fr) minmax(130px,.83fr); align-items: stretch; min-height: 318px; }
+.retr-stage { padding: 13px 12px 16px; border-top: 1px solid var(--line); min-width: 0; position: relative; }
+.retr-stage + .retr-stage { border-left: 1px solid var(--line); }
+.retr-stage + .retr-stage:before { content: '›'; display: grid; place-items: center; position: absolute; top: 13px; left: -10px; z-index: 1; width: 20px; height: 20px; border-radius: 50%; background: var(--bg); color: var(--faint); border: 1px solid var(--line); font-size: 17px; line-height: 1; }
+.retr-stage-head { display: flex; align-items: baseline; gap: 7px; margin-bottom: 13px; }
+.retr-stage-index { color: var(--faint); font: 10px var(--font-mono); }
+.retr-stage-head h3 { font-size: 12.5px; font-weight: 650; white-space: nowrap; }
+.retr-question-graphic { border-left: 3px solid var(--q); background: color-mix(in srgb,var(--q) 6%,var(--bg)); padding: 9px 9px; border-radius: 3px 7px 7px 3px; min-height: 62px; }
+.retr-figure-small { display: block; color: var(--muted); font-size: 10px; letter-spacing: .03em; }
+.retr-question-graphic p { margin: 5px 0 0; font-size: 12px; line-height: 1.44; color: var(--ink); overflow-wrap: anywhere; }
+.retr-source-list { margin-top: 12px; display: grid; gap: 4px; }
+.retr-source-row { width: 100%; text-align: left; display: flex; align-items: center; min-width: 0; gap: 7px; font-size: 11.5px; color: var(--muted); border: 0; border-bottom: 1px solid var(--line); background: none; padding: 5px 0; cursor: pointer; }
+.retr-source-row:hover { color: var(--ink); }
+.retr-source-row .retr-doc-no { color: var(--faint); font: 10px var(--font-mono); }
+.retr-source-row .retr-doc-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.retr-vector-title { font: 10px/1.4 var(--font-mono); color: var(--muted); margin-bottom: 11px; }
+.retr-array-outer { display: grid; grid-template-columns: 9px minmax(0,1fr) 9px; align-items: stretch; gap: 2px; }
+.retr-bracket { display: flex; align-items: center; justify-content: center; font: 42px/1 var(--font-math); font-weight: 300; color: var(--line-strong); overflow: hidden; user-select: none; }
+.retr-matrix { display: grid; gap: 4px 3px; align-items: center; min-width: 0; }
+.retr-axis-term { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-align: center; color: var(--muted); font: 9px/1.4 var(--font-mono); min-width: 0; }
+.retr-axis-ellipsis { text-align: center; color: var(--faint); font: 15px/1 var(--font-math); }
+.retr-matrix-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font: 10px var(--font-mono); color: var(--muted); }
+.retr-matrix-name.query { font-weight: 700; color: var(--q); }
+.retr-vector-entry { height: 29px; min-width: 0; padding: 0; border: 1px solid color-mix(in srgb,var(--v) 28%,var(--line)); border-radius: 4px; background: color-mix(in srgb,var(--v) 9%,var(--bg)); color: var(--ink); cursor: pointer; font: 10px/1 var(--font-mono); font-variant-numeric: tabular-nums; }
+.retr-vector-entry.zero { background: var(--surface); border-color: var(--line); color: var(--faint); }
+.retr-vector-entry.query:not(.zero) { background: color-mix(in srgb,var(--q) 12%,var(--bg)); border-color: color-mix(in srgb,var(--q) 30%,var(--line)); }
+.retr-vector-entry.active { outline: 2px solid var(--q); outline-offset: 0px; box-shadow: 0 0 0 2px var(--bg) inset; }
+.retr-vector-entry:hover { border-color: var(--q); }
+.retr-sparse-note { margin: 10px 0 0; color: var(--muted); font-size: 10px; line-height: 1.5; }
+.retr-score-equation { min-height: 38px; display: flex; align-items: center; justify-content: center; padding: 7px 2px; background: var(--surface); border-radius: 6px; font-size: 11px; margin-bottom: 14px; overflow: hidden; }
+.retr-score-equation math { max-width: 100%; font-size: .83em; }
+.retr-score-list { display: grid; gap: 3px; }
+.retr-score-row { display: grid; grid-template-columns: 15px minmax(0,1fr) 39px; gap: 4px; align-items: center; padding: 6px 2px; border: 0; border-bottom: 1px solid var(--line); background: none; text-align: left; color: var(--muted); cursor: pointer; min-width: 0; }
+.retr-score-row.hit { color: var(--v); }
+.retr-score-row.selected, .retr-score-row:hover { color: var(--ink); }
+.retr-score-row .retr-score-name { font-size: 10px; text-overflow: ellipsis; overflow: hidden; white-space: nowrap; }
+.retr-score-row .retr-score-num { font: 10px var(--font-mono); text-align: right; }
+.retr-rank { color: var(--faint); font: 10px var(--font-mono); }
+.retr-score-note { margin: 12px 0 0; font-size: 10px; color: var(--muted); line-height: 1.4; }
+.retr-stage-projection svg { background: var(--surface); border: 1px solid var(--line); border-radius: 7px; width: 100%; display: block; aspect-ratio: 290 / 225; }
+.retr-stage-projection svg .retr-map-grid { stroke: var(--line); stroke-width: 1; }
+.retr-stage-projection svg .retr-map-dot { cursor: pointer; }
+.retr-stage-projection svg .retr-map-dot circle { fill: var(--bg); stroke: var(--line-strong); stroke-width: 2; }
+.retr-stage-projection svg .retr-map-dot circle.retr-map-hitarea { fill: transparent !important; stroke: none !important; }
+.retr-stage-projection svg .retr-map-dot.hit circle { fill: color-mix(in srgb,var(--v) 21%,var(--bg)); stroke: var(--v); }
+.retr-stage-projection svg .retr-map-dot.selected circle { stroke: var(--q); stroke-width: 3.5; }
+.retr-stage-projection svg .retr-map-query path { fill: var(--q); stroke: var(--bg); stroke-width: 1.5; }
+.retr-map-legend { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-top: 9px; color: var(--muted); font-size: 10px; }
+.retr-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; border: 1.5px solid var(--line-strong); margin-right: 3px; }
+.retr-dot.query { border-color: var(--q); background: var(--q); }
+.retr-dot.hit { border-color: var(--v); background: color-mix(in srgb,var(--v) 24%,var(--bg)); }
+.retr-map-note { color: var(--muted); font-size: 10px; line-height: 1.38; margin: 8px 0 0; }
+.retr-map-note strong { color: var(--ink); font-weight: 550; }
+.retr-top-list { display: grid; gap: 8px; }
+.retr-top-row { display: flex; align-items: center; gap: 7px; background: color-mix(in srgb,var(--v) 8%,var(--bg)); border-left: 2px solid var(--v); border-radius: 3px; padding: 9px 7px; font-size: 11px; }
+.retr-top-row small { color: var(--muted); white-space: nowrap; }
+.retr-top-row strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 550; }
+.retr-top-empty { font-size: 11px; color: var(--muted); line-height: 1.5; }
+.retr-top-footer { margin-top: 13px; font-size: 10px; color: var(--muted); }
+.retr-caption { padding: 10px 16px; min-height: 41px; background: var(--surface); color: var(--muted); font-size: 11.5px; display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.retr-caption button { border: none; background: none; color: var(--ink); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; white-space: nowrap; font-size: 11px; }
+.retr-derivation { padding: 17px 17px 16px; border-top: 1px solid var(--line); background: color-mix(in srgb,var(--surface) 48%,var(--bg)); }
+.retr-derivation-title { display: flex; align-items: baseline; justify-content: space-between; flex-wrap: wrap; gap: 5px 15px; margin-bottom: 12px; }
+.retr-derivation-title b { color: var(--ink); font-size: 12px; font-weight: 650; }
+.retr-derivation-title span { color: var(--muted); font-size: 11px; }
+.retr-equations { display: grid; grid-template-columns: 1fr 1.35fr 1fr; gap: 12px; }
+.retr-eqn { min-width: 0; display: flex; flex-direction: column; gap: 6px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 7px; background: var(--bg); font-size: 13px; overflow-x: auto; }
+.retr-eqn-number { color: var(--faint); font-size: 10px; font-weight: 600; }
+.retr-math-fallback { font: 12px/1.5 var(--font-ui); color: var(--ink); overflow-wrap: anywhere; }
+.retr-score-equation .retr-math-fallback { font-size: 10px; }
+.retr-eqn math { display: inline-block; font-size: .94em; max-width: 100%; }
+.retr-trace { margin-top: 11px; display: flex; align-items: baseline; flex-wrap: wrap; gap: 6px 15px; color: var(--muted); font-size: 11px; }
+.retr-trace strong { font-weight: 650; color: var(--ink); }
+.retr-trace b { color: var(--ink); font-weight: 650; }
+.retr-trace .retr-trace-result { color: var(--q); }
+.retr-trace-density { margin-left: auto; }
+.retr-inspect-panel { margin-top: 20px; min-width: 0; }
+.retr-panel-head { margin-bottom: 8px; }
+.retr-inspect-layout { display: grid; grid-template-columns: minmax(0,1.5fr) minmax(0,1fr); align-items: start; gap: 12px; }
+#retr-inspect { border: 1px solid var(--line-strong); border-radius: 8px; padding: 11px 14px; min-height: 112px; }
+.retr-inspect-head { display: flex; justify-content: space-between; gap: 10px; align-items: baseline; }
+.retr-inspect-head strong { font-size: 13px; }
+.retr-inspect-head small { color: var(--muted); white-space: nowrap; }
+.retr-inspect-text { margin: 8px 0; font-size: 12px; line-height: 1.6; }
+.retr-inspect-text mark { color: var(--ink); background: color-mix(in srgb,var(--q) 16%,var(--bg)); padding: 0 1px; border-radius: 2px; }
+.retr-inspect-contrib { font-size: 10.5px; color: var(--muted); }
+.retr-inspect-contrib b { color: var(--ink); font-weight: 550; }
+#retr-prompt-details { margin-top: 0; border: 1px solid var(--line); border-radius: 9px; }
+#retr-prompt-details summary { padding: 11px 13px; cursor: pointer; font-size: 12px; font-weight: 600; }
+#retr-prompt-stat { color: var(--muted); font-weight: 400; margin-left: 5px; }
+#retr-context { background: var(--surface); border: 0; padding: 11px; margin: 0 11px; max-height: 230px; overflow: auto; white-space: pre-wrap; overflow-wrap: anywhere; font: 11px/1.6 var(--font-mono); }
+#retr-answer { color: var(--muted); font-size: 11.5px; padding: 9px 12px 14px; }
+.retr-formula-note { margin: 17px 0 8px; border-top: 1px solid var(--line); padding-top: 10px; display: flex; flex-wrap: wrap; align-items: baseline; gap: 10px; font-size: 11px; color: var(--muted); }
+.retr-formula-note > span:first-child { color: var(--ink); font-weight: 600; }
+#retrieval-lab footer { margin-top: 24px; }
+@media(max-width:1140px){
+ .retr-flow { grid-template-columns: minmax(170px,1fr) minmax(300px,1.55fr) minmax(155px,.9fr); }
+ .retr-stage:nth-child(4) { border-left: none; }
+ .retr-stage:nth-child(n+4) { border-top: 1px solid var(--line); }
+ .retr-stage:nth-child(4):before { display:none; }
+ .retr-stage-projection svg { max-width: 290px; }
+}
+@media(max-width:780px){
+ .retr-toolbar { grid-template-columns: 1fr 1fr; gap: 10px; }
+ .retr-field-query { grid-column: 1 / -1; grid-row: 1; }
+ .retr-flow { grid-template-columns: minmax(0,1fr) minmax(0,1.3fr); }
+ .retr-stage:nth-child(3) { border-left: none; }
+ .retr-stage:nth-child(3):before { display:none; }
+ .retr-stage:nth-child(4) { border-left: 1px solid var(--line); }
+ .retr-stage:nth-child(4):before { display:grid; }
+ .retr-stage:nth-child(5) { border-left: none; }
+ .retr-stage:nth-child(5):before { display:none; }
+ .retr-equations { grid-template-columns: 1fr; }
+ .retr-inspect-layout { grid-template-columns: 1fr; }
+}
+@media(max-width:560px){
+ .retr-flow { grid-template-columns: 1fr; }
+ .retr-stage { border-left: 0 !important; padding: 13px 15px; }
+ .retr-stage + .retr-stage:before { display:none !important; }
+ .retr-figure-head { padding: 15px; }
+ .retr-stage-projection svg { max-width: 290px; }
+ .retr-caption { flex-wrap: wrap; }
+ .retr-derivation { padding: 14px; }
+ .retr-trace-density { margin-left: 0; }
+ #retrieval-lab .retr-head h1 { font-size: 25px; }
+}
+@media(prefers-reduced-motion:reduce){#retrieval-lab * { transition: none !important; }}
 </style>
 </head>
 <body>
@@ -657,7 +836,7 @@ footer .sources { border-top: 1px solid var(--line); margin-top: 18px; padding-t
     <nav class="pages" aria-label="Pages">
       <a href="#architectures" data-page="architectures">Architectures</a>
       <a href="#multimodal" data-page="multimodal">Multimodal</a>
-      <a href="#retrieval" data-page="retrieval">Retrieval <span class="soon">soon</span></a>
+      <a href="#retrieval" data-page="retrieval">Retrieval</a>
       <a href="#reasoning" data-page="reasoning">Reasoning <span class="soon">soon</span></a>
       <a href="#agents" data-page="agents">Agents <span class="soon">soon</span></a>
       <a class="gh" href="https://github.com/valentinsvelev/llm-internals-lab" target="_blank" rel="noopener noreferrer" aria-label="Source code on GitHub"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M8 6 2 12l6 6M16 6l6 6-6 6M13.5 4l-3 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>GitHub</a>
@@ -671,12 +850,12 @@ footer .sources { border-top: 1px solid var(--line); margin-top: 18px; padding-t
   <div class="wrap">
     <div class="subnav-t">Transformer architectures</div>
     <nav class="tabs" id="tabs" role="tablist" aria-label="Attention mechanism">
-      <button class="tab" role="tab" data-mech="mha" type="button"><b>MHA</b><span>multi-head</span></button>
-      <button class="tab" role="tab" data-mech="mqa" type="button"><b>MQA</b><span>multi-query</span></button>
-      <button class="tab" role="tab" data-mech="gqa" type="button"><b>GQA</b><span>grouped-query</span></button>
-      <button class="tab" role="tab" data-mech="mla" type="button"><b>MLA</b><span>latent</span></button>
-      <button class="tab" role="tab" data-mech="gdn" type="button"><b>GDN</b><span>gated delta</span></button>
-      <button class="tab" role="tab" data-mech="dsa" type="button"><b>Sparse</b><span>DSA · QSA</span></button>
+      <button class="tab" role="tab" data-mech="mha" type="button"><b>MHA</b><span>multi-head</span><small class="tab-year"></small></button>
+      <button class="tab" role="tab" data-mech="mqa" type="button"><b>MQA</b><span>multi-query</span><small class="tab-year"></small></button>
+      <button class="tab" role="tab" data-mech="gqa" type="button"><b>GQA</b><span>grouped-query</span><small class="tab-year"></small></button>
+      <button class="tab" role="tab" data-mech="mla" type="button"><b>MLA</b><span>latent</span><small class="tab-year"></small></button>
+      <button class="tab" role="tab" data-mech="gdn" type="button"><b>GDN</b><span>gated delta</span><small class="tab-year"></small></button>
+      <button class="tab" role="tab" data-mech="dsa" type="button"><b>Sparse</b><span>DSA · QSA</span><small class="tab-year"></small></button>
     </nav>
   </div>
 </div>
@@ -817,26 +996,51 @@ footer .sources { border-top: 1px solid var(--line); margin-top: 18px; padding-t
   </footer>
 </div>
 </div>
-<div class="page soon-page" data-page="retrieval" hidden>
-<div class="wrap">
-  <section class="intro" aria-labelledby="retrieval-title">
-    <p class="kicker">Coming soon</p>
-    <h1 id="retrieval-title">Retrieval</h1>
-    <p class="lead">How a model finds the passages it needs, and how they reach its context.</p>
-  </section>
-  <section class="plan" aria-label="Planned sections">
-    <h2>Planned</h2>
-    <ol class="plan-list">
-      <li><b>Keyword search</b><span>Inverted indexes and BM25: exact words, counted and weighted.</span></li>
-      <li><b>Embeddings</b><span>A text becomes one vector: the residual stream of an encoder, pooled.</span></li>
-      <li><b>Training for similarity</b><span>Contrastive learning: pull a query and its passage together, push the rest apart.</span></li>
-      <li><b>Searching millions of vectors</b><span>Approximate nearest neighbours: graphs (HNSW) and compressed vectors.</span></li>
-      <li><b>Reranking</b><span>Cross-encoders and late interaction score the best candidates again, token by token.</span></li>
-      <li><b>Retrieval-augmented generation</b><span>Retrieved passages in the prompt, versus simply using a longer context.</span></li>
-    </ol>
-    <p class="plan-note">This page is a placeholder; its explorer is not built yet. <a href="#architectures" data-page="architectures">Back to the architectures</a></p>
-  </section>
-</div>
+<div class="page" data-page="retrieval" hidden>
+  <div class="wrap" id="retrieval-lab">
+    <section class="intro retr-head" aria-labelledby="retrieval-title">
+      <p class="kicker">Retrieval · lexical search</p>
+      <h1 id="retrieval-title">From a query to relevant passages</h1>
+      <p class="lead">Text becomes a sparse matrix of term weights. A ranker scores each passage; the highest-scoring passages become the model's evidence.</p>
+    </section>
+    <section class="retr-explore" aria-label="Interactive retrieval explorer">
+      <div class="retr-toolbar">
+        <label class="retr-field retr-field-preset">Example <select id="retr-preset" aria-label="Example query"></select></label>
+        <label class="retr-field retr-field-query">Query <input id="retr-question" type="text" autocomplete="off" spellcheck="false" aria-label="Search query"></label>
+        <label class="retr-field retr-field-method">Rank by <select id="retr-method"><option value="bm25">BM25</option><option value="cosine">TF-IDF cosine</option></select></label>
+        <label class="retr-field retr-field-k">Top-k <span id="retr-k-value">2</span><input id="retr-k" type="range" min="1" max="5" value="2" step="1" aria-label="Number of results to retrieve"></label>
+      </div>
+      <figure class="retr-main-figure" aria-labelledby="retr-figure-title">
+        <div class="retr-figure-head"><div><h2 id="retr-figure-title">Lexical retrieval pipeline</h2><p>All calculations run locally. Click a matrix entry to inspect its weight.</p></div><span id="retr-figure-meta" class="retr-meta"></span></div>
+        <div class="retr-flow" id="retr-flow">
+          <section class="retr-stage" data-stage="0" aria-label="Query and source documents"><div class="retr-stage-head"><span class="retr-stage-index">01</span><h3>Text inputs</h3></div><div id="retr-flow-input"></div></section>
+          <section class="retr-stage retr-stage-matrix" data-stage="1" aria-label="Sparse TF-IDF vector matrix"><div class="retr-stage-head"><span class="retr-stage-index">02</span><h3>Sparse vectors</h3></div><div id="retr-flow-sparse"></div></section>
+          <section class="retr-stage" data-stage="2" aria-label="Relevance score computation"><div class="retr-stage-head"><span class="retr-stage-index">03</span><h3>Scoring</h3></div><div id="retr-flow-scores"></div></section>
+          <section class="retr-stage retr-stage-projection" data-stage="3" aria-labelledby="retr-map-title"><div class="retr-stage-head"><span class="retr-stage-index">04</span><h3 id="retr-map-title">2D projection</h3></div>
+            <svg id="retr-map" role="group" viewBox="0 0 290 230" aria-label="PCA projection of TF-IDF passage vectors, with query and selected results. Explore points with Tab or click."></svg>
+            <div class="retr-map-legend"><span><i class="retr-dot query"></i> Query</span><span><i class="retr-dot hit"></i> Top-k</span><span><i class="retr-dot"></i> Other</span></div>
+            <p class="retr-map-note">PCA projects full vectors into 2D; <strong>its distances never determine the ranking.</strong></p>
+          </section>
+          <section class="retr-stage" data-stage="4" aria-label="Top k retrieved passages"><div class="retr-stage-head"><span class="retr-stage-index">05</span><h3>Top-k</h3></div><div id="retr-flow-top"></div></section>
+        </div>
+        <div class="retr-derivation" aria-label="Sparse vector calculation">
+          <div class="retr-derivation-title"><b>How the matrix is computed</b><span id="retr-sparse-summary">A term absent from a text has exactly zero weight.</span></div>
+          <div class="retr-equations">
+            <div class="retr-eqn" id="retr-eqn-idf"></div>
+            <div class="retr-eqn" id="retr-eqn-weight"></div>
+            <div class="retr-eqn" id="retr-eqn-sparsity"></div>
+          </div>
+          <div class="retr-trace" id="retr-weight-trace" aria-live="polite"></div>
+        </div>
+        <figcaption class="retr-caption"><span id="retr-explain">A sparse vector contains one coordinate per vocabulary term; most coordinates are zero.</span><button type="button" id="retr-chunk-switch" aria-label="Switch between passages and whole documents">Search whole documents</button></figcaption>
+      </figure>
+      <section class="retr-inspect-panel" aria-labelledby="retr-inspect-title"><div class="retr-panel-head"><h2 id="retr-inspect-title">Selected passage</h2><span class="retr-meta">Choose a row or a point to inspect its source</span></div>
+        <div class="retr-inspect-layout"><div id="retr-inspect" aria-live="polite"></div><details id="retr-prompt-details"><summary>Retrieved context <span id="retr-prompt-stat"></span></summary><pre id="retr-context"></pre><div id="retr-answer"></div></details></div>
+      </section>
+      <div class="retr-formula-note"><span>Ranking method</span><span id="retr-equation-note">BM25 and TF-IDF cosine are distinct functions of lexical terms.</span></div>
+    </section>
+    <footer><p>Demonstration: five fictional Moonlight Aquarium documents. Tokenization lowercases, removes common stop words and applies simplified plural handling. TF-IDF uses smoothed IDF and L2 normalization; BM25 uses a separate length-normalized term formula (k₁ = 1.2, b = 0.75). Both rank in the full vocabulary space. The deterministic PCA projection is for visualization only. No embedding model, language model or API is called; example answers are predefined and evidence-checked.</p><div class="sources"><p>Sources</p><ul><li>Lewis et al. (2020). <a href="https://arxiv.org/abs/2005.11401" target="_blank" rel="noopener noreferrer">Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks</a>.</li><li>Robertson &amp; Zaragoza (2009). <a href="https://doi.org/10.1561/1500000019" target="_blank" rel="noopener noreferrer">The Probabilistic Relevance Framework: BM25 and Beyond</a>.</li><li>Salton &amp; Buckley (1988). <a href="https://doi.org/10.1016/0306-4573(88)90021-0" target="_blank" rel="noopener noreferrer">Term-weighting approaches in automatic text retrieval</a>.</li></ul></div></footer>
+  </div>
 </div>
 <div class="page soon-page" data-page="reasoning" hidden>
 <div class="wrap">
@@ -888,5 +1092,7 @@ footer .sources { border-top: 1px solid var(--line); margin-top: 18px; padding-t
 <script>/*__MM_CONTENT_JS__*/</script>
 <script>/*__MM_APP_JS__*/</script>
 <script>/*__APP_JS__*/</script>
+<script>/*__RETRIEVAL_CONTENT_JS__*/</script>
+<script>/*__RETRIEVAL_APP_JS__*/</script>
 </body>
 </html>

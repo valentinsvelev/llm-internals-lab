@@ -77,6 +77,16 @@ const MODELS = {
   },
 };
 const ORDER = ['mha', 'mqa', 'gqa', 'mla', 'gdn', 'dsa'];
+/* First publications of the named designs, not the release years of the model examples.
+ * "Sparse" groups the DSA (2025) and QSA (2026) implementations, not all sparse attention. */
+const ARCH_YEARS = {
+  mha: { year: '2017', note: 'Multi-head attention · Attention Is All You Need (2017)' },
+  mqa: { year: '2019', note: 'Multi-query attention · Shazeer (2019)' },
+  gqa: { year: '2023', note: 'Grouped-query attention · Ainslie et al. (2023)' },
+  mla: { year: '2024', note: 'Multi-head latent attention · DeepSeek-V2 (2024)' },
+  gdn: { year: '2024', note: 'Gated DeltaNet · preprint 2024, ICLR 2025' },
+  dsa: { year: '2025–26', note: 'DeepSeek Sparse Attention (2025) and Qwen Sparse Attention (2026); sparse attention itself is older' },
+};
 /* Qwen's block-sparse variant, shown in "Attention up close" of the sparse tab.
  * Qwen3.8-Flash-Next text config (via Ollama / LMSYS): 48 layers, 3 GDN : 1 QSA. */
 const QSA = { model: 'Qwen3.8-Flash-Next', H: 24, G: 2, dh: 256, L: 48, attnLayers: 12, block: 4, blocks: 512, heads: 4, dim: 128, budget: 2048 };
@@ -296,7 +306,7 @@ function overviewRaw(m, variant) {
     block, blockNote: `Attention is the first sublayer of each of the ${m.L} blocks; an MLP follows.`,
   };
   if (m.key === 'gdn') return {
-    lead: 'A fixed-size memory, updated token by token, replaces the growing key–value cache in three of every four layers.',
+    lead: 'Most layers replace the growing KV cache with fixed-size memory.',
     tex: [String.raw`S_t = \alpha_t\, S_{t-1}\big(I - \beta_t\, k_t k_t^{\top}\big) + \beta_t\, v_t k_t^{\top}`, String.raw`o_t = S_t\, q_t`],
     text: `Each Gated DeltaNet head keeps one 128 × 128 matrix S that maps keys to values. Every new token decays it by α (forget), overwrites what it stores under the token's key k with the token's value v (strength β), and then reads it with the token's query q. Qwen3-Next-80B-A3B has 36 such layers and 12 layers of gated softmax attention, so only a quarter of its layers keep a per-token cache.`,
     block: String.raw`x \leftarrow x + \operatorname{Mixer}_{\ell}\!\big(\operatorname{RMSNorm}(x)\big)`,
@@ -888,6 +898,7 @@ function views(m) {
  * answers to the same problem, the growing KV cache. */
 const TOUR = [
   { id: 'tokens', title: 'Text becomes numbers', on: ['text', 'tok'],
+    term: ['Token', 'A piece of text represented by one number.'],
     get text() {     // names the most-split word of the example on show, as GPT-2 cuts it
       const tk = TOKENS.models.mha, words = TOKENS.sentence.split(' ');
       const n = words.map((w, i) => tk.pieces.filter((p, t) => tk.words[t] === i && /[A-Za-z]/.test(p)).length);
@@ -896,18 +907,25 @@ const TOUR = [
       return `A language model never sees letters. A tokenizer cuts the text into pieces from a fixed vocabulary (GPT-2’s has 50,257 entries) and replaces each piece with its number. Frequent words are a single piece; ${split}. Hover a word to see how it was cut.`;
     } },
   { id: 'vectors', title: 'Numbers become vectors', on: ['tok', 'emb', 'stream'],
+    term: ['E · embedding table', 'Turns each token ID into a vector; the residual stream carries these vectors through the model.'],
     text: 'Each number selects one row of a learned table, E: a list of 768 numbers that stands for that piece. From here on every token is one row of numbers, and all the rows travel through the model side by side. This bundle, the residual stream, is what every later step reads and adds to.' },
   { id: 'qkv', title: 'Every token asks, offers and passes on', on: ['norm1', 'attnbox', 'xhat', 'q', 'k', 'v', 'arc'],
+    term: ['$\\hat{x}$, $Q$, $K$, $V$', '$\\hat{x}$ is the normalized token vector; $Q$ asks, $K$ is matched, and $V$ contributes information. See the highlighted diagram key.'],
     text: 'To share information, each token computes three new vectors from its row: a query (what it is looking for), a key (what it can be found by) and a value (what it hands on when it is found). Every token gets its own three, made with the same weights for all tokens; GPT-2 splits each into 12 heads, the small cells in every row. The arrows show it for the last token.' },
   { id: 'attention', title: 'Attention: looking back at earlier tokens', on: ['attnbox', 'q', 'k', 'v', 'att', 'y'],
+    term: ['Attention weights', 'Numbers describing how much of each earlier token’s value to use.'],
     text: 'Each token compares its query with the key of every earlier token. The better a key matches, the more weight that token gets; the weights in each row of the grid add up to 1. The token then takes the weighted mix of those tokens’ values. No token can look ahead, so the upper triangle stays blank. GPT-2 does this 12 times in parallel (12 heads), each free to look for something different.' },
   { id: 'block', title: 'A block, repeated', on: ['attnbox', 'y', 'res1', 'attnout', 'stream', 'norm2', 'ffnbox', 'fin', 'ffn', 'ffnout', 'res2', 'block'],
+    term: ['Transformer block', 'Attention plus a feed-forward layer, adding updates back to each token’s representation.'],
     text: 'The mixed result is added onto each token’s row. A second part, the feed-forward layer, then works on every token on its own. Attention plus feed-forward make one block; GPT-2 stacks 12 of them, each with its own weights, and each refines the rows a little more.' },
   { id: 'next', title: 'Predicting the next piece', on: ['stream', 'fnorm', 'head', 'logit', 'dist', 'decbox', 'chosen', 'loop'],
+    term: ['Logits', 'The scores for possible next tokens, before converting them into probabilities.'],
     text: 'After the last block, the last token’s row is turned into one score for every entry of the vocabulary, and the scores into probabilities. A decoding rule picks one; here it samples among the five most likely. The chosen piece is appended to the text and the model runs again: text is generated one piece at a time.' },
   { id: 'cache', title: 'The memory problem', on: ['tok', 'k', 'v', 'loop'], extra: 'cache',
+    term: ['KV cache', 'Saved keys and values from earlier tokens so they do not need to be recomputed.'],
     text: 'Running again does not mean starting over. The keys and values of earlier tokens never change, so they are kept in memory: the KV cache, shaded here. But it grows with every token, in every block. GPT-2 stores 36 KiB per token, 36 MiB for its full context of 1,024 tokens. Today’s models read contexts of 100,000 tokens and more with much larger layers, and this cache becomes the main limit on memory and speed.' },
   { id: 'answers', title: 'Six answers', on: ['attnbox', 'q', 'k', 'v', 'att', 'y'], extra: 'answers',
+    term: ['The years', 'Dates on the tabs describe these named designs, not the ages of the example models; Sparse shows DSA (2025) and QSA (2026).'],
     text: 'Each tab of this page is one answer to that problem, shown in a real model. They differ only inside the attention box. Pick one to explore it in full; the bars show what each stores per token and layer at the same width.' },
 ];
 const TOUR_ANSWERS = {
@@ -954,7 +972,7 @@ function allTex() {
   return [...out];
 }
 
-const API = { TOUR, TOUR_ANSWERS, MODELS, ORDER, QSA, COMPARE, HIGHLIGHT, ARCH_HIGHLIGHT, SOURCES, TOKENS, METHODS, fmt, bytes, cacheValues, cacheLayers, gdnState, showPiece,
+const API = { TOUR, TOUR_ANSWERS, MODELS, ORDER, ARCH_YEARS, QSA, COMPARE, HIGHLIGHT, ARCH_HIGHLIGHT, SOURCES, TOKENS, METHODS, fmt, bytes, cacheValues, cacheLayers, gdnState, showPiece,
   nextTokenData, decodeDist, beamSearch, specDist, usesTau, DRAFT_SHIFT, DECODE_TEX, EXAMPLES, setExample, realEntry,
   cacheBytesPerToken, compareRows, kvHeadOf, overview, stats, steps, allTex, views, archHighlight,
   archOverview: (m, view) => { const o = archOverview(m, view); return { ...o, tex: splitTex(o.tex) }; },

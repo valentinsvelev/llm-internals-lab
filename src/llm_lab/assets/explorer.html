@@ -96,6 +96,8 @@ sup, sub { font-size: 0.72em; line-height: 0; }
 .tab span { font-size: 12px; }
 .tab:hover { color: var(--ink); }
 .tab.active { color: var(--ink); border-bottom-color: var(--ink); }
+.tab-year { display: block; margin-top: 1px; font-size: 11px; line-height: 1.3; font-weight: 500; color: var(--faint); font-variant-numeric: tabular-nums; }
+.tab.active .tab-year { color: var(--muted); }
 
 /* heading */
 .intro { padding: 36px 0 0; }
@@ -491,6 +493,37 @@ kbd { font: 11px var(--font-mono); border: 1px solid var(--line); border-bottom-
 .chipbtn var, .chipbtn sup { font-size: inherit; }
 
 
+/* Embedded whole-model legend: Input text box styling, no separate pills. */
+/* v5: space-efficient model-specific legend */
+#arch .diagram-legend {
+  box-sizing: border-box; width: 100%; height: 100%; padding: 4px 9px;
+  border: 1px solid var(--line-strong); border-radius: 8px; background: var(--bg);
+  color: var(--ink); font: 11.5px/14px var(--font-ui);
+}
+#arch .symbol-key-list { display: flex; flex-wrap: wrap; align-content: center; column-gap: 10px; row-gap: 2px; padding: 0; margin: 0; height: 100%; }
+#arch .symbol-key-list > div { display: inline-flex; align-items: baseline; gap: 4px; white-space: nowrap; border-radius: 3px; }
+#arch .symbol-key-list > div[hidden] { display: none; }
+#arch .symbol-key-list > div.active { background: var(--surface); box-shadow: 0 0 0 3px var(--surface); }
+#arch .symbol-key-list dt { font-weight: 650; }
+#arch .symbol-key-list dd { margin: 0; color: var(--muted); }
+#arch .symbol-key-list dt math { font-size: 1.1em; vertical-align: middle; }
+#arch .symbol-key-list .q { color: var(--q); }
+#arch .symbol-key-list .k { color: var(--k); }
+#arch .symbol-key-list .v { color: var(--v); }
+#arch .symbol-key-list .symbol-dial { vertical-align: -2px; margin-right: 2px; }
+
+/* v6: interactive legend explanations */
+#arch .symbol-key-list > div[data-pop] { cursor: help; outline: none; }
+#arch .symbol-key-list > div[data-pop]:hover,
+#arch .symbol-key-list > div[data-pop]:focus-visible {
+  background: var(--surface);
+  box-shadow: 0 0 0 2px var(--surface);
+}
+#arch .symbol-key-list > div[data-pop]:focus-visible {
+  outline: 2px solid var(--q);
+  outline-offset: 2px;
+}
+
 /* guided tour */
 .tour { margin: 0 0 14px; scroll-margin-top: 12px; }
 .tour-invite { display: flex; gap: 10px 14px; align-items: center; flex-wrap: wrap; padding: 10px 14px; border: 1px dashed var(--line-strong); border-radius: 10px; font-size: 14px; }
@@ -505,6 +538,8 @@ kbd { font: 11px var(--font-mono); border: 1px solid var(--line); border-bottom-
 .tour-x:hover { color: var(--ink); }
 .tour-card h3 { margin: 6px 0 0; font-size: 19px; letter-spacing: -0.01em; }
 .tour-card p { margin: 6px 0 0; font-size: 15px; line-height: 1.6; max-width: 86ch; text-wrap: pretty; }
+.tour-card .tour-term { margin-top: 12px; padding-top: 9px; border-top: 1px solid var(--line-strong); font-size: 13px; color: var(--muted); }
+.tour-term b { color: var(--ink); font-weight: 650; }
 .tour-card .nav button:disabled { opacity: .4; cursor: default; }
 .tour-ans { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-top: 12px; }
 .tour-ans button { appearance: none; text-align: left; border: 1px solid var(--line); background: var(--bg); color: var(--ink); border-radius: 10px; padding: 10px 12px; cursor: pointer; display: flex; flex-direction: column; gap: 4px; }
@@ -656,6 +691,150 @@ footer .sources { border-top: 1px solid var(--line); margin-top: 18px; padding-t
   #mm-tabs .tab { padding: 8px 8px 10px; }
   #mm-tabs .tab b { font-size: 13px; }
 }
+/* Retrieval page v4: explicit sparse matrix, full-space scores, inline PCA stage. */
+#retrieval-lab { --retr-hit: var(--v); }
+#retrieval-lab .retr-head { padding-top: 28px; }
+#retrieval-lab .retr-head h1 { font-size: 30px; }
+#retrieval-lab .retr-head .lead { font-size: 15px; max-width: 84ch; }
+#retrieval-lab h2 { font-size: 16px; font-weight: 650; margin: 0; letter-spacing: -.015em; }
+#retrieval-lab h3 { margin: 0; }
+#retrieval-lab .retr-explore { margin-top: 18px; }
+.retr-toolbar { display: grid; grid-template-columns: 166px minmax(190px,1fr) 150px 110px; gap: 14px; align-items: end; padding: 10px 0 19px; }
+.retr-field { font-size: 12px; font-weight: 600; color: var(--muted); min-width: 0; }
+.retr-field input:not([type="range"]), .retr-field select { display: block; margin-top: 5px; height: 38px; width: 100%; padding: 6px 9px; border: 1px solid var(--line-strong); border-radius: 7px; background: var(--bg); color: var(--ink); font: 13px var(--font-ui); }
+.retr-field-k input { display: block; width: 100%; height: 38px; accent-color: var(--q); }
+.retr-main-figure { margin: 0; border: 1px solid var(--line-strong); border-radius: 12px; overflow: hidden; }
+.retr-figure-head, .retr-panel-head { display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 8px 14px; }
+.retr-figure-head { padding: 17px 17px 14px; }
+.retr-figure-head p { margin: 3px 0 0; color: var(--muted); font-size: 12px; }
+.retr-meta { font-size: 11px; color: var(--muted); font-weight: 400; }
+.retr-flow { display: grid; grid-template-columns: minmax(150px,1.05fr) minmax(270px,1.7fr) minmax(140px,.90fr) minmax(195px,1.20fr) minmax(130px,.83fr); align-items: stretch; min-height: 318px; }
+.retr-stage { padding: 13px 12px 16px; border-top: 1px solid var(--line); min-width: 0; position: relative; }
+.retr-stage + .retr-stage { border-left: 1px solid var(--line); }
+.retr-stage + .retr-stage:before { content: '›'; display: grid; place-items: center; position: absolute; top: 13px; left: -10px; z-index: 1; width: 20px; height: 20px; border-radius: 50%; background: var(--bg); color: var(--faint); border: 1px solid var(--line); font-size: 17px; line-height: 1; }
+.retr-stage-head { display: flex; align-items: baseline; gap: 7px; margin-bottom: 13px; }
+.retr-stage-index { color: var(--faint); font: 10px var(--font-mono); }
+.retr-stage-head h3 { font-size: 12.5px; font-weight: 650; white-space: nowrap; }
+.retr-question-graphic { border-left: 3px solid var(--q); background: color-mix(in srgb,var(--q) 6%,var(--bg)); padding: 9px 9px; border-radius: 3px 7px 7px 3px; min-height: 62px; }
+.retr-figure-small { display: block; color: var(--muted); font-size: 10px; letter-spacing: .03em; }
+.retr-question-graphic p { margin: 5px 0 0; font-size: 12px; line-height: 1.44; color: var(--ink); overflow-wrap: anywhere; }
+.retr-source-list { margin-top: 12px; display: grid; gap: 4px; }
+.retr-source-row { width: 100%; text-align: left; display: flex; align-items: center; min-width: 0; gap: 7px; font-size: 11.5px; color: var(--muted); border: 0; border-bottom: 1px solid var(--line); background: none; padding: 5px 0; cursor: pointer; }
+.retr-source-row:hover { color: var(--ink); }
+.retr-source-row .retr-doc-no { color: var(--faint); font: 10px var(--font-mono); }
+.retr-source-row .retr-doc-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.retr-vector-title { font: 10px/1.4 var(--font-mono); color: var(--muted); margin-bottom: 11px; }
+.retr-array-outer { display: grid; grid-template-columns: 9px minmax(0,1fr) 9px; align-items: stretch; gap: 2px; }
+.retr-bracket { display: flex; align-items: center; justify-content: center; font: 42px/1 var(--font-math); font-weight: 300; color: var(--line-strong); overflow: hidden; user-select: none; }
+.retr-matrix { display: grid; gap: 4px 3px; align-items: center; min-width: 0; }
+.retr-axis-term { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-align: center; color: var(--muted); font: 9px/1.4 var(--font-mono); min-width: 0; }
+.retr-axis-ellipsis { text-align: center; color: var(--faint); font: 15px/1 var(--font-math); }
+.retr-matrix-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font: 10px var(--font-mono); color: var(--muted); }
+.retr-matrix-name.query { font-weight: 700; color: var(--q); }
+.retr-vector-entry { height: 29px; min-width: 0; padding: 0; border: 1px solid color-mix(in srgb,var(--v) 28%,var(--line)); border-radius: 4px; background: color-mix(in srgb,var(--v) 9%,var(--bg)); color: var(--ink); cursor: pointer; font: 10px/1 var(--font-mono); font-variant-numeric: tabular-nums; }
+.retr-vector-entry.zero { background: var(--surface); border-color: var(--line); color: var(--faint); }
+.retr-vector-entry.query:not(.zero) { background: color-mix(in srgb,var(--q) 12%,var(--bg)); border-color: color-mix(in srgb,var(--q) 30%,var(--line)); }
+.retr-vector-entry.active { outline: 2px solid var(--q); outline-offset: 0px; box-shadow: 0 0 0 2px var(--bg) inset; }
+.retr-vector-entry:hover { border-color: var(--q); }
+.retr-sparse-note { margin: 10px 0 0; color: var(--muted); font-size: 10px; line-height: 1.5; }
+.retr-score-equation { min-height: 38px; display: flex; align-items: center; justify-content: center; padding: 7px 2px; background: var(--surface); border-radius: 6px; font-size: 11px; margin-bottom: 14px; overflow: hidden; }
+.retr-score-equation math { max-width: 100%; font-size: .83em; }
+.retr-score-list { display: grid; gap: 3px; }
+.retr-score-row { display: grid; grid-template-columns: 15px minmax(0,1fr) 39px; gap: 4px; align-items: center; padding: 6px 2px; border: 0; border-bottom: 1px solid var(--line); background: none; text-align: left; color: var(--muted); cursor: pointer; min-width: 0; }
+.retr-score-row.hit { color: var(--v); }
+.retr-score-row.selected, .retr-score-row:hover { color: var(--ink); }
+.retr-score-row .retr-score-name { font-size: 10px; text-overflow: ellipsis; overflow: hidden; white-space: nowrap; }
+.retr-score-row .retr-score-num { font: 10px var(--font-mono); text-align: right; }
+.retr-rank { color: var(--faint); font: 10px var(--font-mono); }
+.retr-score-note { margin: 12px 0 0; font-size: 10px; color: var(--muted); line-height: 1.4; }
+.retr-stage-projection svg { background: var(--surface); border: 1px solid var(--line); border-radius: 7px; width: 100%; display: block; aspect-ratio: 290 / 225; }
+.retr-stage-projection svg .retr-map-grid { stroke: var(--line); stroke-width: 1; }
+.retr-stage-projection svg .retr-map-dot { cursor: pointer; }
+.retr-stage-projection svg .retr-map-dot circle { fill: var(--bg); stroke: var(--line-strong); stroke-width: 2; }
+.retr-stage-projection svg .retr-map-dot circle.retr-map-hitarea { fill: transparent !important; stroke: none !important; }
+.retr-stage-projection svg .retr-map-dot.hit circle { fill: color-mix(in srgb,var(--v) 21%,var(--bg)); stroke: var(--v); }
+.retr-stage-projection svg .retr-map-dot.selected circle { stroke: var(--q); stroke-width: 3.5; }
+.retr-stage-projection svg .retr-map-query path { fill: var(--q); stroke: var(--bg); stroke-width: 1.5; }
+.retr-map-legend { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-top: 9px; color: var(--muted); font-size: 10px; }
+.retr-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; border: 1.5px solid var(--line-strong); margin-right: 3px; }
+.retr-dot.query { border-color: var(--q); background: var(--q); }
+.retr-dot.hit { border-color: var(--v); background: color-mix(in srgb,var(--v) 24%,var(--bg)); }
+.retr-map-note { color: var(--muted); font-size: 10px; line-height: 1.38; margin: 8px 0 0; }
+.retr-map-note strong { color: var(--ink); font-weight: 550; }
+.retr-top-list { display: grid; gap: 8px; }
+.retr-top-row { display: flex; align-items: center; gap: 7px; background: color-mix(in srgb,var(--v) 8%,var(--bg)); border-left: 2px solid var(--v); border-radius: 3px; padding: 9px 7px; font-size: 11px; }
+.retr-top-row small { color: var(--muted); white-space: nowrap; }
+.retr-top-row strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 550; }
+.retr-top-empty { font-size: 11px; color: var(--muted); line-height: 1.5; }
+.retr-top-footer { margin-top: 13px; font-size: 10px; color: var(--muted); }
+.retr-caption { padding: 10px 16px; min-height: 41px; background: var(--surface); color: var(--muted); font-size: 11.5px; display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.retr-caption button { border: none; background: none; color: var(--ink); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; white-space: nowrap; font-size: 11px; }
+.retr-derivation { padding: 17px 17px 16px; border-top: 1px solid var(--line); background: color-mix(in srgb,var(--surface) 48%,var(--bg)); }
+.retr-derivation-title { display: flex; align-items: baseline; justify-content: space-between; flex-wrap: wrap; gap: 5px 15px; margin-bottom: 12px; }
+.retr-derivation-title b { color: var(--ink); font-size: 12px; font-weight: 650; }
+.retr-derivation-title span { color: var(--muted); font-size: 11px; }
+.retr-equations { display: grid; grid-template-columns: 1fr 1.35fr 1fr; gap: 12px; }
+.retr-eqn { min-width: 0; display: flex; flex-direction: column; gap: 6px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 7px; background: var(--bg); font-size: 13px; overflow-x: auto; }
+.retr-eqn-number { color: var(--faint); font-size: 10px; font-weight: 600; }
+.retr-math-fallback { font: 12px/1.5 var(--font-ui); color: var(--ink); overflow-wrap: anywhere; }
+.retr-score-equation .retr-math-fallback { font-size: 10px; }
+.retr-eqn math { display: inline-block; font-size: .94em; max-width: 100%; }
+.retr-trace { margin-top: 11px; display: flex; align-items: baseline; flex-wrap: wrap; gap: 6px 15px; color: var(--muted); font-size: 11px; }
+.retr-trace strong { font-weight: 650; color: var(--ink); }
+.retr-trace b { color: var(--ink); font-weight: 650; }
+.retr-trace .retr-trace-result { color: var(--q); }
+.retr-trace-density { margin-left: auto; }
+.retr-inspect-panel { margin-top: 20px; min-width: 0; }
+.retr-panel-head { margin-bottom: 8px; }
+.retr-inspect-layout { display: grid; grid-template-columns: minmax(0,1.5fr) minmax(0,1fr); align-items: start; gap: 12px; }
+#retr-inspect { border: 1px solid var(--line-strong); border-radius: 8px; padding: 11px 14px; min-height: 112px; }
+.retr-inspect-head { display: flex; justify-content: space-between; gap: 10px; align-items: baseline; }
+.retr-inspect-head strong { font-size: 13px; }
+.retr-inspect-head small { color: var(--muted); white-space: nowrap; }
+.retr-inspect-text { margin: 8px 0; font-size: 12px; line-height: 1.6; }
+.retr-inspect-text mark { color: var(--ink); background: color-mix(in srgb,var(--q) 16%,var(--bg)); padding: 0 1px; border-radius: 2px; }
+.retr-inspect-contrib { font-size: 10.5px; color: var(--muted); }
+.retr-inspect-contrib b { color: var(--ink); font-weight: 550; }
+#retr-prompt-details { margin-top: 0; border: 1px solid var(--line); border-radius: 9px; }
+#retr-prompt-details summary { padding: 11px 13px; cursor: pointer; font-size: 12px; font-weight: 600; }
+#retr-prompt-stat { color: var(--muted); font-weight: 400; margin-left: 5px; }
+#retr-context { background: var(--surface); border: 0; padding: 11px; margin: 0 11px; max-height: 230px; overflow: auto; white-space: pre-wrap; overflow-wrap: anywhere; font: 11px/1.6 var(--font-mono); }
+#retr-answer { color: var(--muted); font-size: 11.5px; padding: 9px 12px 14px; }
+.retr-formula-note { margin: 17px 0 8px; border-top: 1px solid var(--line); padding-top: 10px; display: flex; flex-wrap: wrap; align-items: baseline; gap: 10px; font-size: 11px; color: var(--muted); }
+.retr-formula-note > span:first-child { color: var(--ink); font-weight: 600; }
+#retrieval-lab footer { margin-top: 24px; }
+@media(max-width:1140px){
+ .retr-flow { grid-template-columns: minmax(170px,1fr) minmax(300px,1.55fr) minmax(155px,.9fr); }
+ .retr-stage:nth-child(4) { border-left: none; }
+ .retr-stage:nth-child(n+4) { border-top: 1px solid var(--line); }
+ .retr-stage:nth-child(4):before { display:none; }
+ .retr-stage-projection svg { max-width: 290px; }
+}
+@media(max-width:780px){
+ .retr-toolbar { grid-template-columns: 1fr 1fr; gap: 10px; }
+ .retr-field-query { grid-column: 1 / -1; grid-row: 1; }
+ .retr-flow { grid-template-columns: minmax(0,1fr) minmax(0,1.3fr); }
+ .retr-stage:nth-child(3) { border-left: none; }
+ .retr-stage:nth-child(3):before { display:none; }
+ .retr-stage:nth-child(4) { border-left: 1px solid var(--line); }
+ .retr-stage:nth-child(4):before { display:grid; }
+ .retr-stage:nth-child(5) { border-left: none; }
+ .retr-stage:nth-child(5):before { display:none; }
+ .retr-equations { grid-template-columns: 1fr; }
+ .retr-inspect-layout { grid-template-columns: 1fr; }
+}
+@media(max-width:560px){
+ .retr-flow { grid-template-columns: 1fr; }
+ .retr-stage { border-left: 0 !important; padding: 13px 15px; }
+ .retr-stage + .retr-stage:before { display:none !important; }
+ .retr-figure-head { padding: 15px; }
+ .retr-stage-projection svg { max-width: 290px; }
+ .retr-caption { flex-wrap: wrap; }
+ .retr-derivation { padding: 14px; }
+ .retr-trace-density { margin-left: 0; }
+ #retrieval-lab .retr-head h1 { font-size: 25px; }
+}
+@media(prefers-reduced-motion:reduce){#retrieval-lab * { transition: none !important; }}
 </style>
 </head>
 <body>
@@ -665,7 +844,7 @@ footer .sources { border-top: 1px solid var(--line); margin-top: 18px; padding-t
     <nav class="pages" aria-label="Pages">
       <a href="#architectures" data-page="architectures">Architectures</a>
       <a href="#multimodal" data-page="multimodal">Multimodal</a>
-      <a href="#retrieval" data-page="retrieval">Retrieval <span class="soon">soon</span></a>
+      <a href="#retrieval" data-page="retrieval">Retrieval</a>
       <a href="#reasoning" data-page="reasoning">Reasoning <span class="soon">soon</span></a>
       <a href="#agents" data-page="agents">Agents <span class="soon">soon</span></a>
       <a class="gh" href="https://github.com/valentinsvelev/llm-internals-lab" target="_blank" rel="noopener noreferrer" aria-label="Source code on GitHub"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M8 6 2 12l6 6M16 6l6 6-6 6M13.5 4l-3 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>GitHub</a>
@@ -679,12 +858,12 @@ footer .sources { border-top: 1px solid var(--line); margin-top: 18px; padding-t
   <div class="wrap">
     <div class="subnav-t">Transformer architectures</div>
     <nav class="tabs" id="tabs" role="tablist" aria-label="Attention mechanism">
-      <button class="tab" role="tab" data-mech="mha" type="button"><b>MHA</b><span>multi-head</span></button>
-      <button class="tab" role="tab" data-mech="mqa" type="button"><b>MQA</b><span>multi-query</span></button>
-      <button class="tab" role="tab" data-mech="gqa" type="button"><b>GQA</b><span>grouped-query</span></button>
-      <button class="tab" role="tab" data-mech="mla" type="button"><b>MLA</b><span>latent</span></button>
-      <button class="tab" role="tab" data-mech="gdn" type="button"><b>GDN</b><span>gated delta</span></button>
-      <button class="tab" role="tab" data-mech="dsa" type="button"><b>Sparse</b><span>DSA · QSA</span></button>
+      <button class="tab" role="tab" data-mech="mha" type="button"><b>MHA</b><span>multi-head</span><small class="tab-year"></small></button>
+      <button class="tab" role="tab" data-mech="mqa" type="button"><b>MQA</b><span>multi-query</span><small class="tab-year"></small></button>
+      <button class="tab" role="tab" data-mech="gqa" type="button"><b>GQA</b><span>grouped-query</span><small class="tab-year"></small></button>
+      <button class="tab" role="tab" data-mech="mla" type="button"><b>MLA</b><span>latent</span><small class="tab-year"></small></button>
+      <button class="tab" role="tab" data-mech="gdn" type="button"><b>GDN</b><span>gated delta</span><small class="tab-year"></small></button>
+      <button class="tab" role="tab" data-mech="dsa" type="button"><b>Sparse</b><span>DSA · QSA</span><small class="tab-year"></small></button>
     </nav>
   </div>
 </div>
@@ -825,26 +1004,51 @@ footer .sources { border-top: 1px solid var(--line); margin-top: 18px; padding-t
   </footer>
 </div>
 </div>
-<div class="page soon-page" data-page="retrieval" hidden>
-<div class="wrap">
-  <section class="intro" aria-labelledby="retrieval-title">
-    <p class="kicker">Coming soon</p>
-    <h1 id="retrieval-title">Retrieval</h1>
-    <p class="lead">How a model finds the passages it needs, and how they reach its context.</p>
-  </section>
-  <section class="plan" aria-label="Planned sections">
-    <h2>Planned</h2>
-    <ol class="plan-list">
-      <li><b>Keyword search</b><span>Inverted indexes and BM25: exact words, counted and weighted.</span></li>
-      <li><b>Embeddings</b><span>A text becomes one vector: the residual stream of an encoder, pooled.</span></li>
-      <li><b>Training for similarity</b><span>Contrastive learning: pull a query and its passage together, push the rest apart.</span></li>
-      <li><b>Searching millions of vectors</b><span>Approximate nearest neighbours: graphs (HNSW) and compressed vectors.</span></li>
-      <li><b>Reranking</b><span>Cross-encoders and late interaction score the best candidates again, token by token.</span></li>
-      <li><b>Retrieval-augmented generation</b><span>Retrieved passages in the prompt, versus simply using a longer context.</span></li>
-    </ol>
-    <p class="plan-note">This page is a placeholder; its explorer is not built yet. <a href="#architectures" data-page="architectures">Back to the architectures</a></p>
-  </section>
-</div>
+<div class="page" data-page="retrieval" hidden>
+  <div class="wrap" id="retrieval-lab">
+    <section class="intro retr-head" aria-labelledby="retrieval-title">
+      <p class="kicker">Retrieval · lexical search</p>
+      <h1 id="retrieval-title">From a query to relevant passages</h1>
+      <p class="lead">Text becomes a sparse matrix of term weights. A ranker scores each passage; the highest-scoring passages become the model's evidence.</p>
+    </section>
+    <section class="retr-explore" aria-label="Interactive retrieval explorer">
+      <div class="retr-toolbar">
+        <label class="retr-field retr-field-preset">Example <select id="retr-preset" aria-label="Example query"></select></label>
+        <label class="retr-field retr-field-query">Query <input id="retr-question" type="text" autocomplete="off" spellcheck="false" aria-label="Search query"></label>
+        <label class="retr-field retr-field-method">Rank by <select id="retr-method"><option value="bm25">BM25</option><option value="cosine">TF-IDF cosine</option></select></label>
+        <label class="retr-field retr-field-k">Top-k <span id="retr-k-value">2</span><input id="retr-k" type="range" min="1" max="5" value="2" step="1" aria-label="Number of results to retrieve"></label>
+      </div>
+      <figure class="retr-main-figure" aria-labelledby="retr-figure-title">
+        <div class="retr-figure-head"><div><h2 id="retr-figure-title">Lexical retrieval pipeline</h2><p>All calculations run locally. Click a matrix entry to inspect its weight.</p></div><span id="retr-figure-meta" class="retr-meta"></span></div>
+        <div class="retr-flow" id="retr-flow">
+          <section class="retr-stage" data-stage="0" aria-label="Query and source documents"><div class="retr-stage-head"><span class="retr-stage-index">01</span><h3>Text inputs</h3></div><div id="retr-flow-input"></div></section>
+          <section class="retr-stage retr-stage-matrix" data-stage="1" aria-label="Sparse TF-IDF vector matrix"><div class="retr-stage-head"><span class="retr-stage-index">02</span><h3>Sparse vectors</h3></div><div id="retr-flow-sparse"></div></section>
+          <section class="retr-stage" data-stage="2" aria-label="Relevance score computation"><div class="retr-stage-head"><span class="retr-stage-index">03</span><h3>Scoring</h3></div><div id="retr-flow-scores"></div></section>
+          <section class="retr-stage retr-stage-projection" data-stage="3" aria-labelledby="retr-map-title"><div class="retr-stage-head"><span class="retr-stage-index">04</span><h3 id="retr-map-title">2D projection</h3></div>
+            <svg id="retr-map" role="group" viewBox="0 0 290 230" aria-label="PCA projection of TF-IDF passage vectors, with query and selected results. Explore points with Tab or click."></svg>
+            <div class="retr-map-legend"><span><i class="retr-dot query"></i> Query</span><span><i class="retr-dot hit"></i> Top-k</span><span><i class="retr-dot"></i> Other</span></div>
+            <p class="retr-map-note">PCA projects full vectors into 2D; <strong>its distances never determine the ranking.</strong></p>
+          </section>
+          <section class="retr-stage" data-stage="4" aria-label="Top k retrieved passages"><div class="retr-stage-head"><span class="retr-stage-index">05</span><h3>Top-k</h3></div><div id="retr-flow-top"></div></section>
+        </div>
+        <div class="retr-derivation" aria-label="Sparse vector calculation">
+          <div class="retr-derivation-title"><b>How the matrix is computed</b><span id="retr-sparse-summary">A term absent from a text has exactly zero weight.</span></div>
+          <div class="retr-equations">
+            <div class="retr-eqn" id="retr-eqn-idf"></div>
+            <div class="retr-eqn" id="retr-eqn-weight"></div>
+            <div class="retr-eqn" id="retr-eqn-sparsity"></div>
+          </div>
+          <div class="retr-trace" id="retr-weight-trace" aria-live="polite"></div>
+        </div>
+        <figcaption class="retr-caption"><span id="retr-explain">A sparse vector contains one coordinate per vocabulary term; most coordinates are zero.</span><button type="button" id="retr-chunk-switch" aria-label="Switch between passages and whole documents">Search whole documents</button></figcaption>
+      </figure>
+      <section class="retr-inspect-panel" aria-labelledby="retr-inspect-title"><div class="retr-panel-head"><h2 id="retr-inspect-title">Selected passage</h2><span class="retr-meta">Choose a row or a point to inspect its source</span></div>
+        <div class="retr-inspect-layout"><div id="retr-inspect" aria-live="polite"></div><details id="retr-prompt-details"><summary>Retrieved context <span id="retr-prompt-stat"></span></summary><pre id="retr-context"></pre><div id="retr-answer"></div></details></div>
+      </section>
+      <div class="retr-formula-note"><span>Ranking method</span><span id="retr-equation-note">BM25 and TF-IDF cosine are distinct functions of lexical terms.</span></div>
+    </section>
+    <footer><p>Demonstration: five fictional Moonlight Aquarium documents. Tokenization lowercases, removes common stop words and applies simplified plural handling. TF-IDF uses smoothed IDF and L2 normalization; BM25 uses a separate length-normalized term formula (k₁ = 1.2, b = 0.75). Both rank in the full vocabulary space. The deterministic PCA projection is for visualization only. No embedding model, language model or API is called; example answers are predefined and evidence-checked.</p><div class="sources"><p>Sources</p><ul><li>Lewis et al. (2020). <a href="https://arxiv.org/abs/2005.11401" target="_blank" rel="noopener noreferrer">Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks</a>.</li><li>Robertson &amp; Zaragoza (2009). <a href="https://doi.org/10.1561/1500000019" target="_blank" rel="noopener noreferrer">The Probabilistic Relevance Framework: BM25 and Beyond</a>.</li><li>Salton &amp; Buckley (1988). <a href="https://doi.org/10.1016/0306-4573(88)90021-0" target="_blank" rel="noopener noreferrer">Term-weighting approaches in automatic text retrieval</a>.</li></ul></div></footer>
+  </div>
 </div>
 <div class="page soon-page" data-page="reasoning" hidden>
 <div class="wrap">
@@ -970,6 +1174,16 @@ const MODELS = {
   },
 };
 const ORDER = ['mha', 'mqa', 'gqa', 'mla', 'gdn', 'dsa'];
+/* First publications of the named designs, not the release years of the model examples.
+ * "Sparse" groups the DSA (2025) and QSA (2026) implementations, not all sparse attention. */
+const ARCH_YEARS = {
+  mha: { year: '2017', note: 'Multi-head attention · Attention Is All You Need (2017)' },
+  mqa: { year: '2019', note: 'Multi-query attention · Shazeer (2019)' },
+  gqa: { year: '2023', note: 'Grouped-query attention · Ainslie et al. (2023)' },
+  mla: { year: '2024', note: 'Multi-head latent attention · DeepSeek-V2 (2024)' },
+  gdn: { year: '2024', note: 'Gated DeltaNet · preprint 2024, ICLR 2025' },
+  dsa: { year: '2025–26', note: 'DeepSeek Sparse Attention (2025) and Qwen Sparse Attention (2026); sparse attention itself is older' },
+};
 /* Qwen's block-sparse variant, shown in "Attention up close" of the sparse tab.
  * Qwen3.8-Flash-Next text config (via Ollama / LMSYS): 48 layers, 3 GDN : 1 QSA. */
 const QSA = { model: 'Qwen3.8-Flash-Next', H: 24, G: 2, dh: 256, L: 48, attnLayers: 12, block: 4, blocks: 512, heads: 4, dim: 128, budget: 2048 };
@@ -1189,7 +1403,7 @@ function overviewRaw(m, variant) {
     block, blockNote: `Attention is the first sublayer of each of the ${m.L} blocks; an MLP follows.`,
   };
   if (m.key === 'gdn') return {
-    lead: 'A fixed-size memory, updated token by token, replaces the growing key–value cache in three of every four layers.',
+    lead: 'Most layers replace the growing KV cache with fixed-size memory.',
     tex: [String.raw`S_t = \alpha_t\, S_{t-1}\big(I - \beta_t\, k_t k_t^{\top}\big) + \beta_t\, v_t k_t^{\top}`, String.raw`o_t = S_t\, q_t`],
     text: `Each Gated DeltaNet head keeps one 128 × 128 matrix S that maps keys to values. Every new token decays it by α (forget), overwrites what it stores under the token's key k with the token's value v (strength β), and then reads it with the token's query q. Qwen3-Next-80B-A3B has 36 such layers and 12 layers of gated softmax attention, so only a quarter of its layers keep a per-token cache.`,
     block: String.raw`x \leftarrow x + \operatorname{Mixer}_{\ell}\!\big(\operatorname{RMSNorm}(x)\big)`,
@@ -1781,6 +1995,7 @@ function views(m) {
  * answers to the same problem, the growing KV cache. */
 const TOUR = [
   { id: 'tokens', title: 'Text becomes numbers', on: ['text', 'tok'],
+    term: ['Token', 'A piece of text represented by one number.'],
     get text() {     // names the most-split word of the example on show, as GPT-2 cuts it
       const tk = TOKENS.models.mha, words = TOKENS.sentence.split(' ');
       const n = words.map((w, i) => tk.pieces.filter((p, t) => tk.words[t] === i && /[A-Za-z]/.test(p)).length);
@@ -1789,18 +2004,25 @@ const TOUR = [
       return `A language model never sees letters. A tokenizer cuts the text into pieces from a fixed vocabulary (GPT-2’s has 50,257 entries) and replaces each piece with its number. Frequent words are a single piece; ${split}. Hover a word to see how it was cut.`;
     } },
   { id: 'vectors', title: 'Numbers become vectors', on: ['tok', 'emb', 'stream'],
+    term: ['E · embedding table', 'Turns each token ID into a vector; the residual stream carries these vectors through the model.'],
     text: 'Each number selects one row of a learned table, E: a list of 768 numbers that stands for that piece. From here on every token is one row of numbers, and all the rows travel through the model side by side. This bundle, the residual stream, is what every later step reads and adds to.' },
   { id: 'qkv', title: 'Every token asks, offers and passes on', on: ['norm1', 'attnbox', 'xhat', 'q', 'k', 'v', 'arc'],
+    term: ['$\\hat{x}$, $Q$, $K$, $V$', '$\\hat{x}$ is the normalized token vector; $Q$ asks, $K$ is matched, and $V$ contributes information. See the highlighted diagram key.'],
     text: 'To share information, each token computes three new vectors from its row: a query (what it is looking for), a key (what it can be found by) and a value (what it hands on when it is found). Every token gets its own three, made with the same weights for all tokens; GPT-2 splits each into 12 heads, the small cells in every row. The arrows show it for the last token.' },
   { id: 'attention', title: 'Attention: looking back at earlier tokens', on: ['attnbox', 'q', 'k', 'v', 'att', 'y'],
+    term: ['Attention weights', 'Numbers describing how much of each earlier token’s value to use.'],
     text: 'Each token compares its query with the key of every earlier token. The better a key matches, the more weight that token gets; the weights in each row of the grid add up to 1. The token then takes the weighted mix of those tokens’ values. No token can look ahead, so the upper triangle stays blank. GPT-2 does this 12 times in parallel (12 heads), each free to look for something different.' },
   { id: 'block', title: 'A block, repeated', on: ['attnbox', 'y', 'res1', 'attnout', 'stream', 'norm2', 'ffnbox', 'fin', 'ffn', 'ffnout', 'res2', 'block'],
+    term: ['Transformer block', 'Attention plus a feed-forward layer, adding updates back to each token’s representation.'],
     text: 'The mixed result is added onto each token’s row. A second part, the feed-forward layer, then works on every token on its own. Attention plus feed-forward make one block; GPT-2 stacks 12 of them, each with its own weights, and each refines the rows a little more.' },
   { id: 'next', title: 'Predicting the next piece', on: ['stream', 'fnorm', 'head', 'logit', 'dist', 'decbox', 'chosen', 'loop'],
+    term: ['Logits', 'The scores for possible next tokens, before converting them into probabilities.'],
     text: 'After the last block, the last token’s row is turned into one score for every entry of the vocabulary, and the scores into probabilities. A decoding rule picks one; here it samples among the five most likely. The chosen piece is appended to the text and the model runs again: text is generated one piece at a time.' },
   { id: 'cache', title: 'The memory problem', on: ['tok', 'k', 'v', 'loop'], extra: 'cache',
+    term: ['KV cache', 'Saved keys and values from earlier tokens so they do not need to be recomputed.'],
     text: 'Running again does not mean starting over. The keys and values of earlier tokens never change, so they are kept in memory: the KV cache, shaded here. But it grows with every token, in every block. GPT-2 stores 36 KiB per token, 36 MiB for its full context of 1,024 tokens. Today’s models read contexts of 100,000 tokens and more with much larger layers, and this cache becomes the main limit on memory and speed.' },
   { id: 'answers', title: 'Six answers', on: ['attnbox', 'q', 'k', 'v', 'att', 'y'], extra: 'answers',
+    term: ['The years', 'Dates on the tabs describe these named designs, not the ages of the example models; Sparse shows DSA (2025) and QSA (2026).'],
     text: 'Each tab of this page is one answer to that problem, shown in a real model. They differ only inside the attention box. Pick one to explore it in full; the bars show what each stores per token and layer at the same width.' },
 ];
 const TOUR_ANSWERS = {
@@ -1847,7 +2069,7 @@ function allTex() {
   return [...out];
 }
 
-const API = { TOUR, TOUR_ANSWERS, MODELS, ORDER, QSA, COMPARE, HIGHLIGHT, ARCH_HIGHLIGHT, SOURCES, TOKENS, METHODS, fmt, bytes, cacheValues, cacheLayers, gdnState, showPiece,
+const API = { TOUR, TOUR_ANSWERS, MODELS, ORDER, ARCH_YEARS, QSA, COMPARE, HIGHLIGHT, ARCH_HIGHLIGHT, SOURCES, TOKENS, METHODS, fmt, bytes, cacheValues, cacheLayers, gdnState, showPiece,
   nextTokenData, decodeDist, beamSearch, specDist, usesTau, DRAFT_SHIFT, DECODE_TEX, EXAMPLES, setExample, realEntry,
   cacheBytesPerToken, compareRows, kvHeadOf, overview, stats, steps, allTex, views, archHighlight,
   archOverview: (m, view) => { const o = archOverview(m, view); return { ...o, tex: splitTex(o.tex) }; },
@@ -2825,7 +3047,9 @@ function tex(t) {
 function fmtPlain(s) {
   return esc(s)
     .replace(/\b([A-Za-z])\^([A-Z]{1,3})\b/g, (_, b, p) => `<var>${mi(b)}</var><sup>${p}</sup>`)
-    .replace(/\b([A-Za-z])_([a-zA-Z0-9]{1,2})\b/g, (_, b, p) => `<var>${mi(b)}</var><sub>${/^[a-z]+$/.test(p) ? mi(p) : p}</sub>`);
+    .replace(/\b([A-Za-z])_([a-zA-Z0-9]{1,2})\b/g, (_, b, p) => `<var>${mi(b)}</var><sub>${/^[a-z]+$/.test(p) ? mi(p) : p}</sub>`)
+    .replace(/x̂/g, () => tex(String.raw`\hat{x}`))
+    .replace(/θ/g, () => tex(String.raw`\theta`));
 }
 function fmtText(s) { return String(s).split(/\$([^$]+)\$/).map((part, i) => i % 2 ? tex(part) : fmtPlain(part)).join(''); }
 function math(t) { return `<div class="eq">${tex(t)}</div>`; }
@@ -3258,7 +3482,7 @@ function applyFocus() {
 /* ---------- the whole model ---------- */
 /* Layout: every token occupies one row (y = rowY(t)) across tokens, embeddings, x̂, Q, K, V,
    the mixer and the feed-forward layer, so a token's own q, k and v sit on its row. */
-const AW = 1440, AH = 700, SY = 132, Y0 = 288, RH = 24;
+const AW = 1440, AH = 744, SY = 132, Y0 = 288, RH = 24;
 const BX0 = 316, BX1 = 1136;                 // decoder block
 const AX0 = 332, AX1 = 832;                  // attention / mixer sublayer
 const FX0 = 864, FX1 = 1112;                 // feed-forward sublayer
@@ -3266,7 +3490,7 @@ const SB0 = 190;                             // top of both sublayer boxes
 let SB1 = 542;                               // their bottom: set per example, from its longest tokenization
 const FN = 1190;                             // final norm
 const RX0 = 1162, RX1 = 1432, RC = (RX0 + RX1) / 2;
-const LY0 = 172, LY1 = 240, DY0 = 252, DY1 = 452, CY0 = 466, CY1 = 670;   // logits, distribution, decoding
+const LY0 = 185, LY1 = 253, DY0 = 277, DY1 = 477, CY0 = 501, CY1 = 705;   // logits, distribution, decoding
 const rowY = t => Y0 + t * RH;
 const NEXT_REAL = (() => { try { return JSON.parse(document.getElementById('next-token-data').textContent || '{}'); } catch (e) { return {}; } })();
 
@@ -3350,6 +3574,55 @@ function idxSel(t) {
 }
 function attnShade(t, s) { return 0.25 + 0.75 * hash01(t + 11, s + 5); }
 
+/* v6: every legend symbol shares the main diagram tooltip behavior. */
+function drawSymbolKey(svg) {
+  const m = LAB.MODELS[state.mech], v = view(m);
+  const recurrent = m.key === 'gdn' && v.layer !== 'gattn';
+  const latent = m.key === 'mla' || m.key === 'dsa';
+  const isSparse = m.key === 'dsa';
+  const gatedAttention = m.key === 'gdn' && !recurrent;
+  const item = (name, formula, meaning, title) => `<div data-symbol="${name}" data-pop="legend:${name}" tabindex="0" aria-describedby="pop"><dt data-tex="${esc(formula)}">${esc(name)}</dt><dd>${esc(meaning)}</dd></div>`;
+  const extra = [
+    ...(latent ? [
+      item('ckv', String.raw`C^{KV}`, 'compressed KV', 'Compact latent used to reconstruct keys and values'),
+      item('kr', String.raw`k^{R}`, 'rotary key', 'Position-dependent key kept separately from the latent'),
+    ] : []),
+    ...(isSparse ? [
+      item('ki', String.raw`k^{I}`, 'index key', 'Key used to choose which past tokens to read'),
+      item('ibar', String.raw`I_t`, 'selection scores', 'Scores used by the sparse indexer to select past tokens'),
+    ] : []),
+    ...(recurrent ? [
+      item('conv', String.raw`\operatorname{conv}_4`, 'short conv', 'Causal convolution that mixes the latest four positions'),
+      item('gate-a', String.raw`\alpha`, 'forget gate', 'Controls how much of the previous state is retained'),
+      item('gate-b', String.raw`\beta`, 'write gate', 'Controls the strength of the update to the state'),
+      item('state', String.raw`S_t`, 'fixed memory', 'Fixed-size memory after token t'),
+      item('read', String.raw`o`, 'state readout', 'Result of reading the state with the query'),
+      item('zg', String.raw`z`, 'output gate', 'Controls how much of the readout to pass through'),
+    ] : []),
+    ...(gatedAttention ? [item('gt', String.raw`\sigma(G)`, 'output gate', 'Gate on gated-attention head outputs')] : []),
+    ...(moeShown(m) ? [item('moe', String.raw`\operatorname{MoE}`, 'routed experts', 'Only a selected subset of expert networks is used per token')] : []),
+  ];
+  S('text', { x: 472, y: 16, class: 'st', text: 'Legend' }, svg);
+  const host = S('foreignObject', { id: 'symbol-key', x: 472, y: 24, width: 662, height: 60,
+    role: 'group', 'aria-label': 'Symbols in the model diagram' }, svg);
+  const frame = document.createElementNS('http://www.w3.org/1999/xhtml', 'div');
+  frame.className = 'diagram-legend';
+  frame.innerHTML = `<dl class="symbol-key-list">
+    <div data-symbol="emb" data-pop="legend:emb" tabindex="0" aria-describedby="pop"><dt data-tex="E">E</dt><dd>embedding table</dd></div>
+    <div data-symbol="pos" data-pop="legend:pos" tabindex="0" aria-describedby="pop"><dt data-tex="P">P</dt><dd>position table</dd></div>
+    <div data-symbol="xhat" data-pop="legend:xhat" tabindex="0" aria-describedby="pop"><dt data-tex="\\hat{x}">x</dt><dd>normalized token</dd></div>
+    <div data-symbol="q" data-pop="legend:q" tabindex="0" aria-describedby="pop"><dt class="q" data-tex="Q">Q</dt><dd>query</dd></div>
+    <div data-symbol="k" data-pop="legend:k" tabindex="0" aria-describedby="pop"><dt class="k" data-tex="K">K</dt><dd>key</dd></div>
+    <div data-symbol="v" data-pop="legend:v" tabindex="0" aria-describedby="pop"><dt class="v" data-tex="V">V</dt><dd>value</dd></div>
+    <div data-symbol="rope" data-pop="legend:rope" tabindex="0" aria-describedby="pop"><dt><svg class="symbol-dial" width="15" height="15" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><circle cx="8" cy="8" r="5" fill="none" stroke="currentColor" stroke-width="1.2"/><line x1="8" y1="8" x2="11.5" y2="5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>RoPE</dt><dd>rotations</dd></div>
+    ${extra.join('')}
+    <div data-symbol="att" data-pop="legend:att" tabindex="0" aria-describedby="pop"><dt data-tex="A_{1}">A₁</dt><dd>head weights</dd></div>
+    <div data-symbol="y" data-pop="legend:y" tabindex="0" aria-describedby="pop"><dt data-tex="Y">Y</dt><dd>attention output</dd></div>
+    <div data-symbol="logit" data-pop="legend:logit" tabindex="0" aria-describedby="pop"><dt>logits</dt><dd>next-token scores</dd></div>
+  </dl>`;
+  host.appendChild(frame);
+}
+
 function drawArch(m) {
   const svg = $('#arch');
   svg.replaceChildren();
@@ -3410,6 +3683,8 @@ function drawArch(m) {
   hoverRow = null;                 // a fresh diagram: the next hover draws its arrows again
   drawArcs(m, state.row);
   applyArchFocus();
+  drawSymbolKey(svg);
+  renderSymbolKey();
   wireRows(svg);
 }
 
@@ -3686,8 +3961,9 @@ function drawFFN(svg, m, moe, T) {
 /* ---- output: final norm, LM head, logits, distribution box, decoding box, loop back */
 function drawOutput(svg, m, T) {
   S('text', { x: FN, y: SY - 26, 'text-anchor': 'middle', class: 'st', 'data-h': 'fnorm', text: 'Final norm' }, svg);
-  pillA(svg, FN, SY, 64, m.norm === 'LayerNorm' ? 'LN' : 'RMSNorm', 'fnorm', 'fnorm', 'fnorm');
-  S('line', { x1: FN + 32, y1: SY, x2: RC - 24, y2: SY, class: 'thin' }, svg);
+  const finalNormWidth = m.norm === 'LayerNorm' ? 96 : 86;
+  pillA(svg, FN, SY, finalNormWidth, m.norm, 'fnorm', 'fnorm', 'fnorm');
+  S('line', { x1: FN + finalNormWidth / 2, y1: SY, x2: RC - 24, y2: SY, class: 'thin' }, svg);
   const hd = act(S('g', { 'data-h': 'head' }, svg), 'head', 'head', 'Language-model head');
   S('rect', { x: RC - 22, y: SY - 28, width: 44, height: 56, rx: 7, class: 'wbox' }, hd);
   mlab(hd, RC, SY + 6, 'W', 'U', null);
@@ -4041,8 +4317,83 @@ function setHover(t, word) {
 }
 
 /* ---------- pop-ups: title, subtitle, text, calculation lines (TeX, or {t} for plain text) ---------- */
+/* Expanded, keyboard-accessible explanations for the compact diagram legend. */
+function legendPopupContent(symbol, m) {
+  const recurrent = m.key === 'gdn' && view(m).layer !== 'gattn';
+  const details = {
+    emb: ['Embedding table $E$', 'Tokens become vectors',
+      'Each token ID selects a learned row from this table. That vector is the starting numerical representation of the token; the model updates it as the text passes through its layers.',
+      [String.raw`e_t = E[\operatorname{token\ ID}_t]`]],
+    pos: ['Position table $P$', 'Learned positions · GPT-2',
+      'GPT-2 learns a separate vector for each position in the input. The position vector is added to the token embedding so the model can distinguish the same token appearing in different places.',
+      [String.raw`h_t = E[\operatorname{ID}_t] + P_t`]],
+    xhat: ['Normalized token vector $\\hat{x}$', `Normalization · ${m.norm}`,
+      'A normalized copy of a token’s current representation. It keeps numerical scales stable before the model computes queries, keys, values or other mixer inputs.',
+      [String.raw`\hat{x}_t = \operatorname{${m.norm}}(h_t)`]],
+    q: ['Query $Q$', 'What am I looking for?',
+      'A query is a learned representation used to request information from earlier tokens. Attention compares it with keys to find useful context. Different query heads can look for different things.',
+      [String.raw`\operatorname{score}(t,s) \propto q_t \cdot k_s`]],
+    k: ['Key $K$', 'How can this token be found?',
+      'A key represents what information a token makes available for matching. Queries are compared with keys; in ordinary attention, past keys can be cached so they do not need to be recomputed.',
+      [String.raw`\operatorname{score}(t,s) \propto q_t \cdot k_s`]],
+    v: ['Value $V$', 'What information does this token contribute?',
+      'A value holds information that another token can retrieve. Attention mixes past value vectors in the proportions determined by query–key matching. Keys determine where to look; values supply the result.',
+      [String.raw`o_t = \textstyle\sum_{s\le t} a_{t,s}v_s`]],
+    rope: ['RoPE rotation dials', 'Position information in queries and keys',
+      'Each circle illustrates one pair of coordinates being rotated according to token position. This lets attention account for relative positions without adding a separate learned position table. The dials are schematic.',
+      [String.raw`\tilde q_t = R_t q_t,\qquad \tilde k_t = R_t k_t`]],
+    ckv: ['Compressed KV vector $C^{KV}$', 'Multi-head latent attention',
+      'Instead of caching full keys and values for every attention head, MLA stores a compact latent representation for each token. When needed, the model uses projections of this vector to construct keys and values.',
+      [String.raw`c_t^{KV} = \hat{x}_t W^{DKV}`]],
+    kr: ['Rotary key $k^{R}$', 'Position-dependent key · MLA',
+      'MLA stores a small rotary key separately from the compressed content vector. It carries position information shared across attention heads, while the compressed latent carries much of the content.',
+      [String.raw`k_t^{R} = \operatorname{RoPE}(\hat{x}_t W^{KR})`]],
+    ki: ['Index key $k^{I}$', 'Sparse attention · finding candidates',
+      'The sparse indexer uses a lightweight key for each past token to estimate which positions are worth reading with the full attention mechanism. It is separate from the main attention key.',
+      [String.raw`k_s^{I} = \operatorname{LN}(\hat{x}_s W^{IK})`]],
+    ibar: ['Selection scores $I_t$', 'Sparse attention · choosing what to read',
+      'The indexer scores earlier positions and selects the highest-scoring ones. Full attention then operates on the selected tokens instead of reading the entire context. The diagram shows an illustrative selection.',
+      [String.raw`\mathcal{S}_t = \operatorname{TopK}(I_{t,:})`]],
+    conv: ['Short causal convolution', 'Gated DeltaNet · local order',
+      'Before updating its recurrent memory, Gated DeltaNet combines each query, key and value with their recent history. The kernel covers the current token and up to three earlier tokens.',
+      [String.raw`\tilde q_t = \operatorname{SiLU}(\operatorname{conv}_4(q)_t)`]],
+    'gate-a': ['Forget gate $\\alpha$', 'Gated DeltaNet · retain old memory',
+      'This gate controls how strongly the previous recurrent memory carries forward. A value near one keeps more of the old state; a smaller value forgets more.',
+      [String.raw`0 < \alpha_t \le 1`]],
+    'gate-b': ['Write gate $\\beta$', 'Gated DeltaNet · update memory',
+      'This gate controls the strength of the change made by the current token’s key and value. It determines how strongly the new information corrects or overwrites the previous state.',
+      [String.raw`0 < \beta_t < 1`]],
+    state: ['Memory state $S_t$', 'Gated DeltaNet · fixed-size memory',
+      'A matrix summarizes the information carried forward after processing token t. Unlike an attention KV cache, the size of this recurrent state does not grow with the number of tokens.',
+      [String.raw`S_t \in \mathbb{R}^{d_v \times d_k}`]],
+    read: ['State readout $o$', 'Gated DeltaNet · retrieving memory',
+      'The current query reads from the fixed-size memory matrix to produce an output vector. This replaces the weighted sum over all earlier value vectors used by standard attention.',
+      [String.raw`o_t = S_t\hat q_t`]],
+    zg: ['Output gate $z$', 'Gated DeltaNet · shaping the readout',
+      'The readout is normalized and multiplied by an activation of z before the head outputs are combined. The gate lets the layer modulate which components of the result are passed on.',
+      [String.raw`y_t \propto \operatorname{SiLU}(z_t) \odot \operatorname{Norm}(o_t)`]],
+    gt: ['Gated attention $\\sigma(G)$', 'An extra gate on attention output',
+      'In the gated-attention layers, a learned gate scales each attention head’s output before the heads are projected back to the model width. This is distinct from Gated DeltaNet’s recurrent memory gates.',
+      [String.raw`0 < \sigma(G) < 1`]],
+    moe: ['Mixture of Experts (MoE)', 'Select a few feed-forward networks',
+      'A router chooses a subset of specialized feed-forward networks for each token. The chosen experts process the token, and their contributions are combined. This lets the model have many parameters without using every expert for every token.',
+      [String.raw`y = \textstyle\sum_{i\in\operatorname{selected}} w_i F_i(x)`]],
+    att: [`Attention weights $A_{${state.head}}$`, `Head ${state.head} · who attends to whom`,
+      'Each row describes how strongly one token reads earlier tokens in the selected head. Masked future positions receive no weight; the allowed weights sum to one. Colors in this diagram are illustrative, not model activations.',
+      [String.raw`\textstyle\sum_{s\le t} a_{t,s}^{(h)} = 1`]],
+    y: ['Mixer output $Y$', recurrent ? 'Gated DeltaNet output' : 'Attention output',
+      recurrent ? 'The readout of the recurrent state is normalized, gated and projected back to the token-vector width. This result is added to the residual stream.' : 'Each attention head combines information from earlier token values; the head outputs are joined and projected back to the token-vector width. This result is added to the residual stream.',
+      recurrent ? [String.raw`Y = \operatorname{Project}(\operatorname{gated\ readout})`] : [String.raw`Y = \operatorname{Concat}(o_1,\ldots,o_H)W^O`]],
+    logit: ['Logits $Z$', 'Scores before probabilities',
+      'The language-model head assigns a score to every vocabulary token. These raw scores are logits, not probabilities. A decoding rule uses their softmax probabilities to select the next token. The demo scores are illustrative unless stated otherwise.',
+      [String.raw`p = \operatorname{softmax}(z)`]],
+  };
+  return details[symbol] || null;
+}
+
 function popContent(key) {
   const m = LAB.MODELS[state.mech], tk = toks(m), [kind, a, b] = key.split(':');
+  if (kind === 'legend') return legendPopupContent(a, m);
   const t = Number(a), f = LAB.fmt, D = tf(m.d), H = m.H, G = m.G, T = tk.ids.length, v = view(m);
   const tokName = i => `“${pieceText(tk.pieces[i])}”`;
   const wordOf = i => LAB.TOKENS.sentence.split(' ')[tk.words[i]];
@@ -4304,6 +4655,12 @@ function attachPopups(fig, box, contentFn) {
     let x = r.left - fr.left + fig.scrollLeft + r.width / 2 - box.offsetWidth / 2;
     let y = r.bottom - fr.top + 10;
     x = Math.max(4, Math.min(x, fig.scrollWidth - box.offsetWidth - 4));
+    if (el.closest('#symbol-key')) {
+      // The SVG scrolls sideways on mobile; keep legend explanations on screen.
+      const left = fig.scrollLeft + 4;
+      const right = fig.scrollLeft + fig.clientWidth - box.offsetWidth - 4;
+      x = Math.max(left, Math.min(x, Math.max(left, right)));
+    }
     if (y + box.offsetHeight > fig.scrollHeight - 4) y = r.top - fr.top - box.offsetHeight - 10;
     box.style.left = `${x}px`; box.style.top = `${Math.max(0, y)}px`;
   };
@@ -4475,7 +4832,10 @@ function renderPanel(m) {
 
 /* ---------- header, stats, compare ---------- */
 function renderHeader(m) {
-  document.querySelectorAll('.tab').forEach(t => {
+  document.querySelectorAll('#tabs .tab').forEach(t => {
+    const stamp = LAB.ARCH_YEARS[t.dataset.mech];
+    const year = t.querySelector('.tab-year');
+    if (year && stamp) { year.textContent = stamp.year; year.title = stamp.note; }
     const on = t.dataset.mech === m.key;
     t.classList.toggle('active', on);
     t.setAttribute('aria-selected', String(on));
@@ -4484,7 +4844,7 @@ function renderHeader(m) {
   $('#title').textContent = m.name;
   $('#lead').textContent = LAB.overview(m, 'dsa').lead;
   $('#stats').innerHTML = LAB.stats(m).map(([k, v], i) =>
-    `<div><dt>${esc(k)}</dt><dd>${i === 0 ? `<a href="${m.config}" target="_blank" rel="noopener noreferrer">${esc(v)}</a>` : esc(v)}</dd></div>`).join('');
+    `<div><dt>${esc(k)}</dt><dd>${i === 0 ? `<a href="${m.config}" target="_blank" rel="noopener noreferrer">${esc(v)}</a>` : esc(v).replace(/θ/g, () => tex(String.raw`\theta`))}</dd></div>`).join('');
   document.title = `${m.model} · ${m.abbr} · LLM Architecture Explorer`;
 }
 function renderCompare() {
@@ -4500,7 +4860,26 @@ function renderCompare() {
 
 
 /* ---------- guided tour: one idea per step on the GPT-2 diagram ---------- */
+function renderSymbolKey() {
+  const byStep = { 1: ['emb', 'pos'], 2: ['xhat', 'q', 'k', 'v'], 3: ['q', 'k', 'v', 'rope', 'att'], 4: ['y'], 5: ['logit'], 6: ['k', 'v'] };
+  const active = byStep[state.tour] || [];
+  const model = LAB.MODELS[state.mech], layer = view(model);
+  const showP = model.pos === 'learned';
+  const showRoPE = model.pos === 'decoupled' || (model.pos === 'rope' && (model.key !== 'gdn' || layer.layer === 'gattn'));
+  const showA = model.key !== 'gdn' || layer.layer === 'gattn';
+  document.querySelectorAll('#symbol-key [data-symbol]').forEach(el => {
+    const name = el.dataset.symbol;
+    el.hidden = (name === 'pos' && !showP) || (name === 'rope' && !showRoPE) || (name === 'att' && !showA);
+    const target = el.querySelector('[data-tex]');
+    if (target) {
+      const formula = name === 'att' ? `A_{${state.head}}` : target.dataset.tex;
+      target.innerHTML = tex(formula);
+    }
+    el.classList.toggle('active', !el.hidden && active.includes(name));
+  });
+}
 function renderTour() {
+  renderSymbolKey();
   const box = $('#tour'), sec = box.closest('.whole'), N = LAB.TOUR.length;
   sec.classList.toggle('touring', state.tour >= 0);
   if (state.tour < 0) {
@@ -4516,7 +4895,7 @@ function renderTour() {
     const rows = LAB.compareRows(), max = Math.max(...rows.map(r => r.value));
     extra = `<div class="tour-ans">${LAB.ORDER.map(k => {
       const m = LAB.MODELS[k], r = rows.find(x => x.key === k);
-      return `<button type="button" data-mech="${k}"><b>${esc(m.name)}</b><span class="tm">${esc(m.abbr === 'DSA' ? 'Sparse' : m.abbr)} · ${esc(m.model)}</span>
+      return `<button type="button" data-mech="${k}"><b>${esc(m.name)}</b><span class="tm">${esc(LAB.ARCH_YEARS[k].year)} · ${esc(m.abbr === 'DSA' ? 'Sparse' : m.abbr)} · ${esc(m.model)}</span>
         <span class="td">${esc(LAB.TOUR_ANSWERS[k])}</span>
         <span class="bar">${r.value ? `<i style="width:${(100 * r.value / max).toFixed(1)}%"></i>` : ''}</span>
         <span class="tv">${r.value ? `${LAB.fmt(r.value)} values per token` : 'nothing per token · fixed state'}</span></button>`;
@@ -4526,7 +4905,8 @@ function renderTour() {
     <div class="tour-top"><span>Tour · step ${i + 1} of ${N}</span>
       <span class="tour-dots">${LAB.TOUR.map((t, j) => `<button type="button" class="${j === i ? 'on' : ''}" data-i="${j}" aria-label="Step ${j + 1}: ${esc(t.title)}"></button>`).join('')}</span>
       <button type="button" class="tour-x">Exit tour ✕</button></div>
-    <h3>${esc(s.title)}</h3><p>${fmtText(s.text)}</p>${extra}
+    <h3>${esc(s.title)}</h3><p>${fmtText(s.text)}</p>
+    ${s.term ? `<p class="tour-term"><b>${fmtText(s.term[0])}</b> · ${fmtText(s.term[1])}</p>` : ''}${extra}
     <div class="nav"><button type="button" class="prev"${i === 0 ? ' disabled' : ''}>← Back</button>
       ${i < N - 1 ? `<button type="button" class="next">Next: ${esc(LAB.TOUR[i + 1].title)} →</button>` : '<button type="button" class="next">Explore on your own</button>'}</div></div>`;
   box.querySelector('.prev').addEventListener('click', () => setTour(i - 1));
@@ -4654,6 +5034,7 @@ function showPage(p, sub) {
   document.title = `${name} · LLM Internals Lab`;
   if (p === 'architectures' && !archRendered) { archRendered = true; render(); }   // text is measured, so draw while visible
   if (p === 'multimodal' && window.MMAPP) window.MMAPP.show(sub);
+  if (p === 'retrieval' && window.RETRIEVALAPP) window.RETRIEVALAPP.show();
   if (changed) window.scrollTo(0, 0);
 }
 function route() {
@@ -4670,7 +5051,7 @@ document.querySelectorAll('a[data-page]').forEach(a => a.addEventListener('click
 }));
 window.addEventListener('hashchange', route);
 window.addEventListener('popstate', route);
-$('#sources').innerHTML = LAB.SOURCES.map(r => `<li>${esc(r.by)} (${r.year}). <a href="${r.url}" target="_blank" rel="noopener noreferrer">${esc(r.title)}</a>. <i>${esc(r.in)}</i>.</li>`).join('');
+$('#sources').innerHTML = LAB.SOURCES.slice().sort((a, b) => a.by.localeCompare(b.by, 'en') || a.year - b.year || a.title.localeCompare(b.title, 'en')).map(r => `<li>${esc(r.by)} (${r.year}). <a href="${r.url}" target="_blank" rel="noopener noreferrer">${esc(r.title)}</a>. <i>${esc(r.in)}</i>.</li>`).join('');
 $('#configs').innerHTML = LAB.ORDER.map(k => { const m = LAB.MODELS[k]; return `<a href="${m.config}" target="_blank" rel="noopener noreferrer">${esc(m.model)}</a>`; }).join(', ');
 
 initPopups();
@@ -4678,6 +5059,369 @@ const initial = location.hash.slice(1);
 if (LAB.MODELS[initial]) state.mech = initial;
 route();
 })();
+</script>
+<script>
+/* Retrieval Lab — small, entirely local BM25 reference implementation.
+ * Example documents describe a fictional aquarium, not a real organisation.
+ * No embeddings, model inference, network calls or fabricated BM25 scores. */
+(function (root) {
+'use strict';
+const DOCS = [
+  {id: 'visits', title: 'Visitor guide', category: 'Planning', parts: [
+    'The Moonlight Aquarium opens Tuesday through Sunday from 10:00 to 18:00. The aquarium is closed on Monday.',
+    'On Thursday, general admission is free after 16:00. Visitors still need a timed-entry ticket.']},
+  {id: 'travel', title: 'Getting here', category: 'Transport', parts: [
+    'Tram line 4 runs from Central Station to Harbor Square every 12 minutes. The aquarium is a five-minute walk from Harbor Square.',
+    'A free weekend shuttle runs every 20 minutes from Central Station to the aquarium. The last shuttle departs at 17:30.']},
+  {id: 'access', title: 'Accessibility', category: 'Facilities', parts: [
+    'The aquarium has step-free entry at the east gate. Elevators serve every exhibit floor.',
+    'Wheelchairs can be borrowed without charge at the information desk. Advance reservation is recommended.']},
+  {id: 'events', title: 'Exhibits and events', category: 'Events', parts: [
+    'The jellyfish feeding talk begins at 15:00 every day the aquarium is open. Seats are first come, first served.',
+    'The night-ocean exhibit stays open until 21:00 on the first Friday of each month. Special-entry tickets are required.']},
+  {id: 'food', title: 'Food and drinks', category: 'Dining', parts: [
+    'The Tidal Café serves lunch from 11:00 to 15:00. Vegan dishes and nut-free snacks are available.',
+    'Outside food is allowed at the harbor terrace picnic tables, but not inside the aquarium exhibits.']},
+];
+const PRESETS = [
+  {id:'free', label:'Free admission', question:'When is admission free at the aquarium?', source:'visits:1', answer:'General admission is free on Thursday after 16:00, but a timed-entry ticket is still required.'},
+  {id:'tram', label:'Getting there', question:'How do I get to the aquarium from Central Station?', source:'travel:0', answer:'Take tram line 4 from Central Station to Harbor Square; the aquarium is a five-minute walk away.'},
+  {id:'wheelchair', label:'Accessibility', question:'Can I borrow a wheelchair at the aquarium?', source:'access:1', answer:'Yes. Wheelchairs can be borrowed without charge from the information desk; advance reservation is recommended.'},
+  {id:'jellyfish', label:'Events', question:'What time is the jellyfish feeding talk?', source:'events:0', answer:'The jellyfish feeding talk starts at 15:00 on days when the aquarium is open.'},
+  {id:'vegan', label:'Food options', question:'Does the café serve vegan dishes?', source:'food:0', answer:'Yes. The Tidal Café has vegan dishes and nut-free snacks.'},
+  {id:'outside', label:'Outside food', question:'Can I bring outside food into the aquarium?', source:'food:1', answer:'Outside food is allowed at the harbor terrace picnic tables, but not inside the exhibits.'},
+];
+const STOP = new Set('a an and are at be but by can do does every for from how i in into is it me my of on or the their there this to what when where with you'.split(' '));
+function tokenize(text) {
+  const words = String(text).toLowerCase().match(/[a-z0-9]+/g) || [];
+  return words.map(w => w.length > 4 && w.endsWith('s') && !w.endsWith('ss') ? w.slice(0,-1) : w).filter(w => !STOP.has(w));
+}
+function chunks(mode) {
+  return DOCS.flatMap(doc => mode === 'whole'
+    ? [{id:doc.id, docId:doc.id, title:doc.title, category:doc.category, text:doc.parts.join(' '), partIds:doc.parts.map((_,i)=>`${doc.id}:${i}`)}]
+    : doc.parts.map((part,i)=>({id:`${doc.id}:${i}`,docId:doc.id,title:doc.title,category:doc.category,text:part,partIds:[`${doc.id}:${i}`]})));
+}
+function makeIndex(mode) {
+  const passages = chunks(mode);
+  const indexed = passages.map(p => {
+    const terms=tokenize(p.text), tf=new Map();
+    terms.forEach(t=>tf.set(t,(tf.get(t)||0)+1));
+    return {...p,terms,tf,length:terms.length};
+  });
+  const df=new Map(), posts=new Map();
+  indexed.forEach(p=>{
+    p.tf.forEach((_,term)=>{df.set(term,(df.get(term)||0)+1);
+      if(!posts.has(term))posts.set(term,[]);
+      posts.get(term).push(p.id);
+    });
+  });
+  return {passages:indexed,df,posts,N:indexed.length,avgLength:indexed.reduce((n,p)=>n+p.length,0)/indexed.length};
+}
+// Robertson-Okapi BM25 with non-negative Robertson-style smoothed IDF.
+const K1=1.2, B=0.75;
+function search(question, mode='parts') {
+  const index=makeIndex(mode), terms=[...new Set(tokenize(question))];
+  const ranks=index.passages.map(p=>{
+    const breakdown=terms.map(term=>{
+      const tf=p.tf.get(term)||0, df=index.df.get(term)||0;
+      const idf=Math.log(1+(index.N-df+0.5)/(df+0.5));
+      const lengthFactor=K1*(1-B+B*p.length/index.avgLength);
+      const score=tf ? idf*tf*(K1+1)/(tf+lengthFactor) : 0;
+      return {term,tf,df,idf,score};
+    });
+    return {...p,breakdown,score:breakdown.reduce((s,b)=>s+b.score,0)};
+  }).sort((a,b)=>b.score-a.score||a.id.localeCompare(b.id));
+  return {index,terms,ranks,positive:ranks.filter(p=>p.score>0)};
+}
+function evidence(question, mode, k, presetId) {
+  const ranked=search(question,mode), picks=ranked.positive.slice(0,k);
+  const preset=PRESETS.find(p=>p.id===presetId&&p.question===question);
+  const match=preset && picks.find(p=>p.partIds.includes(preset.source));
+  return {ranked,picks,answer:match?{text:preset.answer,citation:picks.indexOf(match)+1}:null};
+}
+// A separate lexical retrieval mode: cosine similarity of L2-normalized TF-IDF vectors.
+// BM25 ranks are NOT computed by cosine similarity. The scatterplot uses these vectors.
+function tfidfBasis(mode) {
+  const index=makeIndex(mode), vocab=[...index.df.keys()].sort(), pos=new Map(vocab.map((t,i)=>[t,i]));
+  const idf=new Map(vocab.map(t=>[t,1+Math.log((index.N+1)/((index.df.get(t)||0)+1))]));
+  function vector(text) {
+    const counts=new Map(); tokenize(text).forEach(t=>counts.set(t,(counts.get(t)||0)+1));
+    const values=new Float64Array(vocab.length);
+    counts.forEach((n,t)=>{if(pos.has(t)) values[pos.get(t)]=n*idf.get(t);});
+    const length=Math.hypot(...values);
+    if(length>0)for(let j=0;j<values.length;j++)values[j]/=length;
+    return values;
+  }
+  return {index,vocab,pos,idf,vector,docs:index.passages.map(p=>vector(p.text))};
+}
+// Trace one coordinate of a normalized TF-IDF vector, with exact corpus statistics.
+// A term not seen in the collection has no column in the document vocabulary.
+function tfidfTrace(question, mode='parts', term='', passageId=null) {
+  const basis=tfidfBasis(mode), p=passageId==null?null:basis.index.passages.find(x=>x.id===passageId);
+  if(passageId!=null&&!p) return null;
+  const text=p?p.text:question, tokens=tokenize(text), counts=new Map();
+  tokens.forEach(t=>counts.set(t,(counts.get(t)||0)+1));
+  const weights=new Float64Array(basis.vocab.length);
+  counts.forEach((n,t)=>{const j=basis.pos.get(t);if(j!==undefined) weights[j]=n*basis.idf.get(t);});
+  const norm=Math.hypot(...weights), j=basis.pos.get(term), tf=j===undefined?0:(counts.get(term)||0),
+    idf=j===undefined?0:basis.idf.get(term), raw=tf*idf;
+  const nnz=weights.reduce((n,v)=>n+(v!==0?1:0),0);
+  return {term,passageId,passageTitle:p?.title||'Query',N:basis.index.N,V:basis.vocab.length,
+    tf,df:basis.index.df.get(term)||0,idf,raw,norm,weight:norm?raw/norm:0,
+    nnz,zero:basis.vocab.length-nnz,known:j!==undefined};
+}
+function cosineSearch(question, mode='parts') {
+  const basis=tfidfBasis(mode), q=basis.vector(question), terms=[...new Set(tokenize(question))];
+  const ranks=basis.index.passages.map((p,i)=>{
+    const breakdown=terms.map(term=>{
+      const j=basis.pos.get(term), tf=p.tf.get(term)||0, df=basis.index.df.get(term)||0;
+      return {term,tf,df,idf:basis.idf.get(term)||0,score:j===undefined?0:q[j]*basis.docs[i][j]};
+    });
+    return {...p,breakdown,score:breakdown.reduce((sum,x)=>sum+x.score,0)};
+  }).sort((a,b)=>b.score-a.score||a.id.localeCompare(b.id));
+  return {index:basis.index,terms,ranks,positive:ranks.filter(p=>p.score>1e-12)};
+}
+function retrieve(question, mode='parts', k=2, method='bm25', presetId=null) {
+  const ranked=method==='cosine'?cosineSearch(question,mode):search(question,mode);
+  const picks=ranked.positive.slice(0,k);
+  const preset=PRESETS.find(p=>p.id===presetId&&p.question===question);
+  const matched=preset&&picks.find(p=>p.partIds.includes(preset.source));
+  return {ranked,picks,answer:matched?{text:preset.answer,citation:picks.indexOf(matched)+1}:null,method};
+}
+// Principal-component projection of the *document* TF-IDF vectors, without any dependency.
+// A small symmetric Jacobi eigensolver keeps the result deterministic and the document
+// axes stable across question edits (the query is projected into the same axes).
+function projection(mode='parts', question='') {
+  const basis=tfidfBasis(mode), rows=basis.docs, N=rows.length, d=basis.vocab.length;
+  const mean=new Float64Array(d);
+  rows.forEach(row=>row.forEach((v,j)=>{mean[j]+=v/N;}));
+  const centered=rows.map(row=>Float64Array.from(row,(v,j)=>v-mean[j]));
+  const dot=(a,b)=>a.reduce((sum,v,j)=>sum+v*b[j],0);
+  const gram=centered.map(a=>centered.map(b=>dot(a,b)));
+  const vectors=Array.from({length:N},(_,i)=>Array.from({length:N},(_,j)=>i===j?1:0));
+  for(let pass=0;pass<100*N*N;pass++){
+    let p=0,q=1,max=0;
+    for(let i=0;i<N;i++)for(let j=i+1;j<N;j++)if(Math.abs(gram[i][j])>max){max=Math.abs(gram[i][j]);p=i;q=j;}
+    if(max<1e-11)break;
+    const phi=.5*Math.atan2(2*gram[p][q],gram[q][q]-gram[p][p]);
+    // Rotate Jacobi columns with (cos phi, -sin phi) / (sin phi, cos phi).
+    const c=Math.cos(phi),s=Math.sin(phi);
+    const app=gram[p][p],aqq=gram[q][q],apq=gram[p][q];
+    gram[p][p]=c*c*app-2*c*s*apq+s*s*aqq;
+    gram[q][q]=s*s*app+2*c*s*apq+c*c*aqq;
+    gram[p][q]=gram[q][p]=0;
+    for(let i=0;i<N;i++){
+      if(i!==p&&i!==q){const a=gram[i][p],b=gram[i][q];gram[i][p]=gram[p][i]=c*a-s*b;gram[i][q]=gram[q][i]=s*a+c*b;}
+      const v=vectors[i][p],w=vectors[i][q];vectors[i][p]=c*v-s*w;vectors[i][q]=s*v+c*w;
+    }
+  }
+  const order=Array.from({length:N},(_,i)=>i).sort((a,b)=>gram[b][b]-gram[a][a]);
+  const axes=order.slice(0,2).map(i=>{
+    const lambda=Math.max(0,gram[i][i]);
+    const eigen=vectors.map(v=>v[i]);
+    const pivot=eigen.reduce((best,v,j)=>Math.abs(v)>Math.abs(eigen[best])?j:best,0);
+    if(eigen[pivot]<0)eigen.forEach((v,j)=>{eigen[j]=-v;});
+    const axis=new Float64Array(d);
+    if(lambda>1e-12){centered.forEach((row,j)=>row.forEach((v,k)=>{axis[k]+=eigen[j]*v/Math.sqrt(lambda);}));}
+    return axis;
+  });
+  const coords=v=>{
+    const centeredQ=Float64Array.from(v,(x,j)=>x-mean[j]);
+    return {x:dot(centeredQ,axes[0]),y:dot(centeredQ,axes[1])};
+  };
+  const items=basis.index.passages.map((p,i)=>({id:p.id,docId:p.docId,title:p.title,...coords(rows[i])}));
+  const projectedQuery=coords(basis.vector(question));
+  const samples=PRESETS.map(p=>coords(basis.vector(p.question)));
+  const all=[...items,...samples,projectedQuery];
+  const span=Math.max(.15,...all.map(p=>Math.max(Math.abs(p.x),Math.abs(p.y))))*1.24;
+  return {points:items.map(p=>({...p,x:p.x/span,y:p.y/span})),query:{x:projectedQuery.x/span,y:projectedQuery.y/span},mode:'pca-tfidf'};
+}
+const API={DOCS,PRESETS,STOP,K1,B,tokenize,chunks,makeIndex,search,evidence,tfidfBasis,tfidfTrace,cosineSearch,retrieve,projection};
+if(typeof module!=='undefined'&&module.exports)module.exports=API;
+root.RLAB=API;
+})(typeof window==='undefined'?globalThis:window);
+
+</script>
+<script>
+/* Retrieval Lab v4 — explicit lexical vectors and an in-pipeline PCA map.
+ * Exact BM25 and TF-IDF cosine are separate ranking modes; the PCA map never ranks. */
+(function () {
+'use strict';
+const R=window.RLAB, $=s=>document.querySelector(s), root=$('#retrieval-lab');
+if(!R||!root)return;
+const esc=x=>String(x).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const st={preset:R.PRESETS[0].id,question:R.PRESETS[0].question,method:'bm25',mode:'parts',k:2,selected:null,hovered:null,term:null,vectorRow:null,ready:false};
+const describe=[
+ 'The query and five source documents supply the input. Passage splitting sets the indexing units.',
+ 'Each text becomes a vector with one coordinate per corpus term. The matrix shows selected coordinates; absent terms have exact zero weight.',
+ 'BM25 uses term frequency, rarity and length normalization. TF-IDF cosine uses a dot product of normalized sparse vectors.',
+ 'PCA reduces the full TF-IDF vectors to two display coordinates only. The original full-space scores still determine ranks.',
+ 'Top-k retains the highest positive-scoring passages and places their text in the model context.'
+];
+let result=null;
+const fmt=v=>(Math.abs(v)<.005?'0.00':v.toFixed(2));
+// Reuse the lab's MathML renderer; readable typeset fallback for lightweight previews.
+const tex=s=>{
+ const rendered=window.LABUI?.tex?.(s);
+ if(rendered&&rendered!==s)return rendered;
+ const plain=s.includes('w_{d,t}')?'w(d,t) = tf(t,d) × idf(t);   v̂(d,t) = w(d,t) / ‖w(d)‖₂'
+   :s.includes('Longrightarrow')?'tf(t,d) = 0  ⇒  v̂(d,t) = 0'
+   :s.includes('operatorname{idf}')?'idf(t) = 1 + ln[(N + 1) / (df(t) + 1)]'
+   :s.includes('BM25')?'s(q,d) = Σ BM25ₜ(d)'
+   :s.includes('mathsf T')?'s(q,d) = q̂ᵀd̂':s;
+ return `<span class=\"retr-math-fallback\">${esc(plain)}</span>`;
+};
+function mark(s,words){const wanted=new Set(words);return String(s).split(/([a-z0-9]+)/gi).map(x=>wanted.has(R.tokenize(x)[0])?`<mark>${esc(x)}</mark>`:esc(x)).join('');}
+function docTitle(p){return p.title+(st.mode==='parts'?' · '+(p.id.split(':')[1]*1+1):'');}
+function sourceKey(p){return R.DOCS.findIndex(d=>d.id===p.docId)+1;}
+function updateSelection(){
+ const id=st.hovered||st.selected;
+ root.querySelectorAll('[data-passage]').forEach(el=>el.classList.toggle('selected',!!id&&el.dataset.passage===id));
+ renderInspect();
+}
+function rankFor(id){return result.ranked.ranks.find(p=>p.id===id);}
+function pick(id){st.selected=id;st.hovered=null;updateSelection();}
+function shownDocs(){const all=result.ranked.ranks;const rows=all.filter(p=>p.score>0).slice(0,3).concat(all.filter(p=>p.score===0).slice(0,1));return rows.length?rows.slice(0,4):all.slice(0,3);}
+function drawInput(){
+ $('#retr-flow-input').innerHTML=`<div class="retr-question-graphic"><span class="retr-figure-small">QUESTION</span><p>${esc(st.question.trim()||'Type a question...')}</p></div>
+   <div class="retr-source-list"><span class="retr-figure-small">${R.DOCS.length} SOURCE DOCUMENTS</span>${R.DOCS.map((d,i)=>`<button class="retr-source-row" type="button" data-source="${esc(d.id)}" aria-label="Inspect ${esc(d.title)}"><span class="retr-doc-no">D${i+1}</span><span class="retr-doc-name">${esc(d.title)}</span></button>`).join('')}</div>`;
+ $('#retr-flow-input').querySelectorAll('[data-source]').forEach(b=>b.addEventListener('click',()=>{
+  const r=result.ranked.ranks.find(p=>p.docId===b.dataset.source);if(r)pick(r.id);
+ }));
+}
+function matrixRows(basis){
+ const data=[{id:'query',label:'q',name:'Query',text:st.question,vector:basis.vector(st.question)}];
+ shownDocs().slice(0,3).forEach(p=>{
+  const i=basis.index.passages.findIndex(x=>x.id===p.id);
+  data.push({id:p.id,label:`D${sourceKey(p)}${st.mode==='parts'?'.'+(Number(p.id.split(':')[1])+1):''}`,name:docTitle(p),text:p.text,vector:basis.docs[i]});
+ });
+ return data;
+}
+function matrixTerms(basis,rows){
+ const terms=result.ranked.terms.filter(t=>basis.pos.has(t)).slice(0,4);
+ const extras=basis.vocab.filter(t=>!terms.includes(t))
+   .map(term=>({term,weight:Math.max(...rows.slice(1).map(r=>r.vector[basis.pos.get(term)]||0))}))
+   .sort((a,b)=>b.weight-a.weight||a.term.localeCompare(b.term));
+ for(const x of extras){if(terms.length>=6)break;terms.push(x.term);}
+ return terms;
+}
+function drawSparse(){
+ const basis=R.tfidfBasis(st.mode),rows=matrixRows(basis),terms=matrixTerms(basis,rows);
+ if(!terms.length){$('#retr-flow-sparse').textContent='The index has no terms.';return;}
+ if(!st.term||!terms.includes(st.term))st.term=terms[0];
+ if(!st.vectorRow||!rows.some(r=>r.id===st.vectorRow))st.vectorRow=rows[1]?.id||'query';
+ const colWidth=`36px repeat(${terms.length},minmax(30px,1fr)) 17px`;
+ const headings=`<span class="retr-corner" aria-hidden="true"></span>${terms.map(t=>`<span class="retr-axis-term" title="${esc(t)}">${esc(t)}</span>`).join('')}<span class="retr-axis-ellipsis" aria-label="Other vocabulary coordinates">⋯</span>`;
+ const items=rows.map(r=>{
+  const cells=terms.map(term=>{
+   const value=r.vector[basis.pos.get(term)]||0,zero=value===0,active=st.term===term&&st.vectorRow===r.id;
+   return `<button type="button" class="retr-vector-entry${zero?' zero':''}${r.id==='query'?' query':''}${active?' active':''}" data-term="${esc(term)}" data-mrow="${esc(r.id)}" ${r.id==='query'?'':`data-passage="${esc(r.id)}"`} title="${esc(r.name)} · ${esc(term)}: ${value.toFixed(4)}" aria-pressed="${active}" aria-label="Weight of ${esc(term)} in ${esc(r.name)}: ${value.toFixed(3)}">${zero?'0':value.toFixed(2)}</button>`;
+  }).join('');
+  return `<span class="retr-matrix-name${r.id==='query'?' query':''}" title="${esc(r.name)}">${esc(r.label)}</span>${cells}<span class="retr-axis-ellipsis">⋯</span>`;
+ }).join('');
+ const q=R.tfidfTrace(st.question,st.mode,st.term,null),first=basis.index.passages.length;
+ $('#retr-flow-sparse').innerHTML=`<div class="retr-vector-title">${first} × ${basis.vocab.length} document–term matrix</div>
+ <div class="retr-array-outer"><span class="retr-bracket" aria-hidden="true">[</span><div class="retr-matrix" style="grid-template-columns:${colWidth}">${headings}${items}</div><span class="retr-bracket" aria-hidden="true">]</span></div>
+ <p class="retr-sparse-note">q and selected document rows · ${terms.length} of ${basis.vocab.length} term coordinates shown.</p>`;
+ $('#retr-flow-sparse').querySelectorAll('.retr-vector-entry').forEach(el=>el.addEventListener('click',()=>{
+  st.term=el.dataset.term;st.vectorRow=el.dataset.mrow;
+  if(st.vectorRow!=='query')st.selected=st.vectorRow;
+  $('#retr-flow-sparse').querySelectorAll('.retr-vector-entry').forEach(x=>{
+   const active=x===el;x.classList.toggle('active',active);x.setAttribute('aria-pressed',String(active));
+  });
+  drawDerivation();updateSelection();
+ }));
+ drawDerivation();
+}
+function drawDerivation(){
+ const trace=R.tfidfTrace(st.question,st.mode,st.term||'',st.vectorRow==='query'?null:st.vectorRow);
+ if(!trace)return;
+ const isQuery=st.vectorRow==='query',name=isQuery?'query':`passage ${esc(docTitle(rankFor(st.vectorRow)||{title:trace.passageTitle,id:st.vectorRow}))}`;
+ const density=trace.V?100*trace.nnz/trace.V:0;
+ $('#retr-sparse-summary').textContent=`Vocabulary size |V| = ${trace.V} · ${trace.zero} of ${trace.V} coordinates in this ${isQuery?'query':'passage'} are exactly zero`;
+ $('#retr-eqn-idf').innerHTML=`<span class="retr-eqn-number">01 · Rarity</span>${tex(String.raw`\operatorname{idf}(t)=1+\ln\frac{N+1}{\operatorname{df}(t)+1}`)}`;
+ $('#retr-eqn-weight').innerHTML=`<span class="retr-eqn-number">02 · TF-IDF & normalization</span>${tex(String.raw`w_{d,t}=\operatorname{tf}(t,d)\operatorname{idf}(t),\quad \hat{v}_{d,t}=\frac{w_{d,t}}{\lVert\mathbf w_d\rVert_2}`)}`;
+ $('#retr-eqn-sparsity').innerHTML=`<span class="retr-eqn-number">03 · Sparsity</span>${tex(String.raw`\operatorname{tf}(t,d)=0\;\Longrightarrow\;\hat{v}_{d,t}=0`)}`;
+ $('#retr-weight-trace').innerHTML=`<strong>Selected entry</strong><span><code>${esc(st.term)}</code> in ${name}</span><span>tf = <b>${trace.tf}</b> · df = <b>${trace.df}/${trace.N}</b> · idf = <b>${trace.idf.toFixed(3)}</b></span><span>raw = <b>${trace.raw.toFixed(3)}</b> · ‖w‖₂ = <b>${trace.norm.toFixed(3)}</b> · normalized = <b class="retr-trace-result">${trace.weight.toFixed(3)}</b></span><span class="retr-trace-density">${trace.nnz}/${trace.V} nonzero (${density.toFixed(1)}% dense; ${(100-density).toFixed(1)}% zero)${trace.known?'':' · term absent from corpus vocabulary'}</span>`;
+}
+function drawScores(){
+ const shown=result.ranked.ranks.slice(0,5);
+ const expression=st.method==='bm25'
+   ?String.raw`s(q,d)=\sum_{t\in q}\operatorname{BM25}_{t}(d)`
+   :String.raw`s(q,d)=\hat{\mathbf q}^{\mathsf T}\hat{\mathbf d}`;
+ $('#retr-flow-scores').innerHTML=`<div class="retr-score-equation">${tex(expression)}</div><div class="retr-score-list">${shown.map((p,i)=>`<button type="button" class="retr-score-row${result.picks.some(q=>q.id===p.id)?' hit':''}" data-passage="${esc(p.id)}" title="${esc(docTitle(p))} — ${fmt(p.score)}" aria-label="Inspect ${esc(docTitle(p))}, score ${fmt(p.score)}"><span class="retr-rank">${i+1}</span><span class="retr-score-name">${esc(docTitle(p))}</span><span class="retr-score-num">${fmt(p.score)}</span></button>`).join('')}</div><p class="retr-score-note">${st.method==='bm25'?'BM25 uses its own rarity and length factors.':'Cosine compares full normalized TF-IDF vectors.'}</p>`;
+ $('#retr-flow-scores').querySelectorAll('[data-passage]').forEach(b=>b.addEventListener('click',()=>pick(b.dataset.passage)));
+}
+function drawTop(){
+ $('#retr-flow-top').innerHTML=result.picks.length?`<div class="retr-top-list">${result.picks.map((p,i)=>`<div class="retr-top-row"><small>${i+1}</small><strong title="${esc(docTitle(p))}">${esc(docTitle(p))}</strong></div>`).join('')}</div><p class="retr-top-footer">Copied into the model context</p>`:'<p class="retr-top-empty">No matching term. Nothing is retrieved for this question.</p>';
+}
+function drawMap(){
+ const data=R.projection(st.mode,st.question), chosen=new Set(result.picks.map(p=>p.id));
+ const W=290,H=225,pad=22,cx=W/2,cy=H/2,scale=Math.min(W-2*pad,H-2*pad)/2;
+ $('#retr-map').setAttribute('viewBox',`0 0 ${W} ${H}`);
+ const xy=p=>[cx+p.x*scale,cy-p.y*scale];
+ const grid=[.25,.5,.75].map(z=>`<line class="retr-map-grid" x1="${z*W}" y1="${pad}" x2="${z*W}" y2="${H-pad}"/><line class="retr-map-grid" x1="${pad}" y1="${z*H}" x2="${W-pad}" y2="${z*H}"/>`).join('');
+ const points=data.points.map((p,i)=>{
+  const [x,y]=xy(p),r=rankFor(p.id),label=`D${sourceKey(p)}${st.mode==='parts'?'.'+(Number(p.id.split(':')[1])+1):''}`;
+  return `<g class="retr-map-dot${chosen.has(p.id)?' hit':''}" data-passage="${esc(p.id)}" tabindex="0" role="button" aria-label="Inspect ${esc(docTitle(r))}; score ${fmt(r.score)}" transform="translate(${x.toFixed(2)} ${y.toFixed(2)})"><title>${esc(docTitle(r))}: ${fmt(r.score)} (${st.method==='bm25'?'BM25':'cosine'})</title><circle class="retr-map-hitarea" r="24"/><circle r="11"/></g>`;
+ }).join('');
+ const [qx,qy]=xy(data.query);
+ $('#retr-map').innerHTML=`<g opacity=".7">${grid}</g><text x="15" y="14" fill="var(--muted)" font-size="10">TF-IDF · PCA</text>${points}<g class="retr-map-query" transform="translate(${qx.toFixed(2)} ${qy.toFixed(2)})"><title>Question projected into the same TF-IDF space</title><path d="M0,-11 L11,0 L0,11 L-11,0 Z"/></g>`;
+ const map=$('#retr-map');
+ map.querySelectorAll('[data-passage]').forEach(el=>{
+  el.addEventListener('click',()=>pick(el.dataset.passage));
+  el.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();pick(el.dataset.passage);}});
+ });
+}
+function renderInspect(){
+ const p=rankFor(st.hovered||st.selected) || result.ranked.ranks[0];
+ if(!p){$('#retr-inspect').innerHTML='<p class="retr-top-empty">No document to inspect.</p>';return;}
+ const matched=p.breakdown.filter(b=>b.score>0);
+ $('#retr-inspect').innerHTML=`<div class="retr-inspect-head"><strong>${esc(docTitle(p))}</strong><small>${st.method==='bm25'?'BM25':'Cosine'} · ${fmt(p.score)}</small></div><p class="retr-inspect-text">${mark(p.text,result.ranked.terms)}</p>
+ <div class="retr-inspect-contrib">${matched.length?`Matching terms: ${matched.map(b=>`<b>${esc(b.term)}</b> (+${fmt(b.score)})`).join(' · ')}`:'No matching indexed terms in this passage.'}</div>`;
+}
+function renderContext(){
+ const picks=result.picks;
+ $('#retr-prompt-stat').textContent=`· ${picks.length} sources`;
+ $('#retr-context').textContent=`QUESTION\n${st.question.trim()||'(empty)'}\n\nRETRIEVED PASSAGES\n${picks.length?picks.map((p,i)=>`[${i+1}] ${docTitle(p)} (${p.id})\n${p.text}`).join('\n\n'):'(no passages retrieved)'}\n\nINSTRUCTION\nAnswer only from these passages. Cite your sources. If unsupported, say so.`;
+ $('#retr-answer').textContent=result.answer?`Example supported answer: ${result.answer.text} [${result.answer.citation}]. (Predefined, not model-generated.)`:'No predefined supported answer for this selection. The lab does not call an LLM.';
+}
+function update(){
+ result=R.retrieve(st.question,st.mode,st.k,st.method,st.preset);
+ if(!result.ranked.ranks.some(p=>p.id===st.selected))st.selected=null;
+ if(!st.selected)st.selected=result.picks[0]?.id||result.ranked.ranks[0]?.id||null;
+ $('#retr-k-value').textContent=String(st.k);
+ $('#retr-figure-meta').textContent=`${R.DOCS.length} documents · ${result.ranked.index.N} ${st.mode==='parts'?'passages':'whole documents'}`;
+ $('#retr-chunk-switch').textContent=st.mode==='parts'?'Search whole documents':'Search short passages';
+ $('#retr-equation-note').textContent=st.method==='bm25'
+   ?'BM25: exact term overlap weighted by rarity, term frequency and document length (k₁ = 1.2; b = 0.75). No cosine similarity is used.'
+   :'TF-IDF cosine: sum of matching term weights after L2 normalization. Unlike BM25, this is a true vector similarity.';
+ drawInput();drawSparse();drawScores();drawTop();drawMap();renderContext();updateSelection();
+}
+function init(){
+ if(st.ready)return;st.ready=true;
+ const preset=$('#retr-preset');
+ preset.innerHTML=R.PRESETS.map(p=>`<option value="${esc(p.id)}">${esc(p.label)}</option>`).join('');
+ preset.value=st.preset;
+ preset.addEventListener('change',()=>{st.preset=preset.value;st.question=R.PRESETS.find(p=>p.id===st.preset).question;$('#retr-question').value=st.question;st.selected=null;update();});
+ $('#retr-question').value=st.question;
+ $('#retr-question').addEventListener('input',e=>{st.question=e.target.value;st.selected=null;update();});
+ $('#retr-method').addEventListener('change',e=>{st.method=e.target.value;st.selected=null;update();});
+ $('#retr-k').addEventListener('input',e=>{st.k=Number(e.target.value);update();});
+ $('#retr-chunk-switch').addEventListener('click',()=>{st.mode=st.mode==='parts'?'whole':'parts';st.selected=null;update();});
+ const visual=$('#retr-flow');
+ visual.querySelectorAll('[data-stage]').forEach((el,i)=>{el.addEventListener('click',event=>{if(event.target.closest('button'))return;$('#retr-explain').textContent=describe[i];});});
+ root.addEventListener('pointerover',e=>{const el=e.target.closest('[data-passage]');if(el&&st.hovered!==el.dataset.passage){st.hovered=el.dataset.passage;updateSelection();}});
+ root.addEventListener('pointerout',e=>{const el=e.target.closest('[data-passage]');if(el&&!el.contains(e.relatedTarget)){st.hovered=null;updateSelection();}});
+ root.addEventListener('focusin',e=>{const el=e.target.closest('[data-passage]');if(el){st.hovered=el.dataset.passage;updateSelection();}});
+ root.addEventListener('focusout',e=>{const el=e.target.closest('[data-passage]');if(el){st.hovered=null;updateSelection();}});
+ window.addEventListener('resize',()=>{if(st.ready)drawMap();});
+ update();
+}
+window.RETRIEVALAPP={show:init,state:st};
+if(!root.closest('.page').hidden)init();
+})();
+
 </script>
 </body>
 </html>

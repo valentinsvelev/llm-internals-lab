@@ -49,6 +49,109 @@ def test_explorer_in_a_real_browser():
                         assert page.locator('.step.active math').count() >= 1
                     page.keyboard.press('Escape')
                     assert page.locator('#diagram.focusing').count() == 0
+                # Year labels and permanently visible definitions work at desktop and mobile widths.
+                assert page.locator('#symbol-key [data-symbol]').count() >= 10
+                for slug, year in (('mha', '2017'), ('mqa', '2019'), ('gqa', '2023'),
+                                   ('mla', '2024'), ('gdn', '2024'), ('dsa', '2025–26')):
+                    assert page.locator(f'#tabs .tab[data-mech="{slug}"] .tab-year').inner_text() == year
+                # The legend belongs inside the SVG (and not above it as separate chips).
+                assert page.locator('#arch foreignObject#symbol-key').count() == 1
+                assert page.locator('#arch .diagram-legend').count() == 1
+                assert page.locator('section#symbol-key').count() == 0
+                assert page.locator('#arch text').filter(has_text='Legend').count() == 1
+                assert page.locator('#arch .diagram-legend').evaluate(
+                    '(el) => el.scrollHeight <= el.clientHeight')
+                # The legend must clear the transformer block, including at mobile widths.
+                assert page.locator('#arch foreignObject#symbol-key').evaluate(
+                    '''el => {
+                        const block = document.querySelector('#arch .blockbox');
+                        if (!block) return false;
+                        const gap = block.getBoundingClientRect().top - el.getBoundingClientRect().bottom;
+                        return gap >= 4;
+                    }''')
+                # Legend math should be real MathML, including x-hat; P belongs to GPT-2,
+                # RoPE's dial belongs to rotary models, and theta in the stats is typeset.
+                page.locator('.tab[data-mech="mha"]').click()
+                assert page.locator('#symbol-key [data-symbol="xhat"] math').count() == 1
+                assert page.locator('#symbol-key [data-symbol="pos"]').is_visible()
+                assert page.locator('#symbol-key [data-symbol="rope"]').is_hidden()
+                assert page.locator('#symbol-key [data-symbol="att"] math').count() == 1
+                assert page.locator('#symbol-key [data-symbol="y"] math').count() == 1
+                page.locator('.tab[data-mech="mqa"]').click()
+                assert page.locator('#symbol-key [data-symbol="pos"]').is_hidden()
+                assert page.locator('#symbol-key [data-symbol="rope"]').is_visible()
+                assert page.locator('#symbol-key .symbol-dial').count() == 1
+                assert page.locator('#stats math').count() >= 1    # theta in RoPE position stats
+                page.locator('.tab[data-mech="gdn"]').click()
+                assert page.locator('#symbol-key [data-symbol="rope"]').is_hidden()
+                assert page.locator('#symbol-key [data-symbol="att"]').is_hidden()
+                page.locator('#block-toggle button[data-v="gattn"]').click()
+                assert page.locator('#symbol-key [data-symbol="rope"]').is_visible()
+                assert page.locator('#symbol-key [data-symbol="att"]').is_visible()
+                # v5: output arrows, sorted references and model-specific symbols.
+                names = [li.inner_text().split(' (')[0] for li in page.locator('#sources li').all()]
+                assert names == sorted(names, key=str.casefold)
+                page.locator('.tab[data-mech="mha"]').click()
+                norm = page.locator('#arch g[data-h="fnorm"] .pill-l')
+                assert norm.text_content() == 'LayerNorm'
+                assert float(page.locator('#arch g[data-h="fnorm"] .pillbox').get_attribute('width')) >= 90
+                lengths = [page.locator(f'#arch line[data-h="{key}"]').evaluate(
+                    'el => +el.getAttribute("y2") - +el.getAttribute("y1")')
+                    for key in ('logit', 'dist', 'decbox')]
+                assert lengths == [22, 22, 22], lengths
+                for slug, keys in (
+                    ('mla', ('ckv', 'kr', 'moe')),
+                    ('gdn', ('conv', 'gate-a', 'gate-b', 'state', 'read', 'zg', 'moe')),
+                    ('dsa', ('ckv', 'kr', 'ki', 'ibar', 'moe')),
+                ):
+                    page.locator(f'.tab[data-mech="{slug}"]').click()
+                    if slug == 'gdn':
+                        page.locator('#block-toggle button[data-v="gdn"]').click()
+                    for key in keys:
+                        assert page.locator(f'#symbol-key [data-symbol="{key}"]').is_visible(), (slug, key)
+                    assert page.locator('#arch .diagram-legend').evaluate(
+                        'el => el.scrollHeight <= el.clientHeight + 1'), slug
+                page.locator('.tab[data-mech="gdn"]').click()
+                page.locator('#block-toggle button[data-v="gattn"]').click()
+                assert page.locator('#symbol-key [data-symbol="gt"]').is_visible()
+                assert page.locator('#symbol-key [data-symbol="gate-a"]').count() == 0
+                page.locator('.tab[data-mech="gdn"]').click()
+                if width >= 1000:
+                    lead = page.locator('#lead')
+                    assert lead.evaluate('el => el.clientHeight <= 1.5 * parseFloat(getComputedStyle(el).lineHeight)')
+                # v6: detailed legend pop-ups for base and model-specific symbols.
+                page.locator('.tab[data-mech="mha"]').click()
+                for sym, phrase in (('emb', 'Embedding table'), ('xhat', 'Normalized token vector'),
+                                    ('q', 'Query'), ('k', 'Key'), ('v', 'Value'),
+                                    ('att', 'Attention weights'), ('y', 'Mixer output'),
+                                    ('logit', 'Logits'), ('pos', 'Position table')):
+                    item = page.locator(f'#symbol-key [data-symbol="{sym}"]')
+                    assert item.get_attribute('tabindex') == '0'
+                    assert item.get_attribute('data-pop') == f'legend:{sym}'
+                    item.hover(force=True)
+                    assert page.locator('#pop').is_visible(), sym
+                    assert phrase in page.locator('#pop').inner_text(), sym
+                page.locator('#symbol-key [data-symbol="q"]').focus()
+                assert 'What am I looking for?' in page.locator('#pop').inner_text()
+                page.locator('.tab[data-mech="mla"]').click()
+                for sym in ('rope', 'ckv', 'kr', 'moe'):
+                    page.locator(f'#symbol-key [data-symbol="{sym}"]').focus()
+                    assert page.locator('#pop').is_visible(), sym
+                    assert len(page.locator('#pop .pop-t').inner_text()) > 65, sym
+                page.locator('.tab[data-mech="dsa"]').click()
+                for sym in ('ki', 'ibar'):
+                    page.locator(f'#symbol-key [data-symbol="{sym}"]').focus()
+                    assert page.locator('#pop').is_visible(), sym
+                page.locator('.tab[data-mech="gdn"]').click()
+                page.locator('#block-toggle button[data-v="gdn"]').click()
+                for sym in ('conv', 'gate-a', 'gate-b', 'state', 'read', 'zg'):
+                    page.locator(f'#symbol-key [data-symbol="{sym}"]').focus()
+                    assert page.locator('#pop').is_visible(), sym
+                page.locator('#block-toggle button[data-v="gattn"]').click()
+                page.locator('#symbol-key [data-symbol="gt"]').focus()
+                assert page.locator('#pop').is_visible()
+                # Leave the tour controls with a clean, un-focused legend.
+                page.locator('#tour-start').focus()
                 # The guided tour: one idea per step on the GPT-2 diagram, ending in the six mechanisms.
                 page.locator('.tab[data-mech="gqa"]').click()
                 page.locator('#tour-start').click()
@@ -57,9 +160,19 @@ def test_explorer_in_a_real_browser():
                 for i in range(8):
                     assert f'step {i + 1} of 8' in page.locator('#tour').inner_text()
                     assert page.locator('#arch.touring').count() == 1 and page.locator('#arch .on').count() > 0
+                    assert page.locator('#tour .tour-term').count() == 1
+                    if i == 1:
+                        assert page.locator('#symbol-key [data-symbol="emb"].active').count() == 1
+                    if i == 2:
+                        assert page.locator('#symbol-key [data-symbol].active').count() == 4
+                    if i == 5:
+                        assert page.locator('#symbol-key [data-symbol="logit"].active').count() == 1
+                    if i == 6:
+                        assert page.locator('#symbol-key [data-symbol].active').count() == 2
                     if i < 7:
                         page.locator('#tour .next').click()
                 assert page.locator('#tour .tour-ans button').count() == 6
+                assert '2025–26' in page.locator('#tour .tour-ans').inner_text()
                 page.keyboard.press('ArrowLeft')
                 assert 'step 7 of 8' in page.locator('#tour').inner_text()
                 page.keyboard.press('ArrowRight')
@@ -295,7 +408,8 @@ def test_multimodal_page_in_a_real_browser():
                 # the retrieval placeholder
                 page.locator('.pages a[data-page="retrieval"]').click()
                 assert page.locator('.page[data-page="retrieval"]').is_visible() and page.locator('#mm').is_hidden()
-                assert page.locator('.page[data-page="retrieval"] .plan-list li').count() == 6
+                assert page.locator('#retrieval-lab').is_visible()
+                assert page.locator('#retr-flow .retr-stage').count() == 5
                 page.locator('.pages a[data-page="multimodal"]').click()
                 assert page.locator('#mm-tabs .tab.active').get_attribute('data-k') == 'qwen'
                 assert errors == []

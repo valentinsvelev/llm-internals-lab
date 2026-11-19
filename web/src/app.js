@@ -52,7 +52,9 @@ function tex(t) {
 function fmtPlain(s) {
   return esc(s)
     .replace(/\b([A-Za-z])\^([A-Z]{1,3})\b/g, (_, b, p) => `<var>${mi(b)}</var><sup>${p}</sup>`)
-    .replace(/\b([A-Za-z])_([a-zA-Z0-9]{1,2})\b/g, (_, b, p) => `<var>${mi(b)}</var><sub>${/^[a-z]+$/.test(p) ? mi(p) : p}</sub>`);
+    .replace(/\b([A-Za-z])_([a-zA-Z0-9]{1,2})\b/g, (_, b, p) => `<var>${mi(b)}</var><sub>${/^[a-z]+$/.test(p) ? mi(p) : p}</sub>`)
+    .replace(/x̂/g, () => tex(String.raw`\hat{x}`))
+    .replace(/θ/g, () => tex(String.raw`\theta`));
 }
 function fmtText(s) { return String(s).split(/\$([^$]+)\$/).map((part, i) => i % 2 ? tex(part) : fmtPlain(part)).join(''); }
 function math(t) { return `<div class="eq">${tex(t)}</div>`; }
@@ -485,7 +487,7 @@ function applyFocus() {
 /* ---------- the whole model ---------- */
 /* Layout: every token occupies one row (y = rowY(t)) across tokens, embeddings, x̂, Q, K, V,
    the mixer and the feed-forward layer, so a token's own q, k and v sit on its row. */
-const AW = 1440, AH = 700, SY = 132, Y0 = 288, RH = 24;
+const AW = 1440, AH = 744, SY = 132, Y0 = 288, RH = 24;
 const BX0 = 316, BX1 = 1136;                 // decoder block
 const AX0 = 332, AX1 = 832;                  // attention / mixer sublayer
 const FX0 = 864, FX1 = 1112;                 // feed-forward sublayer
@@ -493,7 +495,7 @@ const SB0 = 190;                             // top of both sublayer boxes
 let SB1 = 542;                               // their bottom: set per example, from its longest tokenization
 const FN = 1190;                             // final norm
 const RX0 = 1162, RX1 = 1432, RC = (RX0 + RX1) / 2;
-const LY0 = 172, LY1 = 240, DY0 = 252, DY1 = 452, CY0 = 466, CY1 = 670;   // logits, distribution, decoding
+const LY0 = 185, LY1 = 253, DY0 = 277, DY1 = 477, CY0 = 501, CY1 = 705;   // logits, distribution, decoding
 const rowY = t => Y0 + t * RH;
 const NEXT_REAL = (() => { try { return JSON.parse(document.getElementById('next-token-data').textContent || '{}'); } catch (e) { return {}; } })();
 
@@ -577,6 +579,55 @@ function idxSel(t) {
 }
 function attnShade(t, s) { return 0.25 + 0.75 * hash01(t + 11, s + 5); }
 
+/* v6: every legend symbol shares the main diagram tooltip behavior. */
+function drawSymbolKey(svg) {
+  const m = LAB.MODELS[state.mech], v = view(m);
+  const recurrent = m.key === 'gdn' && v.layer !== 'gattn';
+  const latent = m.key === 'mla' || m.key === 'dsa';
+  const isSparse = m.key === 'dsa';
+  const gatedAttention = m.key === 'gdn' && !recurrent;
+  const item = (name, formula, meaning, title) => `<div data-symbol="${name}" data-pop="legend:${name}" tabindex="0" aria-describedby="pop"><dt data-tex="${esc(formula)}">${esc(name)}</dt><dd>${esc(meaning)}</dd></div>`;
+  const extra = [
+    ...(latent ? [
+      item('ckv', String.raw`C^{KV}`, 'compressed KV', 'Compact latent used to reconstruct keys and values'),
+      item('kr', String.raw`k^{R}`, 'rotary key', 'Position-dependent key kept separately from the latent'),
+    ] : []),
+    ...(isSparse ? [
+      item('ki', String.raw`k^{I}`, 'index key', 'Key used to choose which past tokens to read'),
+      item('ibar', String.raw`I_t`, 'selection scores', 'Scores used by the sparse indexer to select past tokens'),
+    ] : []),
+    ...(recurrent ? [
+      item('conv', String.raw`\operatorname{conv}_4`, 'short conv', 'Causal convolution that mixes the latest four positions'),
+      item('gate-a', String.raw`\alpha`, 'forget gate', 'Controls how much of the previous state is retained'),
+      item('gate-b', String.raw`\beta`, 'write gate', 'Controls the strength of the update to the state'),
+      item('state', String.raw`S_t`, 'fixed memory', 'Fixed-size memory after token t'),
+      item('read', String.raw`o`, 'state readout', 'Result of reading the state with the query'),
+      item('zg', String.raw`z`, 'output gate', 'Controls how much of the readout to pass through'),
+    ] : []),
+    ...(gatedAttention ? [item('gt', String.raw`\sigma(G)`, 'output gate', 'Gate on gated-attention head outputs')] : []),
+    ...(moeShown(m) ? [item('moe', String.raw`\operatorname{MoE}`, 'routed experts', 'Only a selected subset of expert networks is used per token')] : []),
+  ];
+  S('text', { x: 472, y: 16, class: 'st', text: 'Legend' }, svg);
+  const host = S('foreignObject', { id: 'symbol-key', x: 472, y: 24, width: 662, height: 60,
+    role: 'group', 'aria-label': 'Symbols in the model diagram' }, svg);
+  const frame = document.createElementNS('http://www.w3.org/1999/xhtml', 'div');
+  frame.className = 'diagram-legend';
+  frame.innerHTML = `<dl class="symbol-key-list">
+    <div data-symbol="emb" data-pop="legend:emb" tabindex="0" aria-describedby="pop"><dt data-tex="E">E</dt><dd>embedding table</dd></div>
+    <div data-symbol="pos" data-pop="legend:pos" tabindex="0" aria-describedby="pop"><dt data-tex="P">P</dt><dd>position table</dd></div>
+    <div data-symbol="xhat" data-pop="legend:xhat" tabindex="0" aria-describedby="pop"><dt data-tex="\\hat{x}">x</dt><dd>normalized token</dd></div>
+    <div data-symbol="q" data-pop="legend:q" tabindex="0" aria-describedby="pop"><dt class="q" data-tex="Q">Q</dt><dd>query</dd></div>
+    <div data-symbol="k" data-pop="legend:k" tabindex="0" aria-describedby="pop"><dt class="k" data-tex="K">K</dt><dd>key</dd></div>
+    <div data-symbol="v" data-pop="legend:v" tabindex="0" aria-describedby="pop"><dt class="v" data-tex="V">V</dt><dd>value</dd></div>
+    <div data-symbol="rope" data-pop="legend:rope" tabindex="0" aria-describedby="pop"><dt><svg class="symbol-dial" width="15" height="15" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><circle cx="8" cy="8" r="5" fill="none" stroke="currentColor" stroke-width="1.2"/><line x1="8" y1="8" x2="11.5" y2="5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>RoPE</dt><dd>rotations</dd></div>
+    ${extra.join('')}
+    <div data-symbol="att" data-pop="legend:att" tabindex="0" aria-describedby="pop"><dt data-tex="A_{1}">A₁</dt><dd>head weights</dd></div>
+    <div data-symbol="y" data-pop="legend:y" tabindex="0" aria-describedby="pop"><dt data-tex="Y">Y</dt><dd>attention output</dd></div>
+    <div data-symbol="logit" data-pop="legend:logit" tabindex="0" aria-describedby="pop"><dt>logits</dt><dd>next-token scores</dd></div>
+  </dl>`;
+  host.appendChild(frame);
+}
+
 function drawArch(m) {
   const svg = $('#arch');
   svg.replaceChildren();
@@ -637,6 +688,8 @@ function drawArch(m) {
   hoverRow = null;                 // a fresh diagram: the next hover draws its arrows again
   drawArcs(m, state.row);
   applyArchFocus();
+  drawSymbolKey(svg);
+  renderSymbolKey();
   wireRows(svg);
 }
 
@@ -913,8 +966,9 @@ function drawFFN(svg, m, moe, T) {
 /* ---- output: final norm, LM head, logits, distribution box, decoding box, loop back */
 function drawOutput(svg, m, T) {
   S('text', { x: FN, y: SY - 26, 'text-anchor': 'middle', class: 'st', 'data-h': 'fnorm', text: 'Final norm' }, svg);
-  pillA(svg, FN, SY, 64, m.norm === 'LayerNorm' ? 'LN' : 'RMSNorm', 'fnorm', 'fnorm', 'fnorm');
-  S('line', { x1: FN + 32, y1: SY, x2: RC - 24, y2: SY, class: 'thin' }, svg);
+  const finalNormWidth = m.norm === 'LayerNorm' ? 96 : 86;
+  pillA(svg, FN, SY, finalNormWidth, m.norm, 'fnorm', 'fnorm', 'fnorm');
+  S('line', { x1: FN + finalNormWidth / 2, y1: SY, x2: RC - 24, y2: SY, class: 'thin' }, svg);
   const hd = act(S('g', { 'data-h': 'head' }, svg), 'head', 'head', 'Language-model head');
   S('rect', { x: RC - 22, y: SY - 28, width: 44, height: 56, rx: 7, class: 'wbox' }, hd);
   mlab(hd, RC, SY + 6, 'W', 'U', null);
@@ -1268,8 +1322,83 @@ function setHover(t, word) {
 }
 
 /* ---------- pop-ups: title, subtitle, text, calculation lines (TeX, or {t} for plain text) ---------- */
+/* Expanded, keyboard-accessible explanations for the compact diagram legend. */
+function legendPopupContent(symbol, m) {
+  const recurrent = m.key === 'gdn' && view(m).layer !== 'gattn';
+  const details = {
+    emb: ['Embedding table $E$', 'Tokens become vectors',
+      'Each token ID selects a learned row from this table. That vector is the starting numerical representation of the token; the model updates it as the text passes through its layers.',
+      [String.raw`e_t = E[\operatorname{token\ ID}_t]`]],
+    pos: ['Position table $P$', 'Learned positions · GPT-2',
+      'GPT-2 learns a separate vector for each position in the input. The position vector is added to the token embedding so the model can distinguish the same token appearing in different places.',
+      [String.raw`h_t = E[\operatorname{ID}_t] + P_t`]],
+    xhat: ['Normalized token vector $\\hat{x}$', `Normalization · ${m.norm}`,
+      'A normalized copy of a token’s current representation. It keeps numerical scales stable before the model computes queries, keys, values or other mixer inputs.',
+      [String.raw`\hat{x}_t = \operatorname{${m.norm}}(h_t)`]],
+    q: ['Query $Q$', 'What am I looking for?',
+      'A query is a learned representation used to request information from earlier tokens. Attention compares it with keys to find useful context. Different query heads can look for different things.',
+      [String.raw`\operatorname{score}(t,s) \propto q_t \cdot k_s`]],
+    k: ['Key $K$', 'How can this token be found?',
+      'A key represents what information a token makes available for matching. Queries are compared with keys; in ordinary attention, past keys can be cached so they do not need to be recomputed.',
+      [String.raw`\operatorname{score}(t,s) \propto q_t \cdot k_s`]],
+    v: ['Value $V$', 'What information does this token contribute?',
+      'A value holds information that another token can retrieve. Attention mixes past value vectors in the proportions determined by query–key matching. Keys determine where to look; values supply the result.',
+      [String.raw`o_t = \textstyle\sum_{s\le t} a_{t,s}v_s`]],
+    rope: ['RoPE rotation dials', 'Position information in queries and keys',
+      'Each circle illustrates one pair of coordinates being rotated according to token position. This lets attention account for relative positions without adding a separate learned position table. The dials are schematic.',
+      [String.raw`\tilde q_t = R_t q_t,\qquad \tilde k_t = R_t k_t`]],
+    ckv: ['Compressed KV vector $C^{KV}$', 'Multi-head latent attention',
+      'Instead of caching full keys and values for every attention head, MLA stores a compact latent representation for each token. When needed, the model uses projections of this vector to construct keys and values.',
+      [String.raw`c_t^{KV} = \hat{x}_t W^{DKV}`]],
+    kr: ['Rotary key $k^{R}$', 'Position-dependent key · MLA',
+      'MLA stores a small rotary key separately from the compressed content vector. It carries position information shared across attention heads, while the compressed latent carries much of the content.',
+      [String.raw`k_t^{R} = \operatorname{RoPE}(\hat{x}_t W^{KR})`]],
+    ki: ['Index key $k^{I}$', 'Sparse attention · finding candidates',
+      'The sparse indexer uses a lightweight key for each past token to estimate which positions are worth reading with the full attention mechanism. It is separate from the main attention key.',
+      [String.raw`k_s^{I} = \operatorname{LN}(\hat{x}_s W^{IK})`]],
+    ibar: ['Selection scores $I_t$', 'Sparse attention · choosing what to read',
+      'The indexer scores earlier positions and selects the highest-scoring ones. Full attention then operates on the selected tokens instead of reading the entire context. The diagram shows an illustrative selection.',
+      [String.raw`\mathcal{S}_t = \operatorname{TopK}(I_{t,:})`]],
+    conv: ['Short causal convolution', 'Gated DeltaNet · local order',
+      'Before updating its recurrent memory, Gated DeltaNet combines each query, key and value with their recent history. The kernel covers the current token and up to three earlier tokens.',
+      [String.raw`\tilde q_t = \operatorname{SiLU}(\operatorname{conv}_4(q)_t)`]],
+    'gate-a': ['Forget gate $\\alpha$', 'Gated DeltaNet · retain old memory',
+      'This gate controls how strongly the previous recurrent memory carries forward. A value near one keeps more of the old state; a smaller value forgets more.',
+      [String.raw`0 < \alpha_t \le 1`]],
+    'gate-b': ['Write gate $\\beta$', 'Gated DeltaNet · update memory',
+      'This gate controls the strength of the change made by the current token’s key and value. It determines how strongly the new information corrects or overwrites the previous state.',
+      [String.raw`0 < \beta_t < 1`]],
+    state: ['Memory state $S_t$', 'Gated DeltaNet · fixed-size memory',
+      'A matrix summarizes the information carried forward after processing token t. Unlike an attention KV cache, the size of this recurrent state does not grow with the number of tokens.',
+      [String.raw`S_t \in \mathbb{R}^{d_v \times d_k}`]],
+    read: ['State readout $o$', 'Gated DeltaNet · retrieving memory',
+      'The current query reads from the fixed-size memory matrix to produce an output vector. This replaces the weighted sum over all earlier value vectors used by standard attention.',
+      [String.raw`o_t = S_t\hat q_t`]],
+    zg: ['Output gate $z$', 'Gated DeltaNet · shaping the readout',
+      'The readout is normalized and multiplied by an activation of z before the head outputs are combined. The gate lets the layer modulate which components of the result are passed on.',
+      [String.raw`y_t \propto \operatorname{SiLU}(z_t) \odot \operatorname{Norm}(o_t)`]],
+    gt: ['Gated attention $\\sigma(G)$', 'An extra gate on attention output',
+      'In the gated-attention layers, a learned gate scales each attention head’s output before the heads are projected back to the model width. This is distinct from Gated DeltaNet’s recurrent memory gates.',
+      [String.raw`0 < \sigma(G) < 1`]],
+    moe: ['Mixture of Experts (MoE)', 'Select a few feed-forward networks',
+      'A router chooses a subset of specialized feed-forward networks for each token. The chosen experts process the token, and their contributions are combined. This lets the model have many parameters without using every expert for every token.',
+      [String.raw`y = \textstyle\sum_{i\in\operatorname{selected}} w_i F_i(x)`]],
+    att: [`Attention weights $A_{${state.head}}$`, `Head ${state.head} · who attends to whom`,
+      'Each row describes how strongly one token reads earlier tokens in the selected head. Masked future positions receive no weight; the allowed weights sum to one. Colors in this diagram are illustrative, not model activations.',
+      [String.raw`\textstyle\sum_{s\le t} a_{t,s}^{(h)} = 1`]],
+    y: ['Mixer output $Y$', recurrent ? 'Gated DeltaNet output' : 'Attention output',
+      recurrent ? 'The readout of the recurrent state is normalized, gated and projected back to the token-vector width. This result is added to the residual stream.' : 'Each attention head combines information from earlier token values; the head outputs are joined and projected back to the token-vector width. This result is added to the residual stream.',
+      recurrent ? [String.raw`Y = \operatorname{Project}(\operatorname{gated\ readout})`] : [String.raw`Y = \operatorname{Concat}(o_1,\ldots,o_H)W^O`]],
+    logit: ['Logits $Z$', 'Scores before probabilities',
+      'The language-model head assigns a score to every vocabulary token. These raw scores are logits, not probabilities. A decoding rule uses their softmax probabilities to select the next token. The demo scores are illustrative unless stated otherwise.',
+      [String.raw`p = \operatorname{softmax}(z)`]],
+  };
+  return details[symbol] || null;
+}
+
 function popContent(key) {
   const m = LAB.MODELS[state.mech], tk = toks(m), [kind, a, b] = key.split(':');
+  if (kind === 'legend') return legendPopupContent(a, m);
   const t = Number(a), f = LAB.fmt, D = tf(m.d), H = m.H, G = m.G, T = tk.ids.length, v = view(m);
   const tokName = i => `“${pieceText(tk.pieces[i])}”`;
   const wordOf = i => LAB.TOKENS.sentence.split(' ')[tk.words[i]];
@@ -1531,6 +1660,12 @@ function attachPopups(fig, box, contentFn) {
     let x = r.left - fr.left + fig.scrollLeft + r.width / 2 - box.offsetWidth / 2;
     let y = r.bottom - fr.top + 10;
     x = Math.max(4, Math.min(x, fig.scrollWidth - box.offsetWidth - 4));
+    if (el.closest('#symbol-key')) {
+      // The SVG scrolls sideways on mobile; keep legend explanations on screen.
+      const left = fig.scrollLeft + 4;
+      const right = fig.scrollLeft + fig.clientWidth - box.offsetWidth - 4;
+      x = Math.max(left, Math.min(x, Math.max(left, right)));
+    }
     if (y + box.offsetHeight > fig.scrollHeight - 4) y = r.top - fr.top - box.offsetHeight - 10;
     box.style.left = `${x}px`; box.style.top = `${Math.max(0, y)}px`;
   };
@@ -1702,7 +1837,10 @@ function renderPanel(m) {
 
 /* ---------- header, stats, compare ---------- */
 function renderHeader(m) {
-  document.querySelectorAll('.tab').forEach(t => {
+  document.querySelectorAll('#tabs .tab').forEach(t => {
+    const stamp = LAB.ARCH_YEARS[t.dataset.mech];
+    const year = t.querySelector('.tab-year');
+    if (year && stamp) { year.textContent = stamp.year; year.title = stamp.note; }
     const on = t.dataset.mech === m.key;
     t.classList.toggle('active', on);
     t.setAttribute('aria-selected', String(on));
@@ -1711,7 +1849,7 @@ function renderHeader(m) {
   $('#title').textContent = m.name;
   $('#lead').textContent = LAB.overview(m, 'dsa').lead;
   $('#stats').innerHTML = LAB.stats(m).map(([k, v], i) =>
-    `<div><dt>${esc(k)}</dt><dd>${i === 0 ? `<a href="${m.config}" target="_blank" rel="noopener noreferrer">${esc(v)}</a>` : esc(v)}</dd></div>`).join('');
+    `<div><dt>${esc(k)}</dt><dd>${i === 0 ? `<a href="${m.config}" target="_blank" rel="noopener noreferrer">${esc(v)}</a>` : esc(v).replace(/θ/g, () => tex(String.raw`\theta`))}</dd></div>`).join('');
   document.title = `${m.model} · ${m.abbr} · LLM Architecture Explorer`;
 }
 function renderCompare() {
@@ -1727,7 +1865,26 @@ function renderCompare() {
 
 
 /* ---------- guided tour: one idea per step on the GPT-2 diagram ---------- */
+function renderSymbolKey() {
+  const byStep = { 1: ['emb', 'pos'], 2: ['xhat', 'q', 'k', 'v'], 3: ['q', 'k', 'v', 'rope', 'att'], 4: ['y'], 5: ['logit'], 6: ['k', 'v'] };
+  const active = byStep[state.tour] || [];
+  const model = LAB.MODELS[state.mech], layer = view(model);
+  const showP = model.pos === 'learned';
+  const showRoPE = model.pos === 'decoupled' || (model.pos === 'rope' && (model.key !== 'gdn' || layer.layer === 'gattn'));
+  const showA = model.key !== 'gdn' || layer.layer === 'gattn';
+  document.querySelectorAll('#symbol-key [data-symbol]').forEach(el => {
+    const name = el.dataset.symbol;
+    el.hidden = (name === 'pos' && !showP) || (name === 'rope' && !showRoPE) || (name === 'att' && !showA);
+    const target = el.querySelector('[data-tex]');
+    if (target) {
+      const formula = name === 'att' ? `A_{${state.head}}` : target.dataset.tex;
+      target.innerHTML = tex(formula);
+    }
+    el.classList.toggle('active', !el.hidden && active.includes(name));
+  });
+}
 function renderTour() {
+  renderSymbolKey();
   const box = $('#tour'), sec = box.closest('.whole'), N = LAB.TOUR.length;
   sec.classList.toggle('touring', state.tour >= 0);
   if (state.tour < 0) {
@@ -1743,7 +1900,7 @@ function renderTour() {
     const rows = LAB.compareRows(), max = Math.max(...rows.map(r => r.value));
     extra = `<div class="tour-ans">${LAB.ORDER.map(k => {
       const m = LAB.MODELS[k], r = rows.find(x => x.key === k);
-      return `<button type="button" data-mech="${k}"><b>${esc(m.name)}</b><span class="tm">${esc(m.abbr === 'DSA' ? 'Sparse' : m.abbr)} · ${esc(m.model)}</span>
+      return `<button type="button" data-mech="${k}"><b>${esc(m.name)}</b><span class="tm">${esc(LAB.ARCH_YEARS[k].year)} · ${esc(m.abbr === 'DSA' ? 'Sparse' : m.abbr)} · ${esc(m.model)}</span>
         <span class="td">${esc(LAB.TOUR_ANSWERS[k])}</span>
         <span class="bar">${r.value ? `<i style="width:${(100 * r.value / max).toFixed(1)}%"></i>` : ''}</span>
         <span class="tv">${r.value ? `${LAB.fmt(r.value)} values per token` : 'nothing per token · fixed state'}</span></button>`;
@@ -1753,7 +1910,8 @@ function renderTour() {
     <div class="tour-top"><span>Tour · step ${i + 1} of ${N}</span>
       <span class="tour-dots">${LAB.TOUR.map((t, j) => `<button type="button" class="${j === i ? 'on' : ''}" data-i="${j}" aria-label="Step ${j + 1}: ${esc(t.title)}"></button>`).join('')}</span>
       <button type="button" class="tour-x">Exit tour ✕</button></div>
-    <h3>${esc(s.title)}</h3><p>${fmtText(s.text)}</p>${extra}
+    <h3>${esc(s.title)}</h3><p>${fmtText(s.text)}</p>
+    ${s.term ? `<p class="tour-term"><b>${fmtText(s.term[0])}</b> · ${fmtText(s.term[1])}</p>` : ''}${extra}
     <div class="nav"><button type="button" class="prev"${i === 0 ? ' disabled' : ''}>← Back</button>
       ${i < N - 1 ? `<button type="button" class="next">Next: ${esc(LAB.TOUR[i + 1].title)} →</button>` : '<button type="button" class="next">Explore on your own</button>'}</div></div>`;
   box.querySelector('.prev').addEventListener('click', () => setTour(i - 1));
@@ -1881,6 +2039,7 @@ function showPage(p, sub) {
   document.title = `${name} · LLM Internals Lab`;
   if (p === 'architectures' && !archRendered) { archRendered = true; render(); }   // text is measured, so draw while visible
   if (p === 'multimodal' && window.MMAPP) window.MMAPP.show(sub);
+  if (p === 'retrieval' && window.RETRIEVALAPP) window.RETRIEVALAPP.show();
   if (changed) window.scrollTo(0, 0);
 }
 function route() {
@@ -1897,7 +2056,7 @@ document.querySelectorAll('a[data-page]').forEach(a => a.addEventListener('click
 }));
 window.addEventListener('hashchange', route);
 window.addEventListener('popstate', route);
-$('#sources').innerHTML = LAB.SOURCES.map(r => `<li>${esc(r.by)} (${r.year}). <a href="${r.url}" target="_blank" rel="noopener noreferrer">${esc(r.title)}</a>. <i>${esc(r.in)}</i>.</li>`).join('');
+$('#sources').innerHTML = LAB.SOURCES.slice().sort((a, b) => a.by.localeCompare(b.by, 'en') || a.year - b.year || a.title.localeCompare(b.title, 'en')).map(r => `<li>${esc(r.by)} (${r.year}). <a href="${r.url}" target="_blank" rel="noopener noreferrer">${esc(r.title)}</a>. <i>${esc(r.in)}</i>.</li>`).join('');
 $('#configs').innerHTML = LAB.ORDER.map(k => { const m = LAB.MODELS[k]; return `<a href="${m.config}" target="_blank" rel="noopener noreferrer">${esc(m.model)}</a>`; }).join(', ');
 
 initPopups();

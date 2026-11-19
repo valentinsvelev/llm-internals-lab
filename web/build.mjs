@@ -65,6 +65,8 @@ html = html
   .replace('/*__MM_CONTENT_JS__*/', () => guard(readFileSync(join(here, 'src/mm-content.js'), 'utf8')))
   .replace('/*__MM_APP_JS__*/', () => guard(readFileSync(join(here, 'src/mm-app.js'), 'utf8')))
   .replace('/*__APP_JS__*/', () => guard(readFileSync(join(here, 'src/app.js'), 'utf8')))
+  .replace('/*__RETRIEVAL_CONTENT_JS__*/', () => guard(readFileSync(join(here, 'src/retrieval-content.js'), 'utf8')))
+  .replace('/*__RETRIEVAL_APP_JS__*/', () => guard(readFileSync(join(here, 'src/retrieval-app.js'), 'utf8')))
   // Temml renders the pop-up equations at runtime; its MIT license header is kept in the minified file.
   .replace('/*__TEMML_JS__*/', () => guard(readFileSync(require.resolve('temml/dist/temml.min.js'), 'utf8')))
   .replace('/*__TOKENS__*/null', () => readFileSync(join(here, 'src/tokens.json'), 'utf8').trim().replace(/</g, '\\u003c'))
@@ -78,7 +80,7 @@ html = html
       dq: m.dq ?? null, index: m.index ?? null, lin: m.lin ?? null, interval: m.interval ?? null,
       ropeDim: m.ropeDim ?? null, thetaN: m.thetaN ?? null, cache_layers: LAB.cacheLayers(m) }];
   }))).replace(/</g, '\\u003c'));
-for (const marker of ['__MATH_FONT__', '__CONTENT_JS__', '__MM_CONTENT_JS__', '__MM_APP_JS__', '__APP_JS__', '__SPECS_JSON__', '__TOKENS__', '__TEMML_JS__'])
+for (const marker of ['__MATH_FONT__', '__CONTENT_JS__', '__MM_CONTENT_JS__', '__MM_APP_JS__', '__APP_JS__', '__RETRIEVAL_CONTENT_JS__', '__RETRIEVAL_APP_JS__', '__SPECS_JSON__', '__TOKENS__', '__TEMML_JS__'])
   if (html.includes(marker)) throw new Error('unfilled marker ' + marker);
 writeFileSync(out, html, 'utf8');
 console.log(`wrote ${out}: ${(html.length / 1024).toFixed(0)} KiB, ${Object.keys(table).length} equations, font ${(fontB64.length * 3 / 4 / 1024).toFixed(0)} KiB`);

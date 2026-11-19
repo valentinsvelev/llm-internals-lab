@@ -1,76 +1,43 @@
-# LLM Internals Lab
+# Retrieval Lab — first interactive implementation
 
-An interactive, offline explorer of how language models work, each idea shown in a real model with its
-published dimensions: six attention mechanisms, from text to the next token, and four ways of feeding
-images to a language model. Plus readable PyTorch implementations, tested against Hugging Face
-`transformers`.
+This adds the first complete interactive slice of the **Retrieval** page to `llm-internals-lab`, consistent with the existing architecture and multimodal explorers.
 
-**Live app:** <https://valentinsvelev.github.io/llm-internals-lab/>
+## Included
 
-![The explorer](docs/screenshot.png)
+- A **five-step tour** from question to retrieved evidence and citation-ready model context.
+- Five small **fictional Moonlight Aquarium documents**, indexed as either 10 shorter passages or 5 whole documents.
+- Real **BM25 scoring** (k₁ = 1.2, b = 0.75, smoothed non-negative IDF): term breakdowns, an inverted-index view, and ranked results with score bars.
+- Editable query, six example questions, and a **top-k** slider to show how evidence selection affects context.
+- An assembled **RAG prompt** with source identifiers and citations; a clearly labeled *predefined* answer is shown only when the passage used for that example is retrieved. **No LLM, embeddings, vector DB, or external API is running.**
+- Consistent light/dark styling, responsive mobile layout, keyboard-operable controls, and tests.
 
-**Architectures**
+The page leaves Embeddings, Contrastive Learning, Approximate Nearest Neighbors, and Reranking as the next modules rather than pretending to simulate real neural embeddings.
 
-| Tab | Mechanism | Model |
-|---|---|---|
-| MHA | multi-head attention | GPT-2 small |
-| MQA | multi-query attention | Gemma 2B |
-| GQA | grouped-query attention | Qwen2.5-0.5B |
-| MLA | multi-head latent attention | DeepSeek-V2-Lite |
-| GDN | Gated DeltaNet + gated attention | Qwen3-Next-80B-A3B |
-| Sparse | DeepSeek Sparse Attention (and Qwen's QSA) | DeepSeek-V3.2 |
+## Install
 
-**Multimodal** (try your own image; it never leaves the browser)
-
-| Tab | How the image reaches the language model | Model |
-|---|---|---|
-| Projector | 336 × 336 crop → 576 tokens through an MLP | LLaVA-1.5-7B |
-| Native size | one token per 32 × 32 pixels, 3D positions (M-RoPE), DeepStack | Qwen3-VL-8B |
-| Cross-attention | up to 4 tiles, read by 8 gated cross-attention layers | Llama 3.2 11B Vision |
-| Pooling | 896 × 896 → 4,096 patches → averaged to 256 tokens | Gemma 3 4B |
-
-Retrieval, Reasoning and Agents pages are planned.
-
-## Run the explorer
-
-It is one self-contained HTML file: open `src/llm_lab/assets/explorer.html` in a browser.
-Or serve it (no dependencies beyond Python):
+Extract the ZIP into the root of the GitHub repository (alongside `web/`, `src/`, and `tests/`) and run:
 
 ```bash
-pip install -e .
-llm-lab --serve                  # http://127.0.0.1:8767
+python apply_llm_lab_retrieval_v1.py
+python -m pytest tests/test_retrieval_browser.py
+python -m pytest tests/test_explorer_browser.py
+git diff --check
 ```
 
-## PyTorch reference implementations
+Commit and push the changes from your usual workflow. The script modifies both the source templates and the checked-in single-file HTML deployed by GitHub Pages. It also updates `web/build.mjs`, so future builds preserve the Retrieval page. Run `cd web && npm run build` after installing or modifying it **if** your usual build dependencies and font are installed.
 
-`llm_lab.reference` builds all six models from their configs (attention, MLA, YaRN, the lightning
-indexer, Gated DeltaNet, mixture of experts, KV caches) and implements the eight decoding methods the
-page shows; `llm_lab.reference.vision` has the four image pipelines (resizing, connectors, M-RoPE
-positions, Gemma's image mask, gated cross-attention). How they are verified:
-[docs/reference-implementations.md](docs/reference-implementations.md).
+The installer is designed for the published `main` layout and for the earlier v1–v7 accessibility changes. It refuses to overwrite an existing retrieval module with different content, and running the installer twice makes no further modifications.
 
-```bash
-pip install -e ".[pytorch]"
-python -m llm_lab.reference      # parameters, active parameters, cache per token
-```
+## Technical boundary
 
-## Tests
+The page implements the *lexical retrieval* part of a typical retrieval-augmented generation pipeline and illustrates how retrieved context can be passed to a generator. It does not implement a trained embedding encoder, HNSW, reranking models, or generative inference. These are intentionally reserved for subsequent iterations.
 
-```bash
-pip install -e ".[dev]"
-python -m playwright install chromium
-python -m pytest
-```
+**Sources:** Robertson & Zaragoza (2009), *The Probabilistic Relevance Framework: BM25 and Beyond* (doi:10.1561/1500000019); Lewis et al. (2020), *Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks* (arXiv:2005.11401).
 
-The page is built from [web/](web/README.md). `python -m llm_lab.next_token` replaces its
-illustrative next-token logits with real ones.
+## Checks already performed
 
-## Deployment
+- JavaScript and Python syntax checks.
+- Chromium UI smoke tests on **1280px** and **420px** widths: preset switching, custom query, zero results, top-k effect, document granularity, guided tour.
+- Installer applied **twice** to a source-layout fixture: second run had no changes.
 
-Pushes to `main` run the tests and then publish the page to GitHub Pages
-(`.github/workflows/deploy.yml`). Enable **Settings → Pages → Source: GitHub Actions** once.
-
-## License
-
-MIT. The page bundles Temml (MIT) and a subset of Latin Modern Math (GUST Font License);
-see [docs/attribution.md](docs/attribution.md).
+The actual repository's full test suite still needs to run on your checkout or CI.

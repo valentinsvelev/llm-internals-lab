@@ -102,6 +102,73 @@ decoders, so they are not repeated here.
 `tests/test_explorer.py` then runs the page's own arithmetic (`web/src/mm-content.js`) in node on 400
 image sizes and checks it gives the same plans, costs, positions and masks as `vision.py`.
 
+## Audio, video, speech out, image out
+
+The other tabs of the Multimodal page have their own modules, each tested in
+`tests/test_media_models.py` against transformers:
+
+- `audio.py` (Qwen2-Audio-7B, Voxtral Mini 3B): spectrogram frames and audio tokens for any length,
+  checked against the Whisper feature extractor and both processors' rules; the two adapters
+  (average-pool + linear, stack-four + MLP) with random weights against the transformers models.
+- `video.py` (Qwen3-VL-8B, LLaVA-OneVision-7B): frame sampling against `Qwen3VLVideoProcessor.sample_frames`
+  at several frame rates, frame sizes against its `resize` (with the per-frame cap), timestamps against
+  the processor, and LLaVA-OneVision's 27 × 27 → 14 × 14 pooling against the model.
+- `speech.py` (Qwen3-Omni-30B-A3B, Moshi): codec frames and codes per second; Code2Wav's 1,920 samples
+  per frame (a tiny Code2Wav, run), Mimi's frame rate (Mimi, run on 2 s of audio), Moshi's one-step
+  acoustic delay against `build_delay_pattern_mask`; Qwen3-Omni's audio token count (13 per second)
+  and the interleaving of video and audio against its processor.
+- `imagegen.py` (Janus-Pro-7B, Emu3-Gen): Janus's generation embedding, aligner and head against the
+  model, classifier-free guidance against transformers' logits processor, Emu3's code grid and
+  end-of-line layout against its processor.
+
+Every model's parameters are counted on the meta device, part by part, and match the published sizes:
+Qwen2-Audio 8.40B · Voxtral 4.68B · LLaVA-OneVision 8.03B · Qwen3-Omni 35.26B (Thinker 31.72B, Talker
+3.32B, Code2Wav 0.22B) · Moshi 7.69B + Mimi · Janus-Pro 7.41B · Emu3-Gen 8.49B + its tokenizer.
+`tests/test_explorer.py` runs the page's own arithmetic (`web/src/mm-media.js`) in node and checks it
+against these modules on hundreds of lengths, sizes and settings.
+
+## Retrieval
+
+`retrieval.py` holds the Retrieval page's sparse vectors in plain Python (no PyTorch): the tokenizer
+(lowercase, letters and digits, 35 stop words, simplified plurals), the vocabulary in order of first
+appearance, BM25 weights (k₁ = 1.2, b = 0.75, Lucene's idf), TF-IDF weights (scikit-learn's smoothed
+idf, rows of length 1), the 0/1 query vector and the score q · d. `tests/test_retrieval.py` checks:
+
+- every TF-IDF weight against scikit-learn's `TfidfVectorizer` with the same tokenizer;
+- q · d with BM25 weights against the BM25 score written out term by term, for the page's questions
+  and 46 more queries;
+- the page's own code (`web/src/retrieval-content.js`, run in node) against this module: tokens,
+  vocabulary, every weight and every score, with both weightings;
+- that each of the first six example questions ranks the document that answers it first, and that
+  the three added ones defeat sparse retrieval as intended (no shared term, or only “aquarium”).
+
+The dense mode's vectors are all-MiniLM-L6-v2's, computed by `web/scripts/make_embeddings.py` with
+transformers (the token vectors of the last layer, averaged, scaled to length 1, as sentence-transformers
+does; checked against `SentenceTransformer.encode` when that library is installed) and stored in
+`web/src/embeddings.json`. The tests check that the file holds exactly the page's texts, MiniLM's shape
+(384 dimensions, 6 layers, 12 heads, 30,522 tokens) and unit vectors; that the page's dense scores are
+the dot products of those vectors; and, where the model can be downloaded, recompute every token and
+vector with transformers.
+
+The learned sparse mode's weights (`web/src/learned-sparse.json`, same script) are
+opensearch-neural-sparse-encoding-v2-distill's: masked-language-model logits, log(1 + ReLU), max over
+positions, special tokens 0 (checked against sentence-transformers' `SparseEncoder` when installed).
+The tests check the file's texts, positive weights over the 30,522 tokens, that the page's scores are
+q · d over the shared tokens, and, where the model can be downloaded, recompute every weight.
+
+The repository currently ships placeholder vectors and weights
+(`make_embeddings.py --placeholder`); the MiniLM-specific tests skip, saying so, until the script is run.
+
+## Reasoning
+
+`reasoning.py` puts numbers on the Reasoning page's diagram of DeepSeek-R1 thinking (`config.DEEPSEEK_R1`:
+the DeepSeek-V3 architecture, which is V3.2's without the sparse-attention indexer): parameters by part
+(671,026,404,352 in all, 37,552,282,624 used per token), the KV cache per token (61 layers × (512 + 64)
+numbers), and DeepSeek-V3's expert choice for one token (8 groups of 32, the best 4 groups by their two
+best scores, then the best 8 experts, weights renormalized and scaled by 2.5). `tests/test_reasoning.py`
+checks the page against it, the counts against transformers' `DeepseekV3ForCausalLM` built on the meta
+device, and the router against the reference `MixtureOfExperts`.
+
 ## Choices
 
 - **Readable over fast**: float32, eager attention with an explicit mask, no fused kernels or FP8.

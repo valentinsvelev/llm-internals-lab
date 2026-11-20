@@ -668,13 +668,48 @@ footer .sources { border-top: 1px solid var(--line); margin-top: 18px; padding-t
 #mmc .mcell.bi { fill: var(--lat); stroke: none; }
 #mmc .mlt { font-family: var(--font-math); font-size: 14px; }
 #mmc .mosaic rect { shape-rendering: crispEdges; }
+/* multimodal: audio, video, speech, image out */
+:is(#mm, #mmc) .wave { fill: color-mix(in srgb, var(--k) 55%, var(--bg)); stroke: var(--k); stroke-width: .6; }
+:is(#mm, #mmc) .wave.user { fill: color-mix(in srgb, var(--v) 45%, var(--bg)); stroke: var(--v); }
+:is(#mm, #mmc) .axis { stroke: var(--line-strong); stroke-width: .8; fill: none; }
+#mm .spec rect { fill: var(--k); }
+#mm .specbg { fill: var(--bg); stroke: var(--line); }
+:is(#mm, #mmc) .tick { fill: var(--ink); }
+#mm .tick.dense { fill: color-mix(in srgb, var(--ink) 45%, var(--bg)); }
+:is(#mm, #mmc) .code { fill: var(--line); }
+:is(#mm, #mmc) .code.main, #mmc .code.sem, #mm .code.sem { fill: var(--lat); }
+:is(#mm, #mmc) .code.inner { fill: color-mix(in srgb, var(--lat) 38%, var(--bg)); }
+:is(#mm, #mmc) .code.txt { fill: var(--att); }
+:is(#mm, #mmc) .code.moshi { fill: color-mix(in srgb, var(--lat) 38%, var(--bg)); }
+:is(#mm, #mmc) .code.moshi.sem { fill: var(--lat); }
+:is(#mm, #mmc) .code.user { fill: color-mix(in srgb, var(--v) 40%, var(--bg)); }
+#mmc .stepcol { fill: none; stroke: var(--ink); stroke-width: 1.6; }
+:is(#mm, #mmc) .eol { fill: color-mix(in srgb, var(--ink) 70%, var(--bg)); }
+#mm .raster { stroke: #15181d; stroke-width: 1.4; fill: none; stroke-dasharray: 4 3; }
+#mm .feedback { stroke: var(--lat); stroke-width: 1.3; fill: none; stroke-dasharray: 5 3; }
+:is(#mm, #mmc) .audblock { fill: color-mix(in srgb, var(--k) 25%, var(--bg)); stroke: var(--k); }
+:is(#mm, #mmc) .chip.out { fill: color-mix(in srgb, var(--att) 18%, var(--bg)); stroke: var(--att); }
+#mm .chip.stamp { fill: color-mix(in srgb, var(--k) 14%, var(--bg)); stroke: var(--k); stroke-dasharray: 3 2; }
+#mmc .cell { stroke: none; }
+#mmc .cell.mel { fill: color-mix(in srgb, var(--k) 40%, var(--bg)); }
+#mmc .cell.enc { fill: color-mix(in srgb, var(--att) 34%, var(--bg)); }
+#mmc .cell.tokc { fill: color-mix(in srgb, var(--lat) 45%, var(--bg)); }
+#mmc .merge { fill: none; stroke: var(--muted); stroke-width: 1; }
+#mmc .pgrid { stroke: rgba(255, 255, 255, .5); stroke-width: .5; }
+#mmc .pad, #mm .pad { fill: url(#mm-hatch); }
+
 .mm-close { margin-top: 44px; padding-top: 28px; border-top: 1px solid var(--line); }
 .mm-close .figure { margin-top: 6px; }
 .mm-close .close-text { margin: 10px 0 0; color: var(--muted); font-size: 14px; max-width: 86ch; text-wrap: pretty; }
 .seg .sizes-l { font-size: 12px; color: var(--faint); padding: 5px 4px 5px 8px; }
 .crow.mm { grid-template-columns: 170px 230px minmax(0, 1fr) 96px; }
 .crow.mm .c-f { font-family: var(--font-ui); font-size: 13.5px; }
-#mm-size { flex-wrap: wrap; }
+.subnav .modes { margin-bottom: 10px; flex-wrap: wrap; }
+.subnav .modes button { white-space: nowrap; }
+.ctl { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
+.ctl-l { font-size: 12px; color: var(--faint); }
+@media (max-width: 640px) { .ctl { align-items: flex-start; } }
+#mm-size { flex-wrap: wrap; justify-content: flex-end; }
 #mm-size button { white-space: nowrap; }
 #mm-tabs .tab b { white-space: nowrap; }
 @media (max-width: 640px) {
@@ -684,149 +719,377 @@ footer .sources { border-top: 1px solid var(--line); margin-top: 18px; padding-t
   #mm-tabs .tab b { font-size: 13px; }
 }
 /* Retrieval page v4: explicit sparse matrix, full-space scores, inline PCA stage. */
-#retrieval-lab { --retr-hit: var(--v); }
-#retrieval-lab .retr-head { padding-top: 28px; }
-#retrieval-lab .retr-head h1 { font-size: 30px; }
-#retrieval-lab .retr-head .lead { font-size: 15px; max-width: 84ch; }
-#retrieval-lab h2 { font-size: 16px; font-weight: 650; margin: 0; letter-spacing: -.015em; }
-#retrieval-lab h3 { margin: 0; }
-#retrieval-lab .retr-explore { margin-top: 18px; }
-.retr-toolbar { display: grid; grid-template-columns: 166px minmax(190px,1fr) 150px 110px; gap: 14px; align-items: end; padding: 10px 0 19px; }
-.retr-field { font-size: 12px; font-weight: 600; color: var(--muted); min-width: 0; }
-.retr-field input:not([type="range"]), .retr-field select { display: block; margin-top: 5px; height: 38px; width: 100%; padding: 6px 9px; border: 1px solid var(--line-strong); border-radius: 7px; background: var(--bg); color: var(--ink); font: 13px var(--font-ui); }
-.retr-field-k input { display: block; width: 100%; height: 38px; accent-color: var(--q); }
+#retrieval-lab, #reasoning-lab { --retr-hit: var(--v); --retr-head: 44px; --retr-head-gap: 8px; --retr-row: 21px; }
+#retrieval-lab h3, #reasoning-lab h3 { margin: 0; }
+#retrieval-lab .stats a, #reasoning-lab .stats a { color: inherit; }
 .retr-main-figure { margin: 0; border: 1px solid var(--line-strong); border-radius: 12px; overflow: hidden; }
-.retr-figure-head, .retr-panel-head { display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 8px 14px; }
-.retr-figure-head { padding: 17px 17px 14px; }
-.retr-figure-head p { margin: 3px 0 0; color: var(--muted); font-size: 12px; }
 .retr-meta { font-size: 11px; color: var(--muted); font-weight: 400; }
-.retr-flow { display: grid; grid-template-columns: minmax(150px,1.05fr) minmax(270px,1.7fr) minmax(140px,.90fr) minmax(195px,1.20fr) minmax(130px,.83fr); align-items: stretch; min-height: 318px; }
-.retr-stage { padding: 13px 12px 16px; border-top: 1px solid var(--line); min-width: 0; position: relative; }
-.retr-stage + .retr-stage { border-left: 1px solid var(--line); }
-.retr-stage + .retr-stage:before { content: '›'; display: grid; place-items: center; position: absolute; top: 13px; left: -10px; z-index: 1; width: 20px; height: 20px; border-radius: 50%; background: var(--bg); color: var(--faint); border: 1px solid var(--line); font-size: 17px; line-height: 1; }
-.retr-stage-head { display: flex; align-items: baseline; gap: 7px; margin-bottom: 13px; }
-.retr-stage-index { color: var(--faint); font: 10px var(--font-mono); }
+.retr-seg2[hidden], #retr-tokpick[hidden], #retr-show-all[hidden] { display: none; }
+.retr-flow { display: grid; grid-template-columns: minmax(176px,1.05fr) 88px minmax(126px,.75fr) 88px minmax(300px,1.6fr) 88px minmax(136px,.8fr); padding-top: 4px; align-items: stretch; }
+.retr-center { display: flex; flex-direction: column; }
+.retr-center .retr-stage-body { flex: 1; display: flex; flex-direction: column; justify-content: center; padding-bottom: 28px; }
+#retrieval-lab .intro .lead, #reasoning-lab .intro .lead { max-width: none; }
+.retr-stage { padding: 13px 12px 16px; min-width: 0; }
+.retr-stage-head { display: flex; align-items: baseline; gap: 7px; margin-bottom: 12px; }
 .retr-stage-head h3 { font-size: 12.5px; font-weight: 650; white-space: nowrap; }
-.retr-question-graphic { border-left: 3px solid var(--q); background: color-mix(in srgb,var(--q) 6%,var(--bg)); padding: 9px 9px; border-radius: 3px 7px 7px 3px; min-height: 62px; }
-.retr-figure-small { display: block; color: var(--muted); font-size: 10px; letter-spacing: .03em; }
-.retr-question-graphic p { margin: 5px 0 0; font-size: 12px; line-height: 1.44; color: var(--ink); overflow-wrap: anywhere; }
-.retr-source-list { margin-top: 12px; display: grid; gap: 4px; }
-.retr-source-row { width: 100%; text-align: left; display: flex; align-items: center; min-width: 0; gap: 7px; font-size: 11.5px; color: var(--muted); border: 0; border-bottom: 1px solid var(--line); background: none; padding: 5px 0; cursor: pointer; }
-.retr-source-row:hover { color: var(--ink); }
-.retr-source-row .retr-doc-no { color: var(--faint); font: 10px var(--font-mono); }
-.retr-source-row .retr-doc-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.retr-vector-title { font: 10px/1.4 var(--font-mono); color: var(--muted); margin-bottom: 11px; }
-.retr-array-outer { display: grid; grid-template-columns: 9px minmax(0,1fr) 9px; align-items: stretch; gap: 2px; }
-.retr-bracket { display: flex; align-items: center; justify-content: center; font: 42px/1 var(--font-math); font-weight: 300; color: var(--line-strong); overflow: hidden; user-select: none; }
-.retr-matrix { display: grid; gap: 4px 3px; align-items: center; min-width: 0; }
-.retr-axis-term { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-align: center; color: var(--muted); font: 9px/1.4 var(--font-mono); min-width: 0; }
-.retr-axis-ellipsis { text-align: center; color: var(--faint); font: 15px/1 var(--font-math); }
-.retr-matrix-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font: 10px var(--font-mono); color: var(--muted); }
-.retr-matrix-name.query { font-weight: 700; color: var(--q); }
-.retr-vector-entry { height: 29px; min-width: 0; padding: 0; border: 1px solid color-mix(in srgb,var(--v) 28%,var(--line)); border-radius: 4px; background: color-mix(in srgb,var(--v) 9%,var(--bg)); color: var(--ink); cursor: pointer; font: 10px/1 var(--font-mono); font-variant-numeric: tabular-nums; }
-.retr-vector-entry.zero { background: var(--surface); border-color: var(--line); color: var(--faint); }
-.retr-vector-entry.query:not(.zero) { background: color-mix(in srgb,var(--q) 12%,var(--bg)); border-color: color-mix(in srgb,var(--q) 30%,var(--line)); }
-.retr-vector-entry.active { outline: 2px solid var(--q); outline-offset: 0px; box-shadow: 0 0 0 2px var(--bg) inset; }
-.retr-vector-entry:hover { border-color: var(--q); }
-.retr-sparse-note { margin: 10px 0 0; color: var(--muted); font-size: 10px; line-height: 1.5; }
-.retr-score-equation { min-height: 38px; display: flex; align-items: center; justify-content: center; padding: 7px 2px; background: var(--surface); border-radius: 6px; font-size: 11px; margin-bottom: 14px; overflow: hidden; }
-.retr-score-equation math { max-width: 100%; font-size: .83em; }
-.retr-score-list { display: grid; gap: 3px; }
-.retr-score-row { display: grid; grid-template-columns: 15px minmax(0,1fr) 39px; gap: 4px; align-items: center; padding: 6px 2px; border: 0; border-bottom: 1px solid var(--line); background: none; text-align: left; color: var(--muted); cursor: pointer; min-width: 0; }
-.retr-score-row.hit { color: var(--v); }
-.retr-score-row.selected, .retr-score-row:hover { color: var(--ink); }
-.retr-score-row .retr-score-name { font-size: 10px; text-overflow: ellipsis; overflow: hidden; white-space: nowrap; }
-.retr-score-row .retr-score-num { font: 10px var(--font-mono); text-align: right; }
-.retr-rank { color: var(--faint); font: 10px var(--font-mono); }
-.retr-score-note { margin: 12px 0 0; font-size: 10px; color: var(--muted); line-height: 1.4; }
-.retr-stage-projection svg { background: var(--surface); border: 1px solid var(--line); border-radius: 7px; width: 100%; display: block; aspect-ratio: 290 / 225; }
-.retr-stage-projection svg .retr-map-grid { stroke: var(--line); stroke-width: 1; }
-.retr-stage-projection svg .retr-map-dot { cursor: pointer; }
-.retr-stage-projection svg .retr-map-dot circle { fill: var(--bg); stroke: var(--line-strong); stroke-width: 2; }
-.retr-stage-projection svg .retr-map-dot circle.retr-map-hitarea { fill: transparent !important; stroke: none !important; }
-.retr-stage-projection svg .retr-map-dot.hit circle { fill: color-mix(in srgb,var(--v) 21%,var(--bg)); stroke: var(--v); }
-.retr-stage-projection svg .retr-map-dot.selected circle { stroke: var(--q); stroke-width: 3.5; }
-.retr-stage-projection svg .retr-map-query path { fill: var(--q); stroke: var(--bg); stroke-width: 1.5; }
-.retr-map-legend { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-top: 9px; color: var(--muted); font-size: 10px; }
-.retr-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; border: 1.5px solid var(--line-strong); margin-right: 3px; }
-.retr-dot.query { border-color: var(--q); background: var(--q); }
-.retr-dot.hit { border-color: var(--v); background: color-mix(in srgb,var(--v) 24%,var(--bg)); }
-.retr-map-note { color: var(--muted); font-size: 10px; line-height: 1.38; margin: 8px 0 0; }
-.retr-map-note strong { color: var(--ink); font-weight: 550; }
-.retr-top-list { display: grid; gap: 8px; }
-.retr-top-row { display: flex; align-items: center; gap: 7px; background: color-mix(in srgb,var(--v) 8%,var(--bg)); border-left: 2px solid var(--v); border-radius: 3px; padding: 9px 7px; font-size: 11px; }
-.retr-top-row small { color: var(--muted); white-space: nowrap; }
-.retr-top-row strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 550; }
-.retr-top-empty { font-size: 11px; color: var(--muted); line-height: 1.5; }
-.retr-top-footer { margin-top: 13px; font-size: 10px; color: var(--muted); }
-.retr-caption { padding: 10px 16px; min-height: 41px; background: var(--surface); color: var(--muted); font-size: 11.5px; display: flex; justify-content: space-between; align-items: center; gap: 12px; }
-.retr-caption button { border: none; background: none; color: var(--ink); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; white-space: nowrap; font-size: 11px; }
-.retr-derivation { padding: 17px 17px 16px; border-top: 1px solid var(--line); background: color-mix(in srgb,var(--surface) 48%,var(--bg)); }
-.retr-derivation-title { display: flex; align-items: baseline; justify-content: space-between; flex-wrap: wrap; gap: 5px 15px; margin-bottom: 12px; }
-.retr-derivation-title b { color: var(--ink); font-size: 12px; font-weight: 650; }
-.retr-derivation-title span { color: var(--muted); font-size: 11px; }
-.retr-equations { display: grid; grid-template-columns: 1fr 1.35fr 1fr; gap: 12px; }
-.retr-eqn { min-width: 0; display: flex; flex-direction: column; gap: 6px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 7px; background: var(--bg); font-size: 13px; overflow-x: auto; }
-.retr-eqn-number { color: var(--faint); font-size: 10px; font-weight: 600; }
-.retr-math-fallback { font: 12px/1.5 var(--font-ui); color: var(--ink); overflow-wrap: anywhere; }
-.retr-score-equation .retr-math-fallback { font-size: 10px; }
-.retr-eqn math { display: inline-block; font-size: .94em; max-width: 100%; }
-.retr-trace { margin-top: 11px; display: flex; align-items: baseline; flex-wrap: wrap; gap: 6px 15px; color: var(--muted); font-size: 11px; }
-.retr-trace strong { font-weight: 650; color: var(--ink); }
+.retr-box-label { display: block; color: var(--muted); font-size: 10px; letter-spacing: .04em; text-transform: uppercase; margin-bottom: 7px; }
+/* 01 input */
+.retr-qbox, .retr-dbox { border: 1px solid var(--line); border-radius: 8px; padding: 9px 10px; }
+.retr-qbox { border-left: 3px solid var(--q); background: color-mix(in srgb,var(--q) 5%,var(--bg)); }
+.retr-qrow { display: grid; grid-template-columns: 16px minmax(0,1fr); gap: 6px 6px; align-items: center; }
+.retr-var { font: 16px/1 var(--font-math); font-style: normal; white-space: nowrap; }
+.retr-var sub { font-size: .66em; line-height: 0; }
+.retr-var.q { color: var(--q); }
+.retr-qvar { font-size: 18px; }
+.retr-qpick { position: relative; min-width: 0; display: flex; align-items: center; gap: 10px; border: 1px solid var(--line-strong); border-radius: 6px; background: var(--bg); color: var(--ink); font: 12px/1.4 var(--font-ui); padding: 6px 8px; }
+.retr-qpick:hover { border-color: var(--ink); }
+.retr-qpick:focus-within { outline: 2px solid var(--q); outline-offset: 1px; }
+#retr-qtext { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+/* one caret for both dropdowns (the query and k) */
+.retr-caret { flex: none; width: 6px; height: 6px; margin: 0 2px 3px 0; border-right: 1.5px solid var(--muted); border-bottom: 1.5px solid var(--muted); transform: rotate(45deg); pointer-events: none; }
+.retr-select { position: relative; display: inline-flex; align-items: center; }
+.retr-select .retr-caret { position: absolute; right: 10px; top: 50%; margin-top: -5px; }
+#retr-preset { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; font-size: 16px; border: 0; margin: 0; }
+.retr-dbox { margin-top: 12px; }
+.retr-doc { display: grid; grid-template-columns: 22px minmax(0,1fr); gap: 1px 6px; width: 100%; text-align: left; border: 0; border-bottom: 1px solid var(--line); background: none; padding: 5px 3px; cursor: pointer; color: var(--muted); border-radius: 4px; }
+.retr-doc:last-child { border-bottom: 0; }
+.retr-doc-no { color: var(--muted); grid-row: span 2; padding-top: 1px; }
+.retr-doc-no .retr-var { font-size: 15px; }
+.retr-doc-name { font-size: 11.5px; color: var(--ink); }
+.retr-doc-text { font-size: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.retr-doc:hover .retr-doc-name { text-decoration: underline; text-underline-offset: 2px; }
+.retr-doc.selected { background: color-mix(in srgb,var(--q) 7%,var(--bg)); }
+.retr-doc.selected .retr-doc-no { color: var(--q); }
+/* the labelled boxes on the arrows */
+.retr-link-cell { display: flex; align-items: center; position: relative; padding: 0 9px 0 3px; }
+.retr-link-cell::before { content: ''; position: absolute; left: 0; right: 2px; top: 50%; border-top: 1.5px solid var(--line-strong); }
+.retr-link-cell::after { content: ''; position: absolute; right: 0; top: calc(50% - 5px); border: 5.5px solid transparent; border-left: 8px solid var(--line-strong); border-right: 0; }
+.retr-link { position: relative; z-index: 1; width: 100%; border: 1.5px solid var(--line-strong); border-radius: 8px; background: var(--bg); display: flex; flex-direction: column; overflow: hidden; transition: border-color .12s, box-shadow .12s; }
+.retr-link:hover { border-color: var(--ink); }
+.retr-link.open { border-color: var(--q); box-shadow: 0 0 0 3px color-mix(in srgb,var(--q) 16%,transparent); }
+.retr-link-main { border: 0; background: none; padding: 8px 6px 7px; cursor: pointer; color: var(--ink); font: inherit; display: flex; flex-direction: column; align-items: center; gap: 4px; text-align: center; }
+.retr-link-main b { font-size: 11.5px; font-weight: 650; line-height: 1.25; }
+.retr-link-main small { font-size: 9.5px; color: var(--muted); line-height: 1.35; }
+.retr-link-main small:empty { display: none; }
+.retr-link-eq var { font-size: 13px; }
+.retr-link-eq var.q { color: var(--q); }
+.retr-link-main:focus-visible { outline: 2px solid var(--q); outline-offset: -2px; }
+.retr-seg2 { display: flex; border-top: 1px solid var(--line); }
+.retr-seg2 button { flex: 1; border: 0; background: none; font: 10px var(--font-ui); padding: 5px 0; cursor: pointer; color: var(--muted); }
+.retr-seg2 button + button { border-left: 1px solid var(--line); }
+.retr-seg2 button.active { background: color-mix(in srgb,var(--q) 13%,var(--bg)); color: var(--ink); font-weight: 650; }
+/* 02 vocabulary and 03 sparse vectors share their rows: a header of --retr-head, then rows of --retr-row */
+#retr-vocab { display: grid; grid-template-rows: var(--retr-head); grid-auto-rows: var(--retr-row); }
+.retr-vhead, .retr-vrow, .retr-vgap { display: grid; grid-template-columns: 26px minmax(0,1fr); }
+.retr-vhead { box-sizing: border-box; align-self: start; height: calc(var(--retr-head) - var(--retr-head-gap)); font-size: 10.5px; color: var(--muted); padding: 0 3px 8px; align-items: end; border-bottom: 1.5px solid var(--line-strong); }
+.retr-vhead span + span, .retr-vrow .retr-vterm, .retr-vgap span + span { padding-left: 7px; border-left: 1.5px solid var(--line-strong); }
+.retr-vrow { width: 100%; border: 0; background: none; padding: 0 3px; font: 10.5px/var(--retr-row) var(--font-mono); color: var(--muted); text-align: left; cursor: pointer; }
+.retr-vrow .retr-vid { color: var(--faint); }
+.retr-vrow .retr-vterm { color: var(--ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.retr-vrow:hover .retr-vterm { text-decoration: underline; }
+.retr-vrow.indoc .retr-vid { color: var(--muted); }
+.retr-vrow.q { background: color-mix(in srgb,var(--q) 12%,var(--bg)); }
+.retr-vrow.q .retr-vterm, .retr-vrow.q .retr-vid { color: var(--q); font-weight: 700; }
+.retr-vrow.active { box-shadow: inset 0 0 0 1.5px var(--q); }
+#retr-tokpick { margin-bottom: 8px; }
+#retr-tokpick .retr-docpick { display: flex; width: 100%; }
+#retr-tokpick .retr-docpick button { flex: 1; padding: 2px 0; min-width: 0; }
+#retr-tokpick .retr-docpick .retr-var { font-size: 12px; }
+#retr-vocab.tokens .retr-vhead, #retr-vocab.tokens .retr-vrow, #retr-vocab.tokens .retr-vgap { grid-template-columns: 38px minmax(0,1fr); }
+.retr-vrow.tok { cursor: default; }
+.retr-vrow.tok:hover .retr-vterm { text-decoration: none; }
+.retr-vrow.special .retr-vterm { color: var(--muted); }
+.retr-vrow.piece .retr-vterm { color: var(--lat); }
+.retr-vgap { padding: 0 3px; color: var(--faint); font: 12px/var(--retr-row) var(--font-math); }
+#retr-show-all { border: 0; background: none; color: var(--ink); text-decoration: underline; text-underline-offset: 3px; font-size: 10.5px; cursor: pointer; padding: 0; }
+.retr-mwrap { overflow: visible; }
+#retr-matrix { display: grid; grid-template-rows: var(--retr-head); grid-auto-rows: var(--retr-row); column-gap: 4px; align-items: center; min-width: 0; }
+.retr-mhead { box-sizing: border-box; align-self: start; height: calc(var(--retr-head) - var(--retr-head-gap)); display: flex; align-items: flex-end; justify-content: center; padding: 0 0 8px; border: 0; border-bottom: 1.5px solid var(--line-strong); background: none; color: var(--ink); cursor: pointer; min-width: 0; }
+.retr-mhead .retr-var { font-size: 15px; }
+.retr-mcorner { font-size: 10.5px; color: var(--muted); cursor: default; justify-content: flex-start; padding-left: 2px; }
+.retr-mhead.q { cursor: default; margin-right: 6px; }
+#retr-matrix.dense .retr-mhead.q, #retr-matrix.learned .retr-mhead.q, #retr-matrix.learned .retr-cell.q { margin-right: 0; }
+#retr-matrix.learned { column-gap: 2px; }
+/* hybrid: two rankings (02) and the fused scores (03) */
+#retr-vocab.rankings { grid-auto-rows: 28px; }
+.retr-rkhead, .retr-rkrow { display: grid; grid-template-columns: 18px minmax(0,1fr) minmax(0,1fr); gap: 4px; align-items: center; }
+.retr-rkhead { box-sizing: border-box; align-self: start; height: calc(var(--retr-head) - var(--retr-head-gap)); align-items: end; padding: 0 3px 8px; font-size: 10.5px; color: var(--muted); border-bottom: 1.5px solid var(--line-strong); }
+.retr-rkrow { padding: 0 3px; }
+.retr-rkrow .retr-vid { font: 10.5px var(--font-mono); color: var(--faint); }
+.retr-fusion button { flex: auto; padding: 5px 3px; }
+.retr-rk { display: flex; align-items: baseline; gap: 5px; border: 0; background: none; padding: 0; cursor: pointer; color: var(--ink); }
+.retr-rk .retr-var { font-size: 14px; }
+.retr-rk small { font: 9.5px var(--font-mono); color: var(--muted); }
+.retr-rk:hover .retr-var { text-decoration: underline; text-underline-offset: 3px; }
+.retr-rk.none { color: var(--faint); cursor: default; }
+#retr-matrix.hybrid { grid-auto-rows: 28px; }
+.retr-mhead.txt { font-size: 10.5px; color: var(--muted); cursor: default; }
+.retr-mid.hdoc { padding: 0 4px 0 2px; }
+.retr-mid.hdoc .retr-var { font-size: 14px; color: var(--ink); }
+.retr-cell.fused { font-weight: 650; border-color: color-mix(in srgb,var(--v) 50%,var(--line)); }
+.retr-cell.hsel { box-shadow: inset 0 0 0 1.5px color-mix(in srgb,var(--q) 55%,transparent); }
+.retr-mid.hdoc.hsel .retr-var { color: var(--q); }
+#retr-matrix.learned .retr-mcorner { justify-content: flex-start; }
+.retr-mid.lterm { display: block; min-width: 0; padding-right: 8px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font: 10.5px var(--font-mono); color: var(--ink); }
+.retr-mid.lterm.exp, .retr-exp-key { color: var(--lat); font-style: italic; }
+.retr-cell.q.lq { font-weight: 600; }
+.retr-cell.q.lq.exp { border-color: var(--lat); color: var(--lat); background: color-mix(in srgb,var(--lat) 10%,var(--bg)); }
+.retr-cell.exp:not(.q) { border-color: color-mix(in srgb,var(--lat) 55%,var(--line)); border-style: dashed; }
+.retr-mhead.selected { box-shadow: inset 0 -2.5px 0 var(--q); }
+.retr-mhead[data-doc]:hover .retr-var { text-decoration: underline; text-underline-offset: 3px; }
+.retr-mid { border: 0; background: none; padding: 0 2px; font: 10px var(--font-mono); color: var(--faint); text-align: left; cursor: pointer; }
+.retr-mid.q { color: var(--q); font-weight: 700; }
+.retr-mid.active { text-decoration: underline; text-underline-offset: 2px; }
+.retr-mgap { text-align: center; color: var(--faint); font: 12px/var(--retr-row) var(--font-math); }
+.retr-cell { box-sizing: border-box; height: calc(var(--retr-row) - 3px); min-width: 0; padding: 0; border: 1px solid color-mix(in srgb,var(--v) 32%,var(--line)); border-radius: 4px; background: color-mix(in srgb,var(--v) calc(7% + 32% * var(--w,0)),var(--bg)); color: var(--ink); font: 10px/1 var(--font-mono); font-variant-numeric: tabular-nums; display: grid; place-items: center; cursor: pointer; }
+.retr-cell.zero { background: var(--surface); border-color: var(--line); color: var(--faint); }
+.retr-cell.dense.pos { background: color-mix(in srgb,var(--v) calc(4% + 34% * var(--w,0)),var(--bg)); border-color: color-mix(in srgb,var(--v) 28%,var(--line)); }
+.retr-cell.dense.neg { background: color-mix(in srgb,var(--k) calc(4% + 34% * var(--w,0)),var(--bg)); border-color: color-mix(in srgb,var(--k) 28%,var(--line)); }
+.retr-cell.dense.qd { cursor: default; border-width: 1.5px; border-color: color-mix(in srgb,var(--q) 55%,var(--line)); }
+.retr-cell.qrow { box-shadow: inset 0 0 0 1px color-mix(in srgb,var(--q) 40%,transparent); }
+.retr-cell.q { cursor: default; margin-right: 6px; border: 1.5px solid var(--line-strong); background: var(--bg); font-weight: 650; font-size: 10.5px; }
+.retr-cell.q.one { border-color: var(--q); color: var(--q); background: color-mix(in srgb,var(--q) 12%,var(--bg)); }
+.retr-cell.q.zero { color: var(--faint); }
+.retr-cell.colsel:not(.zero) { border-color: color-mix(in srgb,var(--q) 45%,var(--line)); }
+.retr-cell.active { outline: 2px solid var(--q); outline-offset: 0; }
+.retr-cell:not(.q):hover { border-color: var(--q); }
+/* 04 output */
+.retr-k { display: flex; align-items: center; gap: 8px; font-size: 11.5px; color: var(--muted); margin-bottom: 11px; }
+#retr-k { -webkit-appearance: none; appearance: none; min-width: 88px; height: 30px; border: 1px solid var(--line-strong); border-radius: 6px; background: var(--bg); color: var(--ink); font: 12px var(--font-ui); padding: 2px 28px 2px 8px; cursor: pointer; }
+#retr-k:hover, .retr-qpick:hover { border-color: var(--ink); }
+#retr-k:focus-visible { outline: 2px solid var(--q); outline-offset: 1px; }
+.retr-rank-head, .retr-rank-row { display: grid; grid-template-columns: 26px minmax(0,1fr) 36px; gap: 7px; align-items: center; }
+.retr-rank-head { font-size: 10.5px; color: var(--muted); padding: 0 2px 4px; border-bottom: 1.5px solid var(--line-strong); }
+.retr-rank-row { width: 100%; border: 0; border-bottom: 1px solid var(--line); background: none; padding: 7px 2px; cursor: pointer; color: var(--muted); text-align: left; }
+.retr-rank-id { color: var(--ink); }
+.retr-rank-id .retr-var { font-size: 15px; }
+.retr-rank-bar { height: 6px; background: var(--surface); border-radius: 3px; overflow: hidden; }
+.retr-rank-bar i { display: block; height: 100%; background: var(--line-strong); }
+.retr-rank-score { font: 11px var(--font-mono); text-align: right; color: var(--ink); }
+.retr-rank-row.hit .retr-rank-bar i { background: var(--v); }
+.retr-rank-row.hit .retr-rank-id { color: var(--v); }
+.retr-rank-row.selected { background: color-mix(in srgb,var(--q) 7%,var(--bg)); }
+/* details of the open box */
+.retr-detail { border-top: 1px solid var(--line); padding: 16px 17px 18px; background: color-mix(in srgb,var(--surface) 48%,var(--bg)); min-height: 150px; }
+.retr-dgrid { display: grid; grid-template-columns: minmax(0,1.55fr) minmax(0,1fr); gap: 24px; }
+.retr-dhead { display: flex; justify-content: space-between; align-items: baseline; gap: 8px 12px; flex-wrap: wrap; margin-bottom: 10px; }
+.retr-dhead b { font-size: 12.5px; font-weight: 650; }
+.retr-dhead b .retr-var, .retr-detail p .retr-var { font-size: 14px; font-weight: 400; }
+.retr-docpick { display: inline-flex; border: 1px solid var(--line-strong); border-radius: 6px; overflow: hidden; }
+.retr-docpick button { border: 0; background: var(--bg); color: var(--muted); padding: 2px 8px; cursor: pointer; }
+.retr-docpick .retr-var { font-size: 13px; }
+.retr-docpick button + button { border-left: 1px solid var(--line); }
+.retr-docpick button.active { background: color-mix(in srgb,var(--q) 14%,var(--bg)); color: var(--ink); }
+.retr-words { font-size: 12px; line-height: 2.15; margin: 0; }
+.retr-w { white-space: nowrap; }
+.retr-w.kept { background: color-mix(in srgb,var(--v) 11%,var(--bg)); border: 1px solid color-mix(in srgb,var(--v) 30%,var(--line)); border-radius: 4px; padding: 1px 4px; font: 11px var(--font-mono); }
+.retr-w.kept sub { color: var(--faint); font-size: 8.5px; margin-left: 2px; }
+.retr-w.q { border-color: var(--q); background: color-mix(in srgb,var(--q) 12%,var(--bg)); }
+.retr-w.stop { color: var(--faint); text-decoration: line-through; }
+.retr-w.tok { background: var(--surface); border: 1px solid var(--line); border-radius: 4px; padding: 1px 4px; font: 11px var(--font-mono); }
+.retr-w.tok sub { color: var(--faint); font-size: 8.5px; margin-left: 2px; }
+.retr-w.tok.special { color: var(--muted); border-style: dashed; }
+.retr-w.lw { background: color-mix(in srgb,var(--v) 9%,var(--bg)); border: 1px solid color-mix(in srgb,var(--v) 28%,var(--line)); border-radius: 4px; padding: 1px 4px; font: 11px var(--font-mono); white-space: nowrap; }
+.retr-w.lw sub { color: var(--muted); font-size: 8.5px; margin-left: 2px; }
+.retr-w.lw.exp { color: var(--lat); font-style: italic; background: color-mix(in srgb,var(--lat) 8%,var(--bg)); border-color: color-mix(in srgb,var(--lat) 40%,var(--line)); border-style: dashed; }
+.retr-w.lw.active { outline: 2px solid var(--q); }
+.retr-dnote .retr-w { line-height: 2.1; }
+.retr-w.tok.piece { color: var(--lat); border-color: color-mix(in srgb,var(--lat) 35%,var(--line)); }
+.retr-cmp { display: grid; grid-template-columns: repeat(var(--cols, 2), minmax(0,1fr)); gap: 6px 22px; margin-top: 16px; padding-top: 12px; border-top: 1px solid var(--line); }
+.retr-cmp .retr-dnote { grid-column: 1 / -1; margin: 2px 0 0; }
+.retr-cmp-col { display: grid; gap: 2px; align-content: start; }
+.retr-cmp-col > b { font-size: 11.5px; font-weight: 650; margin-bottom: 4px; }
+.retr-cmp-row { display: grid; grid-template-columns: 16px 30px 1fr; align-items: baseline; padding: 3px 6px; border-radius: 4px; font: 11px var(--font-mono); color: var(--muted); }
+.retr-cmp-row i { font-style: normal; color: var(--faint); font-size: 10px; }
+.retr-cmp-row em { font-style: normal; text-align: right; color: var(--ink); }
+.retr-cmp-row .retr-var { font-size: 14px; color: var(--ink); }
+.retr-cmp-row.ans { background: color-mix(in srgb,var(--v) 13%,var(--bg)); box-shadow: inset 2px 0 0 var(--v); }
+.retr-rules { margin: 0; padding-left: 18px; font-size: 11.5px; line-height: 1.55; color: var(--muted); display: grid; gap: 6px; }
+.retr-rules b { color: var(--ink); font-weight: 600; }
+.retr-dnote { font-size: 11.5px; color: var(--muted); line-height: 1.55; margin: 10px 0 0; }
+.retr-dnote b { color: var(--ink); font-weight: 600; }
+.retr-detail code { font: 11px var(--font-mono); background: var(--surface); padding: 0 4px; border-radius: 3px; color: var(--ink); }
+.retr-detail code.in { color: var(--q); }
+.retr-detail code.out { color: var(--faint); text-decoration: line-through; }
+.retr-eqs { display: flex; flex-wrap: wrap; gap: 10px; }
+.retr-eq { padding: 10px 14px; border: 1px solid var(--line); border-radius: 7px; background: var(--bg); font-size: 14px; overflow-x: auto; overflow-y: hidden; max-width: 100%; }
+.retr-eq math { font-family: var(--font-math); font-size: 1.12em; }
+.retr-math-fallback { font: 12px/1.5 var(--font-mono); color: var(--ink); overflow-wrap: anywhere; }
+.retr-trace { margin: 11px 0 0; font-size: 11.5px; color: var(--muted); display: flex; flex-wrap: wrap; gap: 4px 10px; line-height: 1.6; }
 .retr-trace b { color: var(--ink); font-weight: 650; }
-.retr-trace .retr-trace-result { color: var(--q); }
-.retr-trace-density { margin-left: auto; }
-.retr-inspect-panel { margin-top: 20px; min-width: 0; }
-.retr-panel-head { margin-bottom: 8px; }
-.retr-inspect-layout { display: grid; grid-template-columns: minmax(0,1.5fr) minmax(0,1fr); align-items: start; gap: 12px; }
-#retr-inspect { border: 1px solid var(--line-strong); border-radius: 8px; padding: 11px 14px; min-height: 112px; }
-.retr-inspect-head { display: flex; justify-content: space-between; gap: 10px; align-items: baseline; }
-.retr-inspect-head strong { font-size: 13px; }
-.retr-inspect-head small { color: var(--muted); white-space: nowrap; }
-.retr-inspect-text { margin: 8px 0; font-size: 12px; line-height: 1.6; }
-.retr-inspect-text mark { color: var(--ink); background: color-mix(in srgb,var(--q) 16%,var(--bg)); padding: 0 1px; border-radius: 2px; }
-.retr-inspect-contrib { font-size: 10.5px; color: var(--muted); }
-.retr-inspect-contrib b { color: var(--ink); font-weight: 550; }
-#retr-prompt-details { margin-top: 0; border: 1px solid var(--line); border-radius: 9px; }
+.retr-trace .retr-result { color: var(--q); }
+.retr-sums { display: grid; gap: 3px; margin-top: 10px; }
+.retr-sum { display: grid; grid-template-columns: 50px minmax(0,1fr) auto; gap: 10px; align-items: baseline; border: 0; border-bottom: 1px solid var(--line); background: none; padding: 5px 3px; text-align: left; cursor: pointer; color: var(--faint); font: 11px var(--font-mono); }
+.retr-sum.selected { background: color-mix(in srgb,var(--q) 7%,var(--bg)); }
+.retr-sum-id { color: var(--ink); }
+.retr-sum-id .retr-var { font-size: 14px; }
+.retr-prod.hit { color: var(--ink); }
+.retr-sum-eq { color: var(--muted); white-space: nowrap; }
+.retr-sum-eq b { color: var(--ink); }
+/* what the model receives */
+.retr-context-panel { margin-top: 20px; }
+#retr-prompt-details { border: 1px solid var(--line); border-radius: 9px; }
 #retr-prompt-details summary { padding: 11px 13px; cursor: pointer; font-size: 12px; font-weight: 600; }
 #retr-prompt-stat { color: var(--muted); font-weight: 400; margin-left: 5px; }
-#retr-context { background: var(--surface); border: 0; padding: 11px; margin: 0 11px; max-height: 230px; overflow: auto; white-space: pre-wrap; overflow-wrap: anywhere; font: 11px/1.6 var(--font-mono); }
+#retr-context { background: var(--surface); border: 0; padding: 11px; margin: 0 11px; max-height: 260px; overflow: auto; white-space: pre-wrap; overflow-wrap: anywhere; font: 11px/1.6 var(--font-mono); }
 #retr-answer { color: var(--muted); font-size: 11.5px; padding: 9px 12px 14px; }
-.retr-formula-note { margin: 17px 0 8px; border-top: 1px solid var(--line); padding-top: 10px; display: flex; flex-wrap: wrap; align-items: baseline; gap: 10px; font-size: 11px; color: var(--muted); }
-.retr-formula-note > span:first-child { color: var(--ink); font-weight: 600; }
-#retrieval-lab footer { margin-top: 24px; }
-@media(max-width:1140px){
- .retr-flow { grid-template-columns: minmax(170px,1fr) minmax(300px,1.55fr) minmax(155px,.9fr); }
- .retr-stage:nth-child(4) { border-left: none; }
- .retr-stage:nth-child(n+4) { border-top: 1px solid var(--line); }
- .retr-stage:nth-child(4):before { display:none; }
- .retr-stage-projection svg { max-width: 290px; }
+#retrieval-lab footer, #reasoning-lab footer { margin-top: 24px; }
+@media (max-width: 1120px) {
+  .retr-flow { grid-template-columns: minmax(0,1fr); }
+  .retr-stage + .retr-stage, .retr-link-cell + .retr-stage { border-top: 0; }
+  .retr-link-cell { justify-content: center; padding: 12px 0 18px; }
+  .retr-link-cell::before { left: 50%; right: auto; top: 0; bottom: 8px; border-top: 0; border-left: 1.5px solid var(--line-strong); }
+  .retr-link-cell::after { left: calc(50% - 5px); right: auto; top: auto; bottom: 0; border: 5.5px solid transparent; border-top: 8px solid var(--line-strong); border-bottom: 0; }
+  .retr-link { max-width: 280px; }
+  .retr-dgrid { grid-template-columns: minmax(0,1fr); gap: 16px; }
 }
-@media(max-width:780px){
- .retr-toolbar { grid-template-columns: 1fr 1fr; gap: 10px; }
- .retr-field-query { grid-column: 1 / -1; grid-row: 1; }
- .retr-flow { grid-template-columns: minmax(0,1fr) minmax(0,1.3fr); }
- .retr-stage:nth-child(3) { border-left: none; }
- .retr-stage:nth-child(3):before { display:none; }
- .retr-stage:nth-child(4) { border-left: 1px solid var(--line); }
- .retr-stage:nth-child(4):before { display:grid; }
- .retr-stage:nth-child(5) { border-left: none; }
- .retr-stage:nth-child(5):before { display:none; }
- .retr-equations { grid-template-columns: 1fr; }
- .retr-inspect-layout { grid-template-columns: 1fr; }
+@media (max-width: 560px) {
+  .retr-stage { padding: 12px 14px 14px; }
+  .retr-detail { padding: 14px; }
 }
-@media(max-width:560px){
- .retr-flow { grid-template-columns: 1fr; }
- .retr-stage { border-left: 0 !important; padding: 13px 15px; }
- .retr-stage + .retr-stage:before { display:none !important; }
- .retr-figure-head { padding: 15px; }
- .retr-stage-projection svg { max-width: 290px; }
- .retr-caption { flex-wrap: wrap; }
- .retr-derivation { padding: 14px; }
- .retr-trace-density { margin-left: 0; }
- #retrieval-lab .retr-head h1 { font-size: 25px; }
+@media (prefers-reduced-motion: reduce) { #retrieval-lab *, #reasoning-lab * { transition: none !important; } }
+/* ---------- Reasoning page: one diagram of thinking ---------- */
+.think-fig { display: grid; grid-template-columns: minmax(82px,.75fr) 26px minmax(92px,.8fr) 26px minmax(132px,1fr) 26px minmax(190px,1.25fr) 26px minmax(100px,.8fr) 26px minmax(112px,.85fr) 26px minmax(86px,.75fr); padding: 14px 18px 18px; align-items: center; }
+.think-bar, #think-ctx, #think-cache { grid-column: 1 / -1; }
+.think-bar { grid-row: 1; display: flex; flex-wrap: wrap; align-items: center; gap: 10px 22px; margin-bottom: 12px; }
+#think-ctx { grid-row: 2; }
+.think-loop { grid-row: 3; }
+#think-pass { display: contents; }
+#think-pass > * { grid-row: 4; }
+#think-rw { grid-row: 5; grid-column: 5; }
+#think-cache { grid-row: 6; }
+#think-status { font-size: 12.5px; color: var(--muted); min-width: 220px; }
+#think-status b { color: var(--ink); font-weight: 650; }
+.think-phase { display: inline-block; margin-left: 6px; padding: 1px 7px; border-radius: 10px; font-size: 10.5px; background: color-mix(in srgb,var(--q) 13%,var(--bg)); color: var(--q); }
+.think-phase.prefill { background: var(--surface); color: var(--muted); }
+.think-phase.closing { background: color-mix(in srgb,var(--k) 14%,var(--bg)); color: var(--k); }
+.think-phase.answering { background: color-mix(in srgb,var(--v) 14%,var(--bg)); color: var(--v); }
+.think-phase.ending { background: var(--surface); color: var(--ink); }
+.think-controls { flex: 1; min-width: 240px; display: flex; align-items: center; gap: 6px; }
+.think-controls input { flex: 1; min-width: 0; accent-color: var(--q); }
+.think-controls button, .think-jumps button { border: 1px solid var(--line-strong); border-radius: 6px; background: var(--bg); color: var(--ink); font: 11px var(--font-ui); padding: 3px 9px; cursor: pointer; }
+#think-play { min-width: 52px; }
+.think-controls button:hover, .think-jumps button:hover { border-color: var(--ink); }
+.think-jumps { display: flex; flex-wrap: wrap; align-items: center; gap: 5px; font-size: 11px; color: var(--muted); }
+.think-jumps button { font-family: var(--font-ui); }
+.think-jumps button[data-jump="end"] { font-family: var(--font-mono); font-size: 10.5px; }
+/* the parts: every one opens its details */
+.think-part { position: relative; z-index: 1; min-width: 0; border: 1.5px solid var(--line-strong); border-radius: 8px; background: var(--bg); cursor: pointer; transition: border-color .12s, box-shadow .12s; }
+.think-part:hover { border-color: var(--ink); }
+.think-part.open { border-color: var(--q); box-shadow: 0 0 0 3px color-mix(in srgb,var(--q) 16%,transparent); }
+.think-part:focus-visible { outline: 2px solid var(--q); outline-offset: 2px; }
+.think-cap { display: block; font-size: 11.5px; font-weight: 650; color: var(--ink); }
+.think-cap small { font-weight: 400; color: var(--muted); font-size: 10.5px; margin-left: 4px; }
+.think-box { display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 9px 8px 10px; text-align: center; }
+.think-box > b { font: 600 15px var(--font-mono); color: var(--ink); }
+.think-box > small, .think-io > small { font-size: 10px; color: var(--muted); line-height: 1.35; }
+.think-io { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 9px 6px 10px; text-align: center; border-style: dashed; }
+.think-io .think-cap { font-weight: 500; color: var(--muted); font-size: 10.5px; letter-spacing: .04em; text-transform: uppercase; }
+.think-all { font-size: 10.5px; color: var(--muted); line-height: 1.35; }
+/* tokens */
+.think-tok { font: 11.5px var(--font-mono); border-radius: 3px; }
+.think-io .think-tok { font-size: 13px; font-weight: 650; padding: 2px 7px; overflow-wrap: anywhere; }
+.think-tok.tag { color: var(--muted); font-weight: 650; }
+.think-tok.wait { color: var(--k); font-weight: 650; }
+.think-tok.ans { color: var(--v); }
+.think-tok.in { outline: 1.5px dashed var(--q); outline-offset: 1px; }
+.think-tok.out { background: color-mix(in srgb,var(--q) 20%,var(--bg)); outline: 1.5px solid var(--q); outline-offset: 1px; }
+.think-tok.out.wait { background: color-mix(in srgb,var(--k) 16%,var(--bg)); outline-color: var(--k); }
+/* the context window */
+.think-ctxbox { padding: 9px 12px 10px; cursor: pointer; }
+.think-scroll { display: block; margin-top: 6px; height: 118px; overflow-y: auto; font: 11.5px/1.85 var(--font-mono); color: var(--ink); scrollbar-width: thin; }
+.think-prompt { color: var(--muted); }
+.think-prompt.in { outline: 1.5px dashed var(--q); outline-offset: 1px; border-radius: 3px; }
+.think-caret { display: inline-block; width: 7px; height: 13px; margin-left: 3px; vertical-align: -2px; background: var(--q); animation: think-blink 1s steps(2) infinite; }
+@keyframes think-blink { 50% { opacity: 0; } }
+/* the loop: newest token down into the pass, the output back up */
+.think-loop { position: relative; align-self: stretch; min-height: 42px; }
+.think-loop.down { grid-column: 1; }
+.think-loop.up { grid-column: 13; }
+.think-loop::before { content: ''; position: absolute; left: 50%; top: 0; bottom: 0; border-left: 1.5px solid var(--q); }
+.think-loop::after { content: ''; position: absolute; left: calc(50% - 4.5px); border: 5px solid transparent; }
+.think-loop.down::after { bottom: -1px; border-top: 7px solid var(--q); border-bottom: 0; }
+.think-loop.up::after { top: -1px; border-bottom: 7px solid var(--q); border-top: 0; }
+.think-loop span { position: absolute; top: 50%; transform: translateY(-50%); font-size: 10px; color: var(--q); white-space: nowrap; }
+.think-loop.down span { left: calc(50% + 8px); }
+.think-loop.up span { right: calc(50% + 8px); }
+/* arrows between the parts */
+.think-arrow { position: relative; align-self: center; height: 12px; }
+.think-arrow::before { content: ''; position: absolute; left: 3px; right: 6px; top: 50%; border-top: 1.5px solid var(--line-strong); }
+.think-arrow::after { content: ''; position: absolute; right: 2px; top: calc(50% - 5px); border: 5.5px solid transparent; border-left: 7px solid var(--line-strong); border-right: 0; }
+/* the 61 layers: attention, then the experts */
+.think-layers { grid-column: span 3; display: grid; grid-template-columns: subgrid; grid-template-rows: auto auto; align-items: center; gap: 0; margin: 0 -10px; padding: 7px 10px 11px; border-radius: 11px; background: color-mix(in srgb,var(--ink) 4%,var(--bg)); box-shadow: inset 0 0 0 1px var(--line); }
+.think-lcap { grid-column: 1 / -1; font-size: 11px; font-weight: 650; color: var(--muted); padding: 0 2px 7px; }
+.think-lcap small { font-weight: 400; margin-left: 4px; }
+.think-attn > b { color: var(--q); }
+.think-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 3px 4px; width: 100%; max-width: 190px; margin-top: 4px; }
+.think-group { display: grid; grid-template-columns: repeat(8, 1fr); gap: 1px; }
+.think-group i { aspect-ratio: 1; border-radius: 1px; background: color-mix(in srgb,var(--line-strong) 65%,var(--bg)); }
+.think-group.off { opacity: .35; }
+.think-group i.on { background: var(--v); }
+.think-bars { display: flex; align-items: flex-end; gap: 2px; height: 30px; width: 80px; margin: 2px 0; border-bottom: 1px solid var(--line-strong); }
+.think-bars i { flex: 1; background: color-mix(in srgb,var(--line-strong) 75%,var(--bg)); border-radius: 1px 1px 0 0; }
+.think-bars i.pick { background: var(--q); }
+/* attention and the cache */
+.think-rw { position: relative; align-self: stretch; height: 46px; display: flex; flex-direction: column; justify-content: center; gap: 2px; padding-left: calc(50% + 10px); font-size: 10px; color: var(--muted); white-space: nowrap; }
+.think-rw b { font-weight: 600; color: var(--q); }
+.think-rw::before { content: ''; position: absolute; left: 50%; top: 4px; bottom: 4px; border-left: 1.5px solid var(--q); }
+.think-rw::after { content: ''; position: absolute; left: calc(50% - 4.5px); top: 0; border: 5px solid transparent; border-bottom: 7px solid var(--q); border-top: 0; }
+.think-rw span::before { content: ''; position: absolute; left: calc(50% - 4.5px); bottom: 0; border: 5px solid transparent; border-top: 7px solid var(--q); border-bottom: 0; }
+.think-cachebox { display: grid; gap: 7px; padding: 9px 12px 10px; }
+.think-cachebar { display: flex; height: 14px; border-radius: 3px; overflow: hidden; background: var(--surface); gap: 1px; }
+.think-cachebar i.p { background: color-mix(in srgb,var(--muted) 50%,var(--bg)); }
+.think-cachebar i.t { background: var(--q); }
+.think-cachebar i.a { background: var(--v); }
+.think-cachebar i.rest { background: none; }
+.think-cachefoot { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 6px 16px; font-size: 11px; color: var(--muted); }
+.think-cachefoot b { color: var(--ink); font-weight: 650; }
+.think-key { display: flex; gap: 12px; font-size: 10.5px; }
+.think-key b { font-weight: 500; color: var(--muted); }
+.think-key b::before { content: ''; display: inline-block; width: 9px; height: 9px; border-radius: 2px; margin-right: 4px; vertical-align: -1px; }
+.think-key .p::before { background: color-mix(in srgb,var(--muted) 50%,var(--bg)); } .think-key .t::before { background: var(--q); } .think-key .a::before { background: var(--v); }
+/* the stop check, on the way back up */
+#think-stop { grid-row: 3; grid-column: 9 / -1; justify-self: end; align-self: center; margin: 10px 0; position: relative; z-index: 2; }
+.think-stopbox { display: grid; gap: 3px; padding: 7px 11px 8px; width: 236px; box-sizing: border-box; }
+.think-stopbox.yes.k { border-color: var(--k); } .think-stopbox.yes.v { border-color: var(--v); }
+.think-verdict { font-size: 11px; line-height: 1.35; }
+.think-verdict.q { color: var(--q); } .think-verdict.k { color: var(--k); } .think-verdict.v { color: var(--v); }
+.think-verdict b { font: 600 10.5px var(--font-mono); }
+.think-limit { font-size: 10px; color: var(--muted); }
+.think-stops { font-size: 11px; margin-top: 2px; }
+.think-srow { display: grid; grid-template-columns: minmax(0,1fr) 84px minmax(0,1.5fr); gap: 10px; padding: 5px 3px; border-bottom: 1px solid var(--line); color: var(--muted); line-height: 1.4; }
+.think-srow > span:first-child { color: var(--ink); }
+.think-srow.head { font-size: 10.5px; border-bottom: 1.5px solid var(--line-strong); }
+.think-srow.head > span:first-child { color: var(--muted); }
+/* details */
+.think-figure .retr-detail { border-top: 1px solid var(--line-strong); }
+.think-text { margin: 0 0 4px; font: 11.5px/1.65 var(--font-mono); color: var(--muted); background: var(--surface); border-radius: 6px; padding: 9px 11px; }
+.think-tag { color: var(--ink); font-weight: 650; }
+.think-parts { margin-top: 4px; font-size: 11px; }
+.think-prow { display: grid; grid-template-columns: minmax(0,1.1fr) 1fr .8fr 1.3fr; gap: 6px; padding: 4px 3px; border-bottom: 1px solid var(--line); color: var(--muted); }
+.think-prow em { font: 11px var(--font-mono); font-style: normal; color: var(--ink); text-align: right; }
+.think-prow.head { font-size: 10.5px; border-bottom: 1.5px solid var(--line-strong); }
+.think-prow.head em { font: 10.5px var(--font-ui); color: var(--muted); }
+@media (max-width: 1120px) {
+  .think-fig { grid-template-columns: minmax(0,1fr); justify-items: stretch; }
+  .think-bar, #think-ctx, #think-cache, .think-loop, #think-rw, #think-stop { grid-row: auto; grid-column: 1; }
+  #think-pass { order: 1; } #think-stop { order: 2; justify-self: center; margin: 0 0 16px; } #think-cache { order: 3; }
+  #think-stop { width: min(100%, 300px); } .think-stopbox { width: 100%; }
+  .think-loop, #think-rw { display: none; }
+  #think-pass { display: flex; flex-direction: column; align-items: center; margin: 14px 0; }
+  #think-pass > * { width: min(100%, 300px); }
+  .think-arrow { height: 22px; width: 12px !important; }
+  .think-arrow::before { left: 50%; right: auto; top: 2px; bottom: 6px; border-top: 0; border-left: 1.5px solid var(--line-strong); }
+  .think-arrow::after { left: calc(50% - 5px); right: auto; top: auto; bottom: 1px; border: 5.5px solid transparent; border-top: 7px solid var(--line-strong); border-bottom: 0; }
+  .think-layers { display: flex; flex-direction: column; align-items: stretch; margin: 0; width: min(100%, 320px) !important; }
+  .think-layers .think-arrow { align-self: center; }
+  .think-grid { align-self: center; }
+  .think-back::before { content: '↑ '; }
 }
-@media(prefers-reduced-motion:reduce){#retrieval-lab * { transition: none !important; }}
+@media (max-width: 560px) {
+  .think-fig { padding: 12px 12px 14px; }
+  .think-scroll { height: 150px; }
+}
 </style>
 </head>
 <body>
@@ -837,7 +1100,7 @@ footer .sources { border-top: 1px solid var(--line); margin-top: 18px; padding-t
       <a href="#architectures" data-page="architectures">Architectures</a>
       <a href="#multimodal" data-page="multimodal">Multimodal</a>
       <a href="#retrieval" data-page="retrieval">Retrieval</a>
-      <a href="#reasoning" data-page="reasoning">Reasoning <span class="soon">soon</span></a>
+      <a href="#reasoning" data-page="reasoning">Reasoning</a>
       <a href="#agents" data-page="agents">Agents <span class="soon">soon</span></a>
       <a class="gh" href="https://github.com/valentinsvelev/llm-internals-lab" target="_blank" rel="noopener noreferrer" aria-label="Source code on GitHub"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M8 6 2 12l6 6M16 6l6 6-6 6M13.5 4l-3 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>GitHub</a>
     </nav>
@@ -933,13 +1196,15 @@ footer .sources { border-top: 1px solid var(--line); margin-top: 18px; padding-t
 <div class="page" data-page="multimodal" hidden>
 <div class="subnav">
   <div class="wrap">
-    <div class="subnav-t">Vision-language models</div>
-    <nav class="tabs" id="mm-tabs" role="tablist" aria-label="How the image reaches the language model">
-      <button class="tab" role="tab" data-k="llava" type="button"><b>Projector</b><span>LLaVA-1.5</span></button>
-      <button class="tab" role="tab" data-k="qwen" type="button"><b>Native size</b><span>Qwen3-VL</span></button>
-      <button class="tab" role="tab" data-k="llama" type="button"><b>Cross-attention</b><span>Llama 3.2 Vision</span></button>
-      <button class="tab" role="tab" data-k="gemma" type="button"><b>Pooling</b><span>Gemma 3</span></button>
+    <nav class="seg modes" id="mm-modes" aria-label="Modality">
+      <button type="button" data-mode="images">Images</button>
+      <button type="button" data-mode="audio">Audio</button>
+      <button type="button" data-mode="video">Video</button>
+      <button type="button" data-mode="speech">Speech out</button>
+      <button type="button" data-mode="imagegen">Image out</button>
+      <button type="button" data-mode="omni">All together</button>
     </nav>
+    <nav class="tabs" id="mm-tabs" role="tablist" aria-label="Models"></nav>
   </div>
 </div>
 <div class="wrap">
@@ -953,9 +1218,12 @@ footer .sources { border-top: 1px solid var(--line); margin-top: 18px; padding-t
     <div class="sec-h">
       <div>
         <h2 id="mm-whole-title">From pixels to tokens</h2>
-        <p class="sec-sub">One image on its way into the language model. Click any part, or step through it.</p>
+        <p class="sec-sub" id="mm-whole-sub">One image on its way into the language model. Click any part, or step through it.</p>
       </div>
-      <div id="mm-size" class="seg" role="group" aria-label="Image size (width × height)"></div>
+      <div class="ctl">
+        <span class="ctl-l" id="mm-size-l"></span>
+        <div id="mm-size" class="seg" role="group" aria-label="Image size (width × height)"></div>
+      </div>
     </div>
     <div class="figure wide" id="mm-fig">
       <div id="mm-pop" class="pop" role="tooltip" hidden></div>
@@ -980,15 +1248,11 @@ footer .sources { border-top: 1px solid var(--line); margin-top: 18px; padding-t
     <h2 id="mm-cost-title">What one image costs</h2>
     <p class="sub" id="mm-cost-sub"></p>
     <div id="mm-cost-rows"></div>
-    <div class="why">
-      <p>Image tokens are paid for twice: they take up context, and every one of them stores keys and values in every layer, like a word. A 576-token image is about 14% of LLaVA-1.5’s 4,096-token context.</p>
-      <p>The four designs trade detail for cost differently. LLaVA and Gemma spend the same on every image, so a small image is overpaid and a large one loses detail (LLaVA crops it, Gemma squashes it). Qwen3-VL pays in proportion to the pixels, so detail is kept but a large image is expensive. Llama 3.2 keeps the text short — one token per image — but caches 6,404 image positions in each cross-attention layer, empty tiles included.</p>
-    </div>
+    <div class="why" id="mm-why"></div>
   </section>
 
   <footer>
-    <p>Dimensions come from the official config and preprocessor files of <span id="mm-configs"></span>. Image sizes, tiles, patch grids and token counts follow the transformers image processors, and parameter counts are those of the transformers models. No weights are loaded and nothing is computed from your image except its size and, for the mosaics, its colours; it never leaves this tab. Cache sizes assume 16-bit values.</p>
-    <p>The resize rules, the connectors, Qwen’s 3D positions, Gemma’s image mask and Llama’s gated cross-attention are also runnable PyTorch in <code>llm_lab/reference/vision.py</code>, tested against Hugging Face transformers.</p>
+    <div id="mm-foot"></div>
     <div class="sources">
       <p>Sources</p>
       <ul id="mm-sources"></ul>
@@ -997,70 +1261,91 @@ footer .sources { border-top: 1px solid var(--line); margin-top: 18px; padding-t
 </div>
 </div>
 <div class="page" data-page="retrieval" hidden>
-  <div class="wrap" id="retrieval-lab">
-    <section class="intro retr-head" aria-labelledby="retrieval-title">
-      <p class="kicker">Retrieval · lexical search</p>
-      <h1 id="retrieval-title">From a query to relevant passages</h1>
-      <p class="lead">Text becomes a sparse matrix of term weights. A ranker scores each passage; the highest-scoring passages become the model's evidence.</p>
-    </section>
-    <section class="retr-explore" aria-label="Interactive retrieval explorer">
-      <div class="retr-toolbar">
-        <label class="retr-field retr-field-preset">Example <select id="retr-preset" aria-label="Example query"></select></label>
-        <label class="retr-field retr-field-query">Query <input id="retr-question" type="text" autocomplete="off" spellcheck="false" aria-label="Search query"></label>
-        <label class="retr-field retr-field-method">Rank by <select id="retr-method"><option value="bm25">BM25</option><option value="cosine">TF-IDF cosine</option></select></label>
-        <label class="retr-field retr-field-k">Top-k <span id="retr-k-value">2</span><input id="retr-k" type="range" min="1" max="5" value="2" step="1" aria-label="Number of results to retrieve"></label>
-      </div>
-      <figure class="retr-main-figure" aria-labelledby="retr-figure-title">
-        <div class="retr-figure-head"><div><h2 id="retr-figure-title">Lexical retrieval pipeline</h2><p>All calculations run locally. Click a matrix entry to inspect its weight.</p></div><span id="retr-figure-meta" class="retr-meta"></span></div>
-        <div class="retr-flow" id="retr-flow">
-          <section class="retr-stage" data-stage="0" aria-label="Query and source documents"><div class="retr-stage-head"><span class="retr-stage-index">01</span><h3>Text inputs</h3></div><div id="retr-flow-input"></div></section>
-          <section class="retr-stage retr-stage-matrix" data-stage="1" aria-label="Sparse TF-IDF vector matrix"><div class="retr-stage-head"><span class="retr-stage-index">02</span><h3>Sparse vectors</h3></div><div id="retr-flow-sparse"></div></section>
-          <section class="retr-stage" data-stage="2" aria-label="Relevance score computation"><div class="retr-stage-head"><span class="retr-stage-index">03</span><h3>Scoring</h3></div><div id="retr-flow-scores"></div></section>
-          <section class="retr-stage retr-stage-projection" data-stage="3" aria-labelledby="retr-map-title"><div class="retr-stage-head"><span class="retr-stage-index">04</span><h3 id="retr-map-title">2D projection</h3></div>
-            <svg id="retr-map" role="group" viewBox="0 0 290 230" aria-label="PCA projection of TF-IDF passage vectors, with query and selected results. Explore points with Tab or click."></svg>
-            <div class="retr-map-legend"><span><i class="retr-dot query"></i> Query</span><span><i class="retr-dot hit"></i> Top-k</span><span><i class="retr-dot"></i> Other</span></div>
-            <p class="retr-map-note">PCA projects full vectors into 2D; <strong>its distances never determine the ranking.</strong></p>
-          </section>
-          <section class="retr-stage" data-stage="4" aria-label="Top k retrieved passages"><div class="retr-stage-head"><span class="retr-stage-index">05</span><h3>Top-k</h3></div><div id="retr-flow-top"></div></section>
-        </div>
-        <div class="retr-derivation" aria-label="Sparse vector calculation">
-          <div class="retr-derivation-title"><b>How the matrix is computed</b><span id="retr-sparse-summary">A term absent from a text has exactly zero weight.</span></div>
-          <div class="retr-equations">
-            <div class="retr-eqn" id="retr-eqn-idf"></div>
-            <div class="retr-eqn" id="retr-eqn-weight"></div>
-            <div class="retr-eqn" id="retr-eqn-sparsity"></div>
-          </div>
-          <div class="retr-trace" id="retr-weight-trace" aria-live="polite"></div>
-        </div>
-        <figcaption class="retr-caption"><span id="retr-explain">A sparse vector contains one coordinate per vocabulary term; most coordinates are zero.</span><button type="button" id="retr-chunk-switch" aria-label="Switch between passages and whole documents">Search whole documents</button></figcaption>
-      </figure>
-      <section class="retr-inspect-panel" aria-labelledby="retr-inspect-title"><div class="retr-panel-head"><h2 id="retr-inspect-title">Selected passage</h2><span class="retr-meta">Choose a row or a point to inspect its source</span></div>
-        <div class="retr-inspect-layout"><div id="retr-inspect" aria-live="polite"></div><details id="retr-prompt-details"><summary>Retrieved context <span id="retr-prompt-stat"></span></summary><pre id="retr-context"></pre><div id="retr-answer"></div></details></div>
-      </section>
-      <div class="retr-formula-note"><span>Ranking method</span><span id="retr-equation-note">BM25 and TF-IDF cosine are distinct functions of lexical terms.</span></div>
-    </section>
-    <footer><p>Demonstration: five fictional Moonlight Aquarium documents. Tokenization lowercases, removes common stop words and applies simplified plural handling. TF-IDF uses smoothed IDF and L2 normalization; BM25 uses a separate length-normalized term formula (k₁ = 1.2, b = 0.75). Both rank in the full vocabulary space. The deterministic PCA projection is for visualization only. No embedding model, language model or API is called; example answers are predefined and evidence-checked.</p><div class="sources"><p>Sources</p><ul><li>Lewis et al. (2020). <a href="https://arxiv.org/abs/2005.11401" target="_blank" rel="noopener noreferrer">Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks</a>.</li><li>Robertson &amp; Zaragoza (2009). <a href="https://doi.org/10.1561/1500000019" target="_blank" rel="noopener noreferrer">The Probabilistic Relevance Framework: BM25 and Beyond</a>.</li><li>Salton &amp; Buckley (1988). <a href="https://doi.org/10.1016/0306-4573(88)90021-0" target="_blank" rel="noopener noreferrer">Term-weighting approaches in automatic text retrieval</a>.</li></ul></div></footer>
+<div class="subnav">
+  <div class="wrap">
+    <div class="subnav-t">Retrieval as a dot product</div>
+    <nav class="tabs" id="retr-tabs" role="tablist" aria-label="Retrieval method">
+      <button class="tab" role="tab" data-mode="sparse" type="button"><b>Sparse</b><span>BM25 · TF-IDF</span><small class="tab-year">1972–94</small></button>
+      <button class="tab" role="tab" data-mode="learned" type="button"><b>Learned sparse</b><span>SPLADE</span><small class="tab-year">2021</small></button>
+      <button class="tab" role="tab" data-mode="dense" type="button"><b>Dense</b><span>bi-encoder</span><small class="tab-year">2019–20</small></button>
+      <button class="tab" role="tab" data-mode="hybrid" type="button"><b>Hybrid</b><span>RRF</span><small class="tab-year">2009</small></button>
+    </nav>
   </div>
 </div>
-<div class="page soon-page" data-page="reasoning" hidden>
-<div class="wrap">
-  <section class="intro" aria-labelledby="reasoning-title">
-    <p class="kicker">Coming soon</p>
-    <h1 id="reasoning-title">Reasoning models</h1>
-    <p class="lead">How models think before they answer, and what that costs.</p>
-  </section>
-  <section class="plan" aria-label="Planned sections">
-    <h2>Planned</h2>
-    <ol class="plan-list">
-      <li><b>Thinking tokens</b><span>The model writes intermediate steps before its answer, one token at a time.</span></li>
-      <li><b>Test-time compute</b><span>Longer reasoning and more samples buy accuracy with tokens, time and KV cache.</span></li>
-      <li><b>Training to reason</b><span>Reinforcement learning with rewards that can be checked, such as a correct final answer.</span></li>
-      <li><b>Choosing among answers</b><span>Self-consistency, best-of-n and verifiers: sampling several times and picking one.</span></li>
-      <li><b>Budgets</b><span>How much to think, and when to stop.</span></li>
-    </ol>
-    <p class="plan-note">This page is a placeholder; its explorer is not built yet. <a href="#architectures" data-page="architectures">Back to the architectures</a></p>
-  </section>
+  <div class="wrap" id="retrieval-lab">
+    <section class="intro" aria-labelledby="retr-title">
+      <h1 id="retr-title">Sparse retrieval</h1>
+      <p class="lead" id="retr-lead"></p>
+      <dl class="stats" id="retr-stats"></dl>
+    </section>
+    <section class="whole retr-explore" aria-labelledby="retr-figure-title">
+      <div class="sec-h"><div><h2 id="retr-figure-title">From a question to the documents</h2><p class="sec-sub">Every text becomes a vector; a document’s score is its dot product with the query’s. Open the boxes on the arrows for each step.</p></div></div>
+      <figure class="retr-main-figure" aria-label="Retrieval, step by step">
+        <div class="retr-flow" id="retr-flow" data-open="score">
+          <section class="retr-stage retr-center" aria-labelledby="retr-h-input"><div class="retr-stage-head"><h3 id="retr-h-input">Input</h3></div>
+            <div class="retr-stage-body"><div class="retr-qbox"><span class="retr-box-label">Query</span>
+              <div class="retr-qrow"><var class="retr-var q retr-qvar">𝑞</var><div class="retr-qpick"><span id="retr-qtext"></span><span class="retr-caret" aria-hidden="true"></span><select id="retr-preset" aria-label="Query"></select></div></div></div>
+            <div class="retr-dbox"><span class="retr-box-label">Documents</span><div id="retr-docs"></div></div></div>
+          </section>
+          <div class="retr-link-cell"><div class="retr-link" data-link="words"><button type="button" class="retr-link-main" aria-controls="retr-detail" aria-expanded="false"><b id="retr-link-words-title">unique words</b><small id="retr-link-words-info"></small></button></div></div>
+          <section class="retr-stage" aria-labelledby="retr-h-vocab"><div class="retr-stage-head"><h3 id="retr-h-vocab">Vocabulary</h3></div>
+            <div id="retr-tokpick" hidden></div><div id="retr-vocab" aria-label="Vocabulary or tokens"></div>
+          </section>
+          <div class="retr-link-cell"><div class="retr-link" data-link="weights"><button type="button" class="retr-link-main" aria-controls="retr-detail" aria-expanded="false"><b id="retr-link-weights-title">Weighting</b><small id="retr-link-weights-info"></small></button>
+            <div class="retr-seg2 retr-method" role="group" aria-label="Weighting"><button type="button" data-method="bm25">BM25</button><button type="button" data-method="tfidf">TF-IDF</button></div>
+            <div class="retr-seg2 retr-fusion" role="group" aria-label="Fusion" hidden><button type="button" data-fusion="rrf">RRF</button><button type="button" data-fusion="convex">Weighted</button></div></div></div>
+          <section class="retr-stage" aria-labelledby="retr-h-vectors"><div class="retr-stage-head"><h3 id="retr-h-vectors">Sparse vectors</h3></div>
+            <div class="retr-mwrap"><div id="retr-matrix" role="group" aria-label="Query and document vectors"></div></div>
+          </section>
+          <div class="retr-link-cell"><div class="retr-link" data-link="score"><button type="button" class="retr-link-main" aria-controls="retr-detail" aria-expanded="true"><b id="retr-link-score-title">Score query against each doc.</b><small class="retr-link-eq" id="retr-link-score-info"><var>𝑠</var> = <var class="q">𝑞</var> · <var>𝑑</var></small></button></div></div>
+          <section class="retr-stage retr-center" aria-labelledby="retr-h-output"><div class="retr-stage-head"><h3 id="retr-h-output">Output</h3></div>
+            <div class="retr-stage-body"><label class="retr-k">top-k <span class="retr-select"><select id="retr-k" aria-label="Number of documents to retrieve"><option value="" disabled selected>select k</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select><span class="retr-caret" aria-hidden="true"></span></span></label>
+            <div class="retr-rank-head"><span>id</span><span></span><span>score</span></div><div id="retr-ranks"></div></div>
+          </section>
+        </div>
+        <div class="retr-detail" id="retr-detail" aria-live="polite"></div>
+      </figure>
+      <section class="retr-context-panel" aria-label="What the model receives">
+        <details id="retr-prompt-details" open><summary>What the model receives <span id="retr-prompt-stat"></span></summary><pre id="retr-context"></pre><div id="retr-answer"></div></details>
+      </section>
+    </section>
+    <footer><p>Five fictional documents about a made-up aquarium. Sparse: terms are lowercase letters and digits, 35 stop words removed, simplified plurals; BM25 with k₁ = 1.2 and b = 0.75 and the smoothed idf of Lucene; TF-IDF with the smoothed idf of scikit-learn and each document vector scaled to length 1; the query vector has a 1 for each of its terms. Dense: the vectors come from <code>web/src/embeddings.json</code>, written in advance for the five documents and the example questions by <code>web/scripts/make_embeddings.py</code> with all-MiniLM-L6-v2 (mean of the token vectors, scaled to length 1). Learned sparse: the weights come from <code>web/src/learned-sparse.json</code>, written by the same script with opensearch-neural-sparse-encoding-v2-distill (max over positions of log(1 + ReLU) of the masked-language-model logits). Both are why the query is chosen from a list. Hybrid: the BM25 (or TF-IDF) and the dense ranking, fused by reciprocal rank (k = 60) or by a weighted sum (α = 0.5) of min-max normalized scores. <span id="retr-dense-source"></span> No model or API is called by this page, and the example answers are written in advance.</p><p>The same rules are runnable Python in <code>llm_lab/reference/retrieval.py</code>; its TF-IDF weights are tested against scikit-learn’s <code>TfidfVectorizer</code>.</p><div class="sources"><p>Sources</p><ul><li>Spärck Jones (1972). <a href="https://doi.org/10.1108/eb026526" target="_blank" rel="noopener noreferrer">A statistical interpretation of term specificity and its application in retrieval</a>. <i>Journal of Documentation</i>.</li><li>Robertson &amp; Zaragoza (2009). <a href="https://doi.org/10.1561/1500000019" target="_blank" rel="noopener noreferrer">The Probabilistic Relevance Framework: BM25 and Beyond</a>. <i>Foundations and Trends in Information Retrieval</i>.</li><li>Salton &amp; Buckley (1988). <a href="https://doi.org/10.1016/0306-4573(88)90021-0" target="_blank" rel="noopener noreferrer">Term-weighting approaches in automatic text retrieval</a>. <i>Information Processing &amp; Management</i>.</li><li>Formal, Piwowarski &amp; Clinchant (2021). <a href="https://arxiv.org/abs/2107.05720" target="_blank" rel="noopener noreferrer">SPLADE: Sparse Lexical and Expansion Model for First Stage Ranking</a>. <i>SIGIR 2021</i>.</li><li>Formal et al. (2021). <a href="https://arxiv.org/abs/2109.10086" target="_blank" rel="noopener noreferrer">SPLADE v2: Sparse Lexical and Expansion Model for Information Retrieval</a>. <i>arXiv</i>.</li><li>OpenSearch. <a href="https://huggingface.co/opensearch-project/opensearch-neural-sparse-encoding-v2-distill" target="_blank" rel="noopener noreferrer">opensearch-neural-sparse-encoding-v2-distill</a> (model card).</li><li>Reimers &amp; Gurevych (2019). <a href="https://arxiv.org/abs/1908.10084" target="_blank" rel="noopener noreferrer">Sentence-BERT: Sentence Embeddings using Siamese BERT-Networks</a>. <i>EMNLP 2019</i>.</li><li>Wang et al. (2020). <a href="https://arxiv.org/abs/2002.10957" target="_blank" rel="noopener noreferrer">MiniLM: Deep Self-Attention Distillation for Task-Agnostic Compression of Pre-Trained Transformers</a>. <i>NeurIPS 2020</i>.</li><li>Karpukhin et al. (2020). <a href="https://arxiv.org/abs/2004.04906" target="_blank" rel="noopener noreferrer">Dense Passage Retrieval for Open-Domain Question Answering</a>. <i>EMNLP 2020</i>.</li><li>Malkov &amp; Yashunin (2018). <a href="https://arxiv.org/abs/1603.09320" target="_blank" rel="noopener noreferrer">Efficient and robust approximate nearest neighbor search using Hierarchical Navigable Small World graphs</a>. <i>IEEE TPAMI</i>.</li><li>Sentence Transformers. <a href="https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2" target="_blank" rel="noopener noreferrer">all-MiniLM-L6-v2</a> (model card).</li><li>Cormack, Clarke &amp; Büttcher (2009). <a href="https://doi.org/10.1145/1571941.1572114" target="_blank" rel="noopener noreferrer">Reciprocal rank fusion outperforms Condorcet and individual rank learning methods</a>. <i>SIGIR 2009</i>.</li><li>Lewis et al. (2020). <a href="https://arxiv.org/abs/2005.11401" target="_blank" rel="noopener noreferrer">Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks</a>. <i>NeurIPS 2020</i>.</li></ul></div></footer>
+  </div>
 </div>
+<div class="page" data-page="reasoning" hidden>
+  <div class="wrap" id="reasoning-lab">
+    <section class="intro" aria-labelledby="reas-title">
+      <h1 id="reas-title">Thinking</h1>
+      <p class="lead">A reasoning model such as DeepSeek-R1 thinks by writing. After <code>&lt;think&gt;</code>, every token is one more pass through the same network, and every pass reads all the text before it: the question and the thinking so far.</p>
+      <dl class="stats" id="reas-stats"></dl>
+    </section>
+    <section class="whole" aria-labelledby="reas-figure-title">
+      <div class="sec-h"><div><h2 id="reas-figure-title">One thought, one token at a time</h2><p class="sec-sub">Step through the thought or play it, and click any part of the diagram for what it does.</p></div></div>
+      <figure class="retr-main-figure think-figure" aria-label="How a reasoning model thinks, one forward pass per token">
+        <div class="think-fig">
+          <div class="think-bar">
+            <div id="think-status"></div>
+            <div class="think-controls">
+              <button type="button" data-step="-1" aria-label="Previous pass">◀</button>
+              <button type="button" id="think-play">play</button>
+              <button type="button" data-step="1" aria-label="Next pass">▶</button>
+              <input type="range" id="think-slider" min="1" max="2" value="1" aria-label="Pass">
+            </div>
+            <div class="think-jumps"><span>Go to</span><button type="button" data-jump="start">first pass</button><button type="button" data-jump="wait">“Wait”</button><button type="button" data-jump="end">&lt;/think&gt;</button><button type="button" data-jump="done">last pass</button></div>
+          </div>
+          <div id="think-ctx"></div>
+          <div class="think-loop down" aria-hidden="true"><span>newest token in</span></div>
+          <div class="think-loop up" aria-hidden="true"></div>
+          <div id="think-stop"></div>
+          <div id="think-pass"></div>
+          <div class="think-rw" id="think-rw" aria-hidden="true"></div>
+          <div id="think-cache"></div>
+        </div>
+        <div class="retr-detail" id="think-detail"></div>
+      </figure>
+    </section>
+    <footer><p>The architecture numbers are DeepSeek-R1’s config.json (the DeepSeek-V3 architecture); the parameter counts and the cache size are computed from it, as in <code>llm_lab/reference/reasoning.py</code>, which is tested against transformers. The experts are chosen by DeepSeek-V3’s routing rule from demo scores, and the sampling bars are schematic. The thought is written for this page, with its pieces (words and signs) standing in for tokens and <code>&lt;eos&gt;</code> for the model’s end-of-sequence token; the prompt is paraphrased from the paper. No model or API is called by this page.</p><div class="sources"><p>Sources</p><ul><li>Guo, D., Yang, D., Zhang, H. et al. (2025). <a href="https://www.nature.com/articles/s41586-025-09422-z" target="_blank" rel="noopener noreferrer">DeepSeek-R1 incentivizes reasoning in LLMs through reinforcement learning</a>. <i>Nature 645</i>, 633–638.</li><li>DeepSeek-AI (2024). <a href="https://arxiv.org/abs/2412.19437" target="_blank" rel="noopener noreferrer">DeepSeek-V3 Technical Report</a>. <i>arXiv 2412.19437</i>.</li><li>DeepSeek-AI (2024). <a href="https://arxiv.org/abs/2405.04434" target="_blank" rel="noopener noreferrer">DeepSeek-V2: A Strong, Economical, and Efficient Mixture-of-Experts Language Model</a> (introduces MLA). <i>arXiv 2405.04434</i>.</li><li>DeepSeek-AI. <a href="https://huggingface.co/deepseek-ai/DeepSeek-R1/blob/main/config.json" target="_blank" rel="noopener noreferrer">DeepSeek-R1 config.json</a> and <a href="https://github.com/deepseek-ai/DeepSeek-R1" target="_blank" rel="noopener noreferrer">README</a> (maximum generation length, starting with <code>&lt;think&gt;</code>).</li><li>Muennighoff et al. (2025). <a href="https://arxiv.org/abs/2501.19393" target="_blank" rel="noopener noreferrer">s1: Simple test-time scaling</a> (budget forcing). <i>EMNLP 2025</i>.</li></ul></div></footer>
+  </div>
 </div>
 <div class="page soon-page" data-page="agents" hidden>
 <div class="wrap">
@@ -1090,9 +1375,12 @@ footer .sources { border-top: 1px solid var(--line); margin-top: 18px; padding-t
 <script>/*__CONTENT_JS__*/</script>
 <script>/*__TEMML_JS__*/</script>
 <script>/*__MM_CONTENT_JS__*/</script>
+<script>/*__MM_MEDIA_JS__*/</script>
 <script>/*__MM_APP_JS__*/</script>
 <script>/*__APP_JS__*/</script>
 <script>/*__RETRIEVAL_CONTENT_JS__*/</script>
 <script>/*__RETRIEVAL_APP_JS__*/</script>
+<script>/*__REASONING_CONTENT_JS__*/</script>
+<script>/*__REASONING_APP_JS__*/</script>
 </body>
 </html>

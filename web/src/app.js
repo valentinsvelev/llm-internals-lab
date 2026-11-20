@@ -1669,7 +1669,7 @@ function attachPopups(fig, box, contentFn) {
     if (y + box.offsetHeight > fig.scrollHeight - 4) y = r.top - fr.top - box.offsetHeight - 10;
     box.style.left = `${x}px`; box.style.top = `${Math.max(0, y)}px`;
   };
-  const hide = () => { timer = setTimeout(() => { box.hidden = true; }, 60); };
+  const hide = () => { clearTimeout(timer); timer = setTimeout(() => { box.hidden = true; }, 60); };   // one pending hide at a time
   fig.addEventListener('pointerover', e => { const el = e.target.closest('[data-pop]'); if (el) show(el); else hide(); });
   fig.addEventListener('pointerleave', hide);
   fig.addEventListener('focusin', e => { const el = e.target.closest('[data-pop]'); if (el) show(el); });
@@ -2040,12 +2040,13 @@ function showPage(p, sub) {
   if (p === 'architectures' && !archRendered) { archRendered = true; render(); }   // text is measured, so draw while visible
   if (p === 'multimodal' && window.MMAPP) window.MMAPP.show(sub);
   if (p === 'retrieval' && window.RETRIEVALAPP) window.RETRIEVALAPP.show();
+  if (p === 'reasoning' && window.REASONINGAPP) window.REASONINGAPP.show();
   if (changed) window.scrollTo(0, 0);
 }
 function route() {
-  const [h, sub] = location.hash.slice(1).split('/');
+  const [h, ...rest] = location.hash.slice(1).split('/');
   if (LAB.MODELS[h]) { showPage('architectures'); setMech(h, true); }
-  else showPage(h, sub);
+  else showPage(h, rest.join('/'));
 }
 document.querySelectorAll('a[data-page]').forEach(a => a.addEventListener('click', e => {
   e.preventDefault();

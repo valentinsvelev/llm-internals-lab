@@ -4,7 +4,7 @@
 // 2. Subsets Latin Modern Math to those glyphs plus what the pop-ups can need (scripts/subset_font.py).
 // 3. Inlines content.js, mm-content.js, Temml (which typesets all math at runtime), mm-app.js, app.js and the font
 //    into src/template.html.
-import { readFileSync, writeFileSync, mkdtempSync } from 'node:fs';
+import { readFileSync, writeFileSync, mkdtempSync, existsSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { execFileSync } from 'node:child_process';
 import { tmpdir } from 'node:os';
@@ -16,6 +16,7 @@ const require = createRequire(import.meta.url);
 const temml = require('temml');
 const LAB = require(join(here, 'src/content.js'));
 const MM = require(join(here, 'src/mm-content.js'));
+const MEDIA = require(join(here, 'src/mm-media.js'));
 const out = process.argv[2] || join(here, 'dist/attention.html');
 // Any OpenType font with a MATH table works; Latin Modern Math ships with TeX Live
 // (or download latinmodern-math.otf from GUST) — point MATH_FONT at it.
@@ -23,7 +24,7 @@ const fontPath = process.env.MATH_FONT || '/usr/share/texmf/fonts/opentype/publi
 
 const table = {};
 const chars = new Set();
-for (const tex of [...LAB.allTex(), ...MM.allTex()]) {
+for (const tex of [...LAB.allTex(), ...MM.allTex(), ...MEDIA.allTex()]) {
   const html = temml.renderToString(tex, { displayMode: false, wrap: 'tex', throwOnError: true });
   if (/merror/.test(html)) throw new Error('TeX error in: ' + tex);
   table[tex] = html;
@@ -63,13 +64,29 @@ html = html
   .replace('/*__MATH_FONT__*/', () => fontCss)
   .replace('/*__CONTENT_JS__*/', () => guard(readFileSync(join(here, 'src/content.js'), 'utf8')))
   .replace('/*__MM_CONTENT_JS__*/', () => guard(readFileSync(join(here, 'src/mm-content.js'), 'utf8')))
+  .replace('/*__MM_MEDIA_JS__*/', () => guard(readFileSync(join(here, 'src/mm-media.js'), 'utf8')))
   .replace('/*__MM_APP_JS__*/', () => guard(readFileSync(join(here, 'src/mm-app.js'), 'utf8')))
   .replace('/*__APP_JS__*/', () => guard(readFileSync(join(here, 'src/app.js'), 'utf8')))
   .replace('/*__RETRIEVAL_CONTENT_JS__*/', () => guard(readFileSync(join(here, 'src/retrieval-content.js'), 'utf8')))
   .replace('/*__RETRIEVAL_APP_JS__*/', () => guard(readFileSync(join(here, 'src/retrieval-app.js'), 'utf8')))
+  .replace('/*__REASONING_CONTENT_JS__*/', () => guard(readFileSync(join(here, 'src/reasoning-content.js'), 'utf8')))
+  .replace('/*__REASONING_APP_JS__*/', () => guard(readFileSync(join(here, 'src/reasoning-app.js'), 'utf8')))
   // Temml renders the pop-up equations at runtime; its MIT license header is kept in the minified file.
   .replace('/*__TEMML_JS__*/', () => guard(readFileSync(require.resolve('temml/dist/temml.min.js'), 'utf8')))
   .replace('/*__TOKENS__*/null', () => readFileSync(join(here, 'src/tokens.json'), 'utf8').trim().replace(/</g, '\\u003c'))
+  // The Retrieval page's dense mode: sentence embeddings from scripts/make_embeddings.py (without them the mode is off).
+  .replace('/*__EMBEDDINGS__*/null', () => {
+    const file = join(here, 'src/embeddings.json');
+    if (existsSync(file)) return readFileSync(file, 'utf8').trim().replace(/</g, '\\u003c');
+    console.warn('no src/embeddings.json: the dense retrieval mode is off (run scripts/make_embeddings.py)');
+    return 'null';
+  })
+  .replace('/*__LEARNED_SPARSE__*/null', () => {
+    const file = join(here, 'src/learned-sparse.json');
+    if (existsSync(file)) return readFileSync(file, 'utf8').trim().replace(/</g, '\\u003c');
+    console.warn('no src/learned-sparse.json: the learned sparse mode is off (run scripts/make_embeddings.py)');
+    return 'null';
+  })
   // Machine-readable copy of the dimensions, checked against architecture_specs.py by the tests.
   .replace('__SPECS_JSON__', () => JSON.stringify(Object.fromEntries(LAB.ORDER.map(k => {
     const m = LAB.MODELS[k];
@@ -80,7 +97,7 @@ html = html
       dq: m.dq ?? null, index: m.index ?? null, lin: m.lin ?? null, interval: m.interval ?? null,
       ropeDim: m.ropeDim ?? null, thetaN: m.thetaN ?? null, cache_layers: LAB.cacheLayers(m) }];
   }))).replace(/</g, '\\u003c'));
-for (const marker of ['__MATH_FONT__', '__CONTENT_JS__', '__MM_CONTENT_JS__', '__MM_APP_JS__', '__APP_JS__', '__RETRIEVAL_CONTENT_JS__', '__RETRIEVAL_APP_JS__', '__SPECS_JSON__', '__TOKENS__', '__TEMML_JS__'])
+for (const marker of ['__MATH_FONT__', '__CONTENT_JS__', '__MM_CONTENT_JS__', '__MM_MEDIA_JS__', '__MM_APP_JS__', '__APP_JS__', '__RETRIEVAL_CONTENT_JS__', '__RETRIEVAL_APP_JS__', '__REASONING_CONTENT_JS__', '__REASONING_APP_JS__', '__SPECS_JSON__', '__TOKENS__', '__EMBEDDINGS__', '__LEARNED_SPARSE__', '__TEMML_JS__'])
   if (html.includes(marker)) throw new Error('unfilled marker ' + marker);
 writeFileSync(out, html, 'utf8');
 console.log(`wrote ${out}: ${(html.length / 1024).toFixed(0)} KiB, ${Object.keys(table).length} equations, font ${(fontB64.length * 3 / 4 / 1024).toFixed(0)} KiB`);

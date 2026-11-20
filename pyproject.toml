@@ -16,7 +16,7 @@ keywords = ["llm", "transformers", "attention", "kv-cache", "pytorch", "visualiz
 [project.optional-dependencies]
 pytorch = ["torch>=2.5,<3"]                                                    # llm_lab.reference
 pretrained = ["torch>=2.5,<3", "transformers>=5.23", "safetensors>=0.4"]    # checkpoints, llm_lab.next_token
-dev = ["llm-internals-lab[pretrained]", "pillow>=10", "pytest>=8", "ruff>=0.8", "playwright>=1.49"]    # pillow: the image processors in test_vision_models
+dev = ["llm-internals-lab[pretrained]", "pillow>=10", "scikit-learn>=1.3", "pytest>=8", "ruff>=0.8", "playwright>=1.49"]    # pillow: image processors in test_vision_models; scikit-learn: TF-IDF in test_retrieval
 
 [project.scripts]
 llm-lab = "llm_lab.explorer:main"

@@ -1,179 +1,206 @@
-/* Retrieval Lab — small, entirely local BM25 reference implementation.
- * Example documents describe a fictional aquarium, not a real organisation.
- * No embeddings, model inference, network calls or fabricated BM25 scores. */
+/* Retrieval page: sparse retrieval as a dot product of sparse vectors.
+ *   query     q ∈ {0,1}^n   a 1 for every vocabulary term in the query (the sum of their one-hot vectors)
+ *   document  d ∈ R^n       BM25 or TF-IDF weights of its terms, 0 for every other term
+ *   score     s(q, d) = q · d = Σ_t q_t d_t = the sum of d's weights over the query's terms
+ * Five fictional documents (a made-up aquarium). Everything is computed here, in the page; no model,
+ * embeddings or network. llm_lab/reference/retrieval.py has the same rules in Python, tested against
+ * scikit-learn's TfidfVectorizer; tests/test_retrieval.py checks this file against it. */
 (function (root) {
 'use strict';
 const DOCS = [
-  {id: 'visits', title: 'Visitor guide', category: 'Planning', parts: [
+  {id: 'visits', title: 'Visitor guide', parts: [
     'The Moonlight Aquarium opens Tuesday through Sunday from 10:00 to 18:00. The aquarium is closed on Monday.',
     'On Thursday, general admission is free after 16:00. Visitors still need a timed-entry ticket.']},
-  {id: 'travel', title: 'Getting here', category: 'Transport', parts: [
+  {id: 'travel', title: 'Getting here', parts: [
     'Tram line 4 runs from Central Station to Harbor Square every 12 minutes. The aquarium is a five-minute walk from Harbor Square.',
     'A free weekend shuttle runs every 20 minutes from Central Station to the aquarium. The last shuttle departs at 17:30.']},
-  {id: 'access', title: 'Accessibility', category: 'Facilities', parts: [
+  {id: 'access', title: 'Accessibility', parts: [
     'The aquarium has step-free entry at the east gate. Elevators serve every exhibit floor.',
     'Wheelchairs can be borrowed without charge at the information desk. Advance reservation is recommended.']},
-  {id: 'events', title: 'Exhibits and events', category: 'Events', parts: [
+  {id: 'events', title: 'Exhibits and events', parts: [
     'The jellyfish feeding talk begins at 15:00 every day the aquarium is open. Seats are first come, first served.',
     'The night-ocean exhibit stays open until 21:00 on the first Friday of each month. Special-entry tickets are required.']},
-  {id: 'food', title: 'Food and drinks', category: 'Dining', parts: [
+  {id: 'food', title: 'Food and drinks', parts: [
     'The Tidal Café serves lunch from 11:00 to 15:00. Vegan dishes and nut-free snacks are available.',
     'Outside food is allowed at the harbor terrace picnic tables, but not inside the aquarium exhibits.']},
-];
+].map((d, i) => ({...d, key: `d${i + 1}`, text: d.parts.join(' ')}));
 const PRESETS = [
-  {id:'free', label:'Free admission', question:'When is admission free at the aquarium?', source:'visits:1', answer:'General admission is free on Thursday after 16:00, but a timed-entry ticket is still required.'},
-  {id:'tram', label:'Getting there', question:'How do I get to the aquarium from Central Station?', source:'travel:0', answer:'Take tram line 4 from Central Station to Harbor Square; the aquarium is a five-minute walk away.'},
-  {id:'wheelchair', label:'Accessibility', question:'Can I borrow a wheelchair at the aquarium?', source:'access:1', answer:'Yes. Wheelchairs can be borrowed without charge from the information desk; advance reservation is recommended.'},
-  {id:'jellyfish', label:'Events', question:'What time is the jellyfish feeding talk?', source:'events:0', answer:'The jellyfish feeding talk starts at 15:00 on days when the aquarium is open.'},
-  {id:'vegan', label:'Food options', question:'Does the café serve vegan dishes?', source:'food:0', answer:'Yes. The Tidal Café has vegan dishes and nut-free snacks.'},
-  {id:'outside', label:'Outside food', question:'Can I bring outside food into the aquarium?', source:'food:1', answer:'Outside food is allowed at the harbor terrace picnic tables, but not inside the exhibits.'},
+  {id: 'free', label: 'When is admission free?', question: 'When is admission free at the aquarium?', source: 'visits', answer: 'General admission is free on Thursday after 16:00, but a timed-entry ticket is still required.'},
+  {id: 'tram', label: 'How do I get there?', question: 'How do I get to the aquarium from Central Station?', source: 'travel', answer: 'Take tram line 4 from Central Station to Harbor Square; the aquarium is a five-minute walk away.'},
+  {id: 'wheelchair', label: 'Can I borrow a wheelchair?', question: 'Can I borrow a wheelchair at the aquarium?', source: 'access', answer: 'Yes. Wheelchairs can be borrowed without charge from the information desk; advance reservation is recommended.'},
+  {id: 'jellyfish', label: 'When is the jellyfish talk?', question: 'What time is the jellyfish feeding talk?', source: 'events', answer: 'The jellyfish feeding talk starts at 15:00 on days when the aquarium is open.'},
+  {id: 'vegan', label: 'Vegan food at the café?', question: 'Does the café serve vegan dishes?', source: 'food', answer: 'Yes. The Tidal Café has vegan dishes and nut-free snacks.'},
+  {id: 'outside', label: 'Can I bring my own food?', question: 'Can I bring outside food into the aquarium?', source: 'food', answer: 'Outside food is allowed at the harbor terrace picnic tables, but not inside the exhibits.'},
+  // Worded unlike the document that answers them: no shared term (eat), or only one that every document has (train).
+  {id: 'eat', label: 'Something to eat?', question: 'Where can I get something to eat?', source: 'food', answer: 'The Tidal Café serves lunch from 11:00 to 15:00, and you can eat your own food at the harbor terrace picnic tables.'},
+  {id: 'train', label: 'A train to the aquarium?', question: 'Is there a train to the aquarium?', source: 'travel', answer: 'No train is mentioned, but tram line 4 runs from Central Station to Harbor Square, a five-minute walk from the aquarium.'},
+  // No document answers this one.
+  {id: 'parking', label: 'Parking for cars?', question: 'Is there parking for cars?', source: null, answer: 'None of the documents mentions parking, so the model should say it does not know.'},
 ];
 const STOP = new Set('a an and are at be but by can do does every for from how i in into is it me my of on or the their there this to what when where with you'.split(' '));
-function tokenize(text) {
-  const words = String(text).toLowerCase().match(/[a-z0-9]+/g) || [];
-  return words.map(w => w.length > 4 && w.endsWith('s') && !w.endsWith('ss') ? w.slice(0,-1) : w).filter(w => !STOP.has(w));
+const K1 = 1.2, B = 0.75;
+
+/* ---------- text → terms ---------- */
+// Simplified plurals: -ies → -y, -sses/-shes/-ches/-xes/-zes → drop -es, other final -s → drop it.
+function singular(w) {
+  if (w.length > 4 && w.endsWith('ies')) return w.slice(0, -3) + 'y';
+  if (w.length > 4 && /(ss|sh|ch|x|z)es$/.test(w)) return w.slice(0, -2);
+  if (w.length > 3 && w.endsWith('s') && !/(ss|us|is)$/.test(w)) return w.slice(0, -1);
+  return w;
 }
-function chunks(mode) {
-  return DOCS.flatMap(doc => mode === 'whole'
-    ? [{id:doc.id, docId:doc.id, title:doc.title, category:doc.category, text:doc.parts.join(' '), partIds:doc.parts.map((_,i)=>`${doc.id}:${i}`)}]
-    : doc.parts.map((part,i)=>({id:`${doc.id}:${i}`,docId:doc.id,title:doc.title,category:doc.category,text:part,partIds:[`${doc.id}:${i}`]})));
+// Every word of a text, with what becomes of it: kept as a term, or dropped as a stop word.
+function analyze(text) {
+  const words = String(text).toLowerCase().match(/[\p{L}\p{N}]+/gu) || [];
+  return words.map(w => (STOP.has(w) ? {word: w, term: null, why: 'stop'} : {word: w, term: singular(w), why: singular(w) === w ? 'kept' : 'plural'}));
 }
-function makeIndex(mode) {
-  const passages = chunks(mode);
-  const indexed = passages.map(p => {
-    const terms=tokenize(p.text), tf=new Map();
-    terms.forEach(t=>tf.set(t,(tf.get(t)||0)+1));
-    return {...p,terms,tf,length:terms.length};
+const tokenize = text => analyze(text).filter(x => x.term).map(x => x.term);
+
+/* ---------- the vocabulary and the document vectors ---------- */
+// Ids in order of first appearance, reading d1, d2, … d5: the way the "unique words" step builds them.
+function buildIndex() {
+  const docs = DOCS.map(d => {
+    const terms = tokenize(d.text), tf = new Map();
+    terms.forEach(t => tf.set(t, (tf.get(t) || 0) + 1));
+    return {...d, terms, tf, length: terms.length};
   });
-  const df=new Map(), posts=new Map();
-  indexed.forEach(p=>{
-    p.tf.forEach((_,term)=>{df.set(term,(df.get(term)||0)+1);
-      if(!posts.has(term))posts.set(term,[]);
-      posts.get(term).push(p.id);
-    });
-  });
-  return {passages:indexed,df,posts,N:indexed.length,avgLength:indexed.reduce((n,p)=>n+p.length,0)/indexed.length};
+  const vocab = [], pos = new Map(), df = new Map();
+  docs.forEach(d => d.terms.forEach(t => { if (!pos.has(t)) { pos.set(t, vocab.length); vocab.push(t); } }));
+  docs.forEach(d => d.tf.forEach((_, t) => df.set(t, (df.get(t) || 0) + 1)));
+  const N = docs.length, avgLength = docs.reduce((s, d) => s + d.length, 0) / N;
+  return {docs, vocab, pos, df, N, avgLength};
 }
-// Robertson-Okapi BM25 with non-negative Robertson-style smoothed IDF.
-const K1=1.2, B=0.75;
-function search(question, mode='parts') {
-  const index=makeIndex(mode), terms=[...new Set(tokenize(question))];
-  const ranks=index.passages.map(p=>{
-    const breakdown=terms.map(term=>{
-      const tf=p.tf.get(term)||0, df=index.df.get(term)||0;
-      const idf=Math.log(1+(index.N-df+0.5)/(df+0.5));
-      const lengthFactor=K1*(1-B+B*p.length/index.avgLength);
-      const score=tf ? idf*tf*(K1+1)/(tf+lengthFactor) : 0;
-      return {term,tf,df,idf,score};
-    });
-    return {...p,breakdown,score:breakdown.reduce((s,b)=>s+b.score,0)};
-  }).sort((a,b)=>b.score-a.score||a.id.localeCompare(b.id));
-  return {index,terms,ranks,positive:ranks.filter(p=>p.score>0)};
-}
-function evidence(question, mode, k, presetId) {
-  const ranked=search(question,mode), picks=ranked.positive.slice(0,k);
-  const preset=PRESETS.find(p=>p.id===presetId&&p.question===question);
-  const match=preset && picks.find(p=>p.partIds.includes(preset.source));
-  return {ranked,picks,answer:match?{text:preset.answer,citation:picks.indexOf(match)+1}:null};
-}
-// A separate lexical retrieval mode: cosine similarity of L2-normalized TF-IDF vectors.
-// BM25 ranks are NOT computed by cosine similarity. The scatterplot uses these vectors.
-function tfidfBasis(mode) {
-  const index=makeIndex(mode), vocab=[...index.df.keys()].sort(), pos=new Map(vocab.map((t,i)=>[t,i]));
-  const idf=new Map(vocab.map(t=>[t,1+Math.log((index.N+1)/((index.df.get(t)||0)+1))]));
-  function vector(text) {
-    const counts=new Map(); tokenize(text).forEach(t=>counts.set(t,(counts.get(t)||0)+1));
-    const values=new Float64Array(vocab.length);
-    counts.forEach((n,t)=>{if(pos.has(t)) values[pos.get(t)]=n*idf.get(t);});
-    const length=Math.hypot(...values);
-    if(length>0)for(let j=0;j<values.length;j++)values[j]/=length;
-    return values;
+const INDEX = buildIndex();
+
+// One document weight, with every number that goes into it.
+function weight(method, term, doc, index = INDEX) {
+  const tf = doc.tf.get(term) || 0, df = index.df.get(term) || 0, N = index.N;
+  if (method === 'bm25') {
+    const idf = Math.log(1 + (N - df + 0.5) / (df + 0.5));
+    const lengthNorm = 1 - B + B * doc.length / index.avgLength;
+    const tfPart = tf ? tf * (K1 + 1) / (tf + K1 * lengthNorm) : 0;
+    return {method, term, tf, df, N, idf, length: doc.length, avgLength: index.avgLength, lengthNorm, tfPart, value: idf * tfPart};
   }
-  return {index,vocab,pos,idf,vector,docs:index.passages.map(p=>vector(p.text))};
+  const idfOf = t => 1 + Math.log((N + 1) / ((index.df.get(t) || 0) + 1));
+  const norm = Math.sqrt([...doc.tf].reduce((s, [t, n]) => s + (n * idfOf(t)) ** 2, 0));
+  const idf = idfOf(term), raw = tf * idf;
+  return {method, term, tf, df, N, idf, raw, norm, value: raw / norm};
 }
-// Trace one coordinate of a normalized TF-IDF vector, with exact corpus statistics.
-// A term not seen in the collection has no column in the document vocabulary.
-function tfidfTrace(question, mode='parts', term='', passageId=null) {
-  const basis=tfidfBasis(mode), p=passageId==null?null:basis.index.passages.find(x=>x.id===passageId);
-  if(passageId!=null&&!p) return null;
-  const text=p?p.text:question, tokens=tokenize(text), counts=new Map();
-  tokens.forEach(t=>counts.set(t,(counts.get(t)||0)+1));
-  const weights=new Float64Array(basis.vocab.length);
-  counts.forEach((n,t)=>{const j=basis.pos.get(t);if(j!==undefined) weights[j]=n*basis.idf.get(t);});
-  const norm=Math.hypot(...weights), j=basis.pos.get(term), tf=j===undefined?0:(counts.get(term)||0),
-    idf=j===undefined?0:basis.idf.get(term), raw=tf*idf;
-  const nnz=weights.reduce((n,v)=>n+(v!==0?1:0),0);
-  return {term,passageId,passageTitle:p?.title||'Query',N:basis.index.N,V:basis.vocab.length,
-    tf,df:basis.index.df.get(term)||0,idf,raw,norm,weight:norm?raw/norm:0,
-    nnz,zero:basis.vocab.length-nnz,known:j!==undefined};
+function docVector(method, doc, index = INDEX) {
+  const v = new Float64Array(index.vocab.length);
+  doc.tf.forEach((_, t) => { v[index.pos.get(t)] = weight(method, t, doc, index).value; });
+  return v;
 }
-function cosineSearch(question, mode='parts') {
-  const basis=tfidfBasis(mode), q=basis.vector(question), terms=[...new Set(tokenize(question))];
-  const ranks=basis.index.passages.map((p,i)=>{
-    const breakdown=terms.map(term=>{
-      const j=basis.pos.get(term), tf=p.tf.get(term)||0, df=basis.index.df.get(term)||0;
-      return {term,tf,df,idf:basis.idf.get(term)||0,score:j===undefined?0:q[j]*basis.docs[i][j]};
-    });
-    return {...p,breakdown,score:breakdown.reduce((sum,x)=>sum+x.score,0)};
-  }).sort((a,b)=>b.score-a.score||a.id.localeCompare(b.id));
-  return {index:basis.index,terms,ranks,positive:ranks.filter(p=>p.score>1e-12)};
+function queryVector(question, index = INDEX) {
+  const words = analyze(question), terms = [...new Set(words.filter(w => w.term).map(w => w.term))];
+  const known = terms.filter(t => index.pos.has(t)), unknown = terms.filter(t => !index.pos.has(t));
+  const vector = new Float64Array(index.vocab.length);
+  known.forEach(t => { vector[index.pos.get(t)] = 1; });
+  return {words, terms, known, unknown, vector, ids: known.map(t => index.pos.get(t)).sort((a, b) => a - b)};
 }
-function retrieve(question, mode='parts', k=2, method='bm25', presetId=null) {
-  const ranked=method==='cosine'?cosineSearch(question,mode):search(question,mode);
-  const picks=ranked.positive.slice(0,k);
-  const preset=PRESETS.find(p=>p.id===presetId&&p.question===question);
-  const matched=preset&&picks.find(p=>p.partIds.includes(preset.source));
-  return {ranked,picks,answer:matched?{text:preset.answer,citation:picks.indexOf(matched)+1}:null,method};
-}
-// Principal-component projection of the *document* TF-IDF vectors, without any dependency.
-// A small symmetric Jacobi eigensolver keeps the result deterministic and the document
-// axes stable across question edits (the query is projected into the same axes).
-function projection(mode='parts', question='') {
-  const basis=tfidfBasis(mode), rows=basis.docs, N=rows.length, d=basis.vocab.length;
-  const mean=new Float64Array(d);
-  rows.forEach(row=>row.forEach((v,j)=>{mean[j]+=v/N;}));
-  const centered=rows.map(row=>Float64Array.from(row,(v,j)=>v-mean[j]));
-  const dot=(a,b)=>a.reduce((sum,v,j)=>sum+v*b[j],0);
-  const gram=centered.map(a=>centered.map(b=>dot(a,b)));
-  const vectors=Array.from({length:N},(_,i)=>Array.from({length:N},(_,j)=>i===j?1:0));
-  for(let pass=0;pass<100*N*N;pass++){
-    let p=0,q=1,max=0;
-    for(let i=0;i<N;i++)for(let j=i+1;j<N;j++)if(Math.abs(gram[i][j])>max){max=Math.abs(gram[i][j]);p=i;q=j;}
-    if(max<1e-11)break;
-    const phi=.5*Math.atan2(2*gram[p][q],gram[q][q]-gram[p][p]);
-    // Rotate Jacobi columns with (cos phi, -sin phi) / (sin phi, cos phi).
-    const c=Math.cos(phi),s=Math.sin(phi);
-    const app=gram[p][p],aqq=gram[q][q],apq=gram[p][q];
-    gram[p][p]=c*c*app-2*c*s*apq+s*s*aqq;
-    gram[q][q]=s*s*app+2*c*s*apq+c*c*aqq;
-    gram[p][q]=gram[q][p]=0;
-    for(let i=0;i<N;i++){
-      if(i!==p&&i!==q){const a=gram[i][p],b=gram[i][q];gram[i][p]=gram[p][i]=c*a-s*b;gram[i][q]=gram[q][i]=s*a+c*b;}
-      const v=vectors[i][p],w=vectors[i][q];vectors[i][p]=c*v-s*w;vectors[i][q]=s*v+c*w;
-    }
-  }
-  const order=Array.from({length:N},(_,i)=>i).sort((a,b)=>gram[b][b]-gram[a][a]);
-  const axes=order.slice(0,2).map(i=>{
-    const lambda=Math.max(0,gram[i][i]);
-    const eigen=vectors.map(v=>v[i]);
-    const pivot=eigen.reduce((best,v,j)=>Math.abs(v)>Math.abs(eigen[best])?j:best,0);
-    if(eigen[pivot]<0)eigen.forEach((v,j)=>{eigen[j]=-v;});
-    const axis=new Float64Array(d);
-    if(lambda>1e-12){centered.forEach((row,j)=>row.forEach((v,k)=>{axis[k]+=eigen[j]*v/Math.sqrt(lambda);}));}
-    return axis;
+const dot = (a, b) => a.reduce((s, x, i) => s + x * b[i], 0);
+
+/* ---------- scores, ranking, top-k ---------- */
+function retrieve(question, method = 'bm25', k = 2, presetId = null) {
+  const index = INDEX, q = queryVector(question, index);
+  const rows = index.docs.map(doc => {
+    const vector = docVector(method, doc, index);
+    const products = q.ids.map(i => ({id: i, term: index.vocab[i], q: 1, w: vector[i], product: vector[i]}));
+    return {...doc, vector, products, score: dot(q.vector, vector)};
   });
-  const coords=v=>{
-    const centeredQ=Float64Array.from(v,(x,j)=>x-mean[j]);
-    return {x:dot(centeredQ,axes[0]),y:dot(centeredQ,axes[1])};
-  };
-  const items=basis.index.passages.map((p,i)=>({id:p.id,docId:p.docId,title:p.title,...coords(rows[i])}));
-  const projectedQuery=coords(basis.vector(question));
-  const samples=PRESETS.map(p=>coords(basis.vector(p.question)));
-  const all=[...items,...samples,projectedQuery];
-  const span=Math.max(.15,...all.map(p=>Math.max(Math.abs(p.x),Math.abs(p.y))))*1.24;
-  return {points:items.map(p=>({...p,x:p.x/span,y:p.y/span})),query:{x:projectedQuery.x/span,y:projectedQuery.y/span},mode:'pca-tfidf'};
+  const ranks = [...rows].sort((a, b) => b.score - a.score || a.key.localeCompare(b.key));
+  const picks = ranks.filter(r => r.score > 1e-12).slice(0, k);
+  const preset = PRESETS.find(p => p.id === presetId && p.question === question);
+  return {index, method, k, query: q, rows, ranks, picks, answer: answerFor(preset, picks)};
 }
-const API={DOCS,PRESETS,STOP,K1,B,tokenize,chunks,makeIndex,search,evidence,tfidfBasis,tfidfTrace,cosineSearch,retrieve,projection};
-if(typeof module!=='undefined'&&module.exports)module.exports=API;
-root.RLAB=API;
-})(typeof window==='undefined'?globalThis:window);
+// The answer written in advance for an example, if the document it comes from was retrieved
+// (or, when no document answers the question, as soon as anything was retrieved).
+function answerFor(preset, picks) {
+  if (!preset || !picks.length) return null;
+  if (!preset.source) return {text: preset.answer, citation: null};
+  const hit = picks.find(r => r.id === preset.source);
+  return hit ? {text: preset.answer, citation: picks.indexOf(hit) + 1} : null;
+}
+
+/* ---------- dense: sentence embeddings computed in advance ----------
+ * web/scripts/make_embeddings.py runs all-MiniLM-L6-v2 on every document and example question and
+ * writes src/embeddings.json: WordPiece tokens, and the mean of the token vectors scaled to length 1.
+ * The build inlines that file here; in node it is read from disk. The score is again a dot product,
+ * q · d, which for vectors of length 1 is their cosine similarity. */
+const DENSE = (() => {
+  const inlined = /*__EMBEDDINGS__*/null;
+  if (inlined) return inlined;
+  if (typeof module !== 'undefined' && typeof require === 'function') { try { return require('./embeddings.json'); } catch (e) { return null; } }
+  return null;
+})();
+function denseRetrieve(presetId, k = 2) {
+  const preset = PRESETS.find(p => p.id === presetId), q = DENSE && DENSE.queries.find(x => x.id === presetId);
+  if (!preset || !q) return null;
+  const rows = DOCS.map(doc => {
+    const e = DENSE.docs.find(x => x.key === doc.key);
+    return {...doc, vector: e.vector, tokens: e.tokens, ids: e.ids, norm: e.norm, score: dot(q.vector, e.vector)};
+  });
+  const ranks = [...rows].sort((a, b) => b.score - a.score || a.key.localeCompare(b.key));
+  const picks = ranks.slice(0, k);              // some document is always nearest: dense scores are never all 0
+  return {method: 'dense', k, query: q, rows, ranks, picks, answer: answerFor(preset, picks)};
+}
+const nonzero = v => v.reduce((n, x) => n + (x !== 0 ? 1 : 0), 0);
+
+/* ---------- learned sparse: SPLADE-style term weights computed in advance ----------
+ * The same script runs opensearch-neural-sparse-encoding-v2-distill and writes src/learned-sparse.json:
+ * for each text, the nonzero entries [vocabulary id, token, weight] of a vector over the 30,522 WordPiece
+ * tokens, weight = max over positions of log(1 + ReLU(MLM logit)). The query is encoded the same way.
+ * The score is q · d over the vocabulary, as in sparse retrieval: only shared nonzero terms add up. */
+const LEARNED = (() => {
+  const inlined = /*__LEARNED_SPARSE__*/null;
+  if (inlined) return inlined;
+  if (typeof module !== 'undefined' && typeof require === 'function') { try { return require('./learned-sparse.json'); } catch (e) { return null; } }
+  return null;
+})();
+function learnedRetrieve(presetId, k = 2) {
+  const preset = PRESETS.find(p => p.id === presetId), q = LEARNED && LEARNED.queries.find(x => x.id === presetId);
+  if (!preset || !q) return null;
+  const qmap = new Map(q.terms.map(([j, , w]) => [j, w]));
+  const rows = DOCS.map(doc => {
+    const e = LEARNED.docs.find(x => x.key === doc.key), map = new Map(e.terms.map(([j, , w]) => [j, w]));
+    const products = q.terms.filter(([j]) => map.has(j)).map(([j, t, w]) => ({id: j, term: t, q: w, w: map.get(j), product: w * map.get(j)}))
+      .sort((a, b) => b.product - a.product);
+    return {...doc, terms: e.terms, map, tokens: e.tokens, ids: e.ids, products, score: products.reduce((s, p) => s + p.product, 0)};
+  });
+  const ranks = [...rows].sort((a, b) => b.score - a.score || a.key.localeCompare(b.key));
+  const picks = ranks.filter(r => r.score > 1e-12).slice(0, k);
+  return {method: 'learned', k, query: {...q, map: qmap}, rows, ranks, picks, answer: answerFor(preset, picks)};
+}
+/* ---------- hybrid: fuse the sparse (BM25 or TF-IDF) and the dense ranking ----------
+ * Each retriever returns its own list: the sparse one only the documents that share a term with the
+ * query (score > 0), the dense one all of them. Two ways to fuse:
+ *   rrf:    s(d) = Σ_lists 1 / (RRF_K + rank(d)), RRF_K = 60 (Cormack, Clarke & Büttcher 2009);
+ *           a document missing from a list gets nothing from it.
+ *   convex: s(d) = α ŝ_sparse(d) + (1 − α) ŝ_dense(d), each score min-max normalized over the
+ *           documents (0 for a document the sparse list misses), α = ALPHA. */
+const RRF_K = 60, ALPHA = 0.5;
+function minmax(xs) {
+  const lo = Math.min(...xs), hi = Math.max(...xs);
+  return xs.map(x => (hi > lo ? (x - lo) / (hi - lo) : 0));
+}
+function hybridRetrieve(question, method = 'bm25', presetId = null, k = 2, fusion = 'rrf') {
+  const sparse = retrieve(question, method, DOCS.length, presetId), dense = denseRetrieve(presetId, DOCS.length);
+  if (!dense) return null;
+  const lists = {sparse: sparse.ranks.filter(r => r.score > 1e-12).map(r => r.key), dense: dense.ranks.map(r => r.key)};
+  const raw = {sparse: DOCS.map(d => sparse.rows.find(r => r.key === d.key).score), dense: DOCS.map(d => dense.rows.find(r => r.key === d.key).score)};
+  const norm = {sparse: minmax(raw.sparse), dense: minmax(raw.dense)};
+  const rows = DOCS.map((doc, i) => {
+    const rank = {sparse: lists.sparse.indexOf(doc.key) + 1 || null, dense: lists.dense.indexOf(doc.key) + 1 || null};
+    const part = fusion === 'rrf'
+      ? {sparse: rank.sparse ? 1 / (RRF_K + rank.sparse) : 0, dense: rank.dense ? 1 / (RRF_K + rank.dense) : 0}
+      : {sparse: ALPHA * norm.sparse[i], dense: (1 - ALPHA) * norm.dense[i]};
+    return {...doc, rank, raw: {sparse: raw.sparse[i], dense: raw.dense[i]}, norm: {sparse: norm.sparse[i], dense: norm.dense[i]}, part, score: part.sparse + part.dense};
+  });
+  const ranks = [...rows].sort((a, b) => b.score - a.score || a.key.localeCompare(b.key));
+  const picks = ranks.filter(r => r.score > 1e-12).slice(0, k);
+  const preset = PRESETS.find(p => p.id === presetId && p.question === question);
+  return {method: 'hybrid', fusion, k, sparse, dense, lists, rows, ranks, picks, answer: answerFor(preset, picks)};
+}
+const API = {DOCS, PRESETS, STOP, K1, B, singular, analyze, tokenize, buildIndex, INDEX, weight, docVector, queryVector, dot, retrieve, nonzero, answerFor, DENSE, denseRetrieve, LEARNED, learnedRetrieve, RRF_K, ALPHA, minmax, hybridRetrieve};
+if (typeof module !== 'undefined' && module.exports) module.exports = API;
+root.RLAB = API;
+})(typeof window === 'undefined' ? globalThis : window);

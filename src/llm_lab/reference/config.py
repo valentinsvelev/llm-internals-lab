@@ -202,6 +202,11 @@ DEEPSEEK_V3_2 = ModelConfig(
             normalize=True, scaling=2.5, groups=8, top_groups=4, first_dense=3),
     source='https://huggingface.co/deepseek-ai/DeepSeek-V3.2/blob/main/config.json')
 
+# DeepSeek-R1 is trained from DeepSeek-V3-Base and keeps its architecture: V3.2's numbers without the
+# sparse-attention indexer (V3.2 added it).
+DEEPSEEK_R1 = replace(DEEPSEEK_V3_2, name='DeepSeek-R1', index_heads=0, index_dim=0, index_topk=0,
+                      source='https://huggingface.co/deepseek-ai/DeepSeek-R1/blob/main/config.json')
+
 # Keyed like the explorer's tabs.
 CONFIGS = {'mha': GPT2_SMALL, 'mqa': GEMMA_2B, 'gqa': QWEN2_5_0_5B,
            'mla': DEEPSEEK_V2_LITE, 'gdn': QWEN3_NEXT_80B, 'dsa': DEEPSEEK_V3_2}

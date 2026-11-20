@@ -57,7 +57,7 @@ const LLAMA_TILES = 4;
 /* ---- the resize rules (same as llm_lab/reference/vision.py) ---- */
 function pyRound(x) {           // Python's round(): halves go to the even neighbour
   const f = Math.floor(x), d = x - f;
-  if (Math.abs(d - 0.5) < 1e-9) return f % 2 === 0 ? f : f + 1;
+  if (d === 0.5) return f % 2 === 0 ? f : f + 1;
   return Math.round(x);
 }
 function smartResize(h, w, factor = 32, minPixels = QWEN.minPixels, maxPixels = QWEN.maxPixels) {

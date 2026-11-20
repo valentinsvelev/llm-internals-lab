@@ -5,6 +5,10 @@ Needs Playwright and a Chromium: pip install -e ".[dev]" && python -m playwright
 from __future__ import annotations
 
 import json
+import shutil
+import subprocess
+import tempfile
+from pathlib import Path
 
 import pytest
 from helpers import embedded_specs, embedded_tokens, fake_bundle
@@ -409,9 +413,107 @@ def test_multimodal_page_in_a_real_browser():
                 page.locator('.pages a[data-page="retrieval"]').click()
                 assert page.locator('.page[data-page="retrieval"]').is_visible() and page.locator('#mm').is_hidden()
                 assert page.locator('#retrieval-lab').is_visible()
-                assert page.locator('#retr-flow .retr-stage').count() == 5
+                assert page.locator('#retr-flow .retr-stage').count() == 4
                 page.locator('.pages a[data-page="multimodal"]').click()
                 assert page.locator('#mm-tabs .tab.active').get_attribute('data-k') == 'qwen'
+                assert errors == []
+                page.close()
+        finally:
+            browser.close()
+
+
+def _wav(seconds: float, rate: int = 16000) -> bytes:
+    """A quiet 220 Hz tone as a 16-bit WAV, for the "Your audio…" button."""
+    import io
+    import math
+    import struct
+    import wave
+    buf = io.BytesIO()
+    with wave.open(buf, 'wb') as w:
+        w.setnchannels(1)
+        w.setsampwidth(2)
+        w.setframerate(rate)
+        w.writeframes(b''.join(struct.pack('<h', int(3000 * math.sin(2 * math.pi * 220 * i / rate))) for i in range(int(seconds * rate))))
+    return buf.getvalue()
+
+
+def test_multimodal_modalities_in_a_real_browser():
+    playwright = pytest.importorskip('playwright.sync_api', reason='browser test: pip install -e ".[dev]"')
+    from conftest import launch_chromium
+
+    from llm_lab.reference import audio as A
+    from llm_lab.reference import imagegen as G
+    from llm_lab.reference import speech as SP
+    from llm_lab.reference import video as V
+    expected = {
+        'audio': ('Audio tokens here', [5, 30, 120, 600, 1800], lambda k, v: A.audio_plan(k, v).tokens),
+        'video': ('Video tokens here', [10, 60, 300, 1200], lambda k, v: V.video_plan(k, v).tokens),
+        'speech': ('Codes written', [2, 10, 30, 120], lambda k, v: SP.speech_plan(k, v).codes),
+        'imagegen': ('Tokens written', list(G.EMU3_RATIOS), lambda k, v: G.gen_plan(k, v).steps),
+        'omni': ('Clip tokens', [3, 10, 30], lambda k, v: len(SP.omni_plan(v).order)),
+    }
+    models = {'audio': ['qwen2audio', 'voxtral'], 'video': ['qwen3vl', 'llava_ov'], 'speech': ['qwen3omni', 'moshi'],
+              'imagegen': ['janus', 'emu3'], 'omni': ['omni']}
+    with playwright.sync_playwright() as p:
+        browser = launch_chromium(p)
+        if browser is None:
+            pytest.skip('no Chromium for Playwright: run `python -m playwright install chromium`')
+        try:
+            for width in (1280, 420):
+                page = browser.new_page(viewport={'width': width, 'height': 900})
+                errors = []
+                page.on('pageerror', lambda err, errors=errors: errors.append(str(err)))
+                page.set_content(render_html(), wait_until='load')
+                page.locator('.pages a[data-page="multimodal"]').click()
+                stat = lambda name, page=page: page.locator('#mm-stats div', has_text=name).locator('dd').text_content()  # noqa: E731
+                for mode, (label, values, count) in expected.items():
+                    page.locator(f'#mm-modes button[data-mode="{mode}"]').click()
+                    assert page.locator('#mm-modes button.active').get_attribute('data-mode') == mode
+                    assert page.locator('#mm-tabs .tab').count() == len(models[mode])
+                    for key in models[mode]:
+                        page.locator(f'#mm-tabs .tab[data-k="{key}"]').click()
+                        assert page.locator('#mm-tabs .tab.active').get_attribute('data-k') == key
+                        for i, v in enumerate(values):
+                            page.locator(f'#mm-size button[data-i="{i}"]').click()
+                            assert stat(label) == f'{count(key, v):,}', (mode, key, v)
+                        chips = page.locator('#mm-chips .chipbtn')
+                        assert chips.count() >= 6
+                        for s in range(1, chips.count()):
+                            chips.nth(s).click()
+                            assert page.locator('#mm-card math').count() >= 1, (mode, key, s)
+                            assert page.locator('#mm.focusing [data-h].on').count() >= 1, (mode, key, s)
+                        chips.first.click()
+                        page.locator('#mm [data-pop="step:cost"] .cost-v').first.hover()
+                        assert page.locator('#mm-pop').is_visible()
+                        page.mouse.move(0, 0)
+                        assert page.locator('#mmc rect, #mmc text').count() > 10            # the up-close figure
+                        assert page.locator('#mm-sources li').count() >= 2
+                # your own recording: only its length and waveform are used
+                page.locator('#mm-modes button[data-mode="audio"]').click()
+                page.locator('#mm-tabs .tab[data-k="voxtral"]').click()
+                page.set_input_files('#mm-file', files=[{'name': 'tone.wav', 'mimeType': 'audio/wav', 'buffer': _wav(42.5)}])
+                page.wait_for_function("document.querySelector('#mm-mine').textContent.startsWith('Yours')")
+                assert page.locator('#mm-mine').text_content() == 'Yours · 43 s'
+                assert stat('Audio tokens here') == f'{A.audio_plan("voxtral", 42.5).tokens:,}'
+                # your own video, if ffmpeg can make one: its length and size are used
+                if shutil.which('ffmpeg'):
+                    with tempfile.TemporaryDirectory() as tmp:
+                        clip = Path(tmp) / 'clip.webm'
+                        subprocess.run(['ffmpeg', '-loglevel', 'error', '-f', 'lavfi', '-i', 'testsrc=duration=4:size=320x240:rate=25',
+                                        '-c:v', 'libvpx', '-b:v', '200k', str(clip)], check=True)
+                        page.locator('#mm-modes button[data-mode="video"]').click()
+                        page.locator('#mm-tabs .tab[data-k="qwen3vl"]').click()
+                        page.set_input_files('#mm-file', str(clip))
+                        page.wait_for_function("document.querySelector('#mm-mine').textContent.startsWith('Yours')", timeout=20000)
+                        assert page.locator('#mm-mine').text_content() == 'Yours · 4 s, 320 × 240'
+                        assert stat('Video tokens here') == f'{V.video_plan("qwen3vl", 4, 240, 320).tokens:,}'
+                        assert page.locator('#mm image').count() >= 4                       # its frames, not the drawn example
+                # links into a modality and model
+                page.evaluate("location.hash = '#multimodal/speech/moshi'")
+                page.wait_for_function("document.querySelector('#mm-tabs .tab.active')?.dataset.k === 'moshi'")
+                assert page.locator('#mm-modes button.active').get_attribute('data-mode') == 'speech'
+                page.evaluate("location.hash = '#multimodal/gemma'")              # older links still open the image view
+                page.wait_for_function("document.querySelector('#mm-tabs .tab.active')?.dataset.k === 'gemma'")
                 assert errors == []
                 page.close()
         finally:
